@@ -9,12 +9,25 @@
 </head>
 <body>
     <h2>IS READER</h2>
-    <label class="dividir" for="splitIS"><i class="fa fa-expand" aria-hidden="true"></i>DIVIDIR ARQUIVO IS</label>
-    <input type="file" name="splitIS" id="splitIS" style="display: none;">
-    <label class="analisar" for="analiseIS"><i class="fa fa-search" aria-hidden="true"></i> PRÉ-ANALISAR IS</label>
-    <input type="file" name="analiseIS" id="analiseIS" style="display: none;" disabled>
+    <div>
+        <label class="dividir" for="splitIS"><i class="fa fa-expand" aria-hidden="true"></i>DIVIDIR ARQUIVO IS</label>
+        <input type="file" name="splitIS" id="splitIS" style="display: none;">
+        <div id="splitBtns" class="buttons">
+            <input class="btn confirm" type="button" value="CONFIRMAR">
+            <input class="btn cancel" type="button" value="CANCELAR">
+        </div>
+    </div>
+    <div>
+        <label class="analisar" style="background: gray; color: darkgrey;" for="analiseIS"><i class="fa fa-search" aria-hidden="true"></i> PRÉ-ANALISAR IS</label>
+        <input type="file" name="analiseIS" id="analiseIS" style="display: none;" disabled>
+        <div id="analiseBtns" class="buttons">
+            <input class="btn" type="button" value="CONFIRMAR">
+            <input class="btn" type="button" value="CANCELAR">
+        </div>
+    </div>
     <footer>
 
     </footer>
+    <script src="../js/script.js"></script>
 </body>
 </html>

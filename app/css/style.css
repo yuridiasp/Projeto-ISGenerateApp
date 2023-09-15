@@ -14,6 +14,11 @@ body {
     align-items: center;
 }
 
+h2, label {
+    font-size: 2vw;
+    cursor: default;
+}
+
 label {
     display: flex;
     justify-content: center;
@@ -27,4 +32,53 @@ label {
     margin: 1em;
     font-weight: bold;
     gap: 0.5em;
+}
+
+label:hover, .btn:hover {
+    filter: brightness(1.5);
+}
+
+.buttons {
+    display: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 1vw;
+}
+
+.aparecer {
+    display: flex;
+    animation-name: showAnimation;
+    animation-duration: 500ms;
+}
+
+@keyframes showAnimation {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.btn {
+    width: 14.5vw;
+    height: 10vh;
+    border-radius: 0.5em;
+}
+
+label:active, .btn:active {
+    filter: brightness(0.8)
+}
+
+.confirm {
+    background: rgb(84, 196, 84);
+    border: 0.1em solid rgb(23, 97, 23);
+    color: rgb(23, 97, 23);
+}
+
+.cancel {
+    background: rgb(214, 101, 124);
+    border: 0.1em solid rgb(121, 11, 33);
+    color: rgb(121, 11, 33);
 }

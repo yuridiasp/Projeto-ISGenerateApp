@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
+const analiseIS = require('./file')
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -7,9 +8,11 @@ const createWindow = () => {
         height: 600
     })
     const page = path.resolve(__dirname,'app','page','index.html')
-    console.log(page)
+    
     win.loadFile(page)
 }
+
+// analiseIS.run(endereço, fileName)
 
 app.whenReady().then(() => {
     createWindow()

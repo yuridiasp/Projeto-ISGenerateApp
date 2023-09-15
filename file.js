@@ -11,7 +11,8 @@ function isTrab (is) {
     return (is.includes('TRIBUNAL REGIONAL DO TRABALHO'))
 }
 
-(async () => {
+function initAndSetIs(lista) {
+
     const htmlI = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head>
     <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
     <meta name="ProgId" content="Word.Document">
@@ -98,14 +99,9 @@ function isTrab (is) {
     <div class="Section1">`
     const htmlF = `</div>
     </body></html>`
-    const data = fs.readFileSync(path.resolve(__dirname,'47W.doc'),{encoding:'latin1', flag:'r'})
-    const doc = new jsdom.JSDOM(data)
-    const lista = doc.window.document.querySelectorAll("body > div > p")
-    
-    let prev = '', civ = '', trab = ''
-    prev += htmlI
-    civ += htmlI
-    trab += htmlI
+
+    let prev = htmlI, civ = htmlI, trab = htmlI
+
     for (let index = 1; index < lista.length; index++) {
         const table = lista[index].querySelector("table")
         
@@ -126,11 +122,23 @@ function isTrab (is) {
                 }
             }
         }
-
     }
+
     prev += htmlF
     civ += htmlF
     trab += htmlF
+
+    return { prev, trab, civ }
+}
+
+async function run (endereço, fileName) {
+    
+    const data = fs.readFileSync(path.resolve(endereço, fileName),{encoding:'latin1', flag:'r'})
+    const doc = new jsdom.JSDOM(data)
+    const lista = doc.window.document.querySelectorAll("body > div > p")
+    
+    let { prev, trab, civ } = initAndSetIs(lista)
+    
     let result = [], promises = []
     const documentOptions = {
         margin: {top: 250, right: 250, bottom: 250, left: 250},
@@ -162,7 +170,7 @@ function isTrab (is) {
     )
     
     results.forEach(e => {
-        const filePath = path.resolve(__dirname, e.fileName +'.docx')
+        const filePath = path.resolve(endereço, e.fileName +'.docx')
 
         fs.writeFile(filePath, e.result, (error) => {
             if (error) {
@@ -172,4 +180,8 @@ function isTrab (is) {
             console.log('File ' + e.fileName +'.docx created successfully')
         })
     })
-})()
+}
+
+module.exports = {
+    run
+}
