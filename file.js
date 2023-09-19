@@ -131,35 +131,46 @@ function initAndSetIs(lista) {
     return { prev, trab, civ }
 }
 
-async function run (endereço, fileName) {
-    
-    const data = fs.readFileSync(path.resolve(endereço, fileName),{encoding:'latin1', flag:'r'})
+async function run (endereco, fileName) {
+    console.log('Processo de extracao iniciado...')
+    const caminho = path.resolve(endereco.replaceAll("\\" + fileName,""))
+    console.log(`Caminho: ${caminho}`)
+    const data = fs.readFileSync(endereco, {encoding:'latin1', flag:'r'})
+    console.log(`Realizado leitura do arquivo ${fileName} no caminho ${endereco}...`)
     const doc = new jsdom.JSDOM(data)
+    console.log("Convertido binarios em documento html...")
     const lista = doc.window.document.querySelectorAll("body > div > p")
+    let concluido = null
     
     let { prev, trab, civ } = initAndSetIs(lista)
     
     let result = [], promises = []
+    console.log('Inicializado variaveis...')
+    
     const documentOptions = {
         margin: {top: 250, right: 250, bottom: 250, left: 250},
         table: {row: {cantSplit: false}},
         pageNumber: true,
         decodeUnicode: true
     }
+
     if (prev.length > 0) {
         let obj = {fileName: 'PREV', fileBuffer: HTMLtoDOCX(prev, null, documentOptions)}
         result.push(obj)
         promises.push(obj.fileBuffer)
+        console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (civ.length > 0) {
         let obj = {fileName: 'CIV', fileBuffer: HTMLtoDOCX(civ, null, documentOptions)}
         result.push(obj)
         promises.push(obj.fileBuffer)
+        console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (trab.length > 0) {
         let obj = {fileName: 'TRT', fileBuffer: HTMLtoDOCX(trab, null, documentOptions)}
         result.push(obj)
         promises.push(obj.fileBuffer)
+        console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
 
     const results = await Promise.all(
@@ -170,16 +181,18 @@ async function run (endereço, fileName) {
     )
     
     results.forEach(e => {
-        const filePath = path.resolve(endereço, e.fileName +'.docx')
-
+        const filePath = path.resolve(endereco.replaceAll("\\" + fileName,""), e.fileName +'.docx')
+        console.log(`Iniciando escrita do arquivo ${e.fileName} no caminho ${filePath}`)
         fs.writeFile(filePath, e.result, (error) => {
             if (error) {
                 console.log('File ' + e.fileName +'.docx creation failed')
-                return
+                console.log("Erro:" + error)
             }
             console.log('File ' + e.fileName +'.docx created successfully')
+            concluido = true
         })
     })
+    return concluido
 }
 
 module.exports = {
