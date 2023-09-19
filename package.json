@@ -1,5 +1,5 @@
 {
-  "name": "projeto-isgenerateapp",
+  "name": "IS G&A",
   "version": "1.0.0",
   "description": "Aplicação desenvolvida para automação de separação das intimações provenientes de IS, gerando arquivos individuais de IS's cívil, trabalhista e previdenciária.",
   "main": "app.js",

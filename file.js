@@ -4,7 +4,25 @@ const jsdom = require("jsdom")
 const HTMLtoDOCX = require('html-to-docx')
 
 function isPrev (is) {
-    return ((is.includes('INSS') || is.includes('I N S S') || is.includes('INSTITUTO NACIONAL DE SEGURO SOCIAL')) && !is.includes('TRIBUNAL REGIONAL DO TRABALHO'))
+    const termos = [
+        ': INSS',
+        'ADO - INSS',
+        'ANTE - INSS',
+        ': I N S S',
+        'ADO - I N S S',
+        'ANTE - I N S S',
+        ': INSTITUTO NACIONAL DE SEGURO SOCIAL',
+        'ADO - INSTITUTO NACIONAL DE SEGURO SOCIAL',
+        'ANTE - INSTITUTO NACIONAL DE SEGURO SOCIAL',
+        ': INSTITUTO NACIONAL DO SEGURO SOCIAL',
+        'ADO - INSTITUTO NACIONAL DO SEGURO SOCIAL',
+        'ANTE - INSTITUTO NACIONAL DO SEGURO SOCIAL',
+        ': INSTITUTO NACIONAL DE SEGURIDADE SOCIAL',
+        'ADO - INSTITUTO NACIONAL DE SEGURIDADE SOCIAL',
+        'ANTE - INSTITUTO NACIONAL DE SEGURIDADE SOCIAL',
+    ]
+
+    return termos.some(termo => is.includes(termo))
 }
 
 function isTrab (is) {
@@ -112,11 +130,11 @@ function initAndSetIs(lista) {
         
         if (table) {
             const html = table.innerHTML
-            if (isPrev(html)) {
-                prev += `<table>${table.innerHTML}</table><p></p><p></p>`
+            if (isTrab(html)) {
+                trab += `<table>${table.innerHTML}</table><p></p><p></p>`
             } else {
-                if (isTrab(html)) {
-                    trab += `<table>${table.innerHTML}</table><p></p><p></p>`
+                if (isPrev(html)) {
+                    prev += `<table>${table.innerHTML}</table><p></p><p></p>`
                 } else {
                     civ += `<table>${table.innerHTML}</table><p></p><p></p>`
                 }

@@ -48,19 +48,14 @@ ipcMain.handle('split-is', async (event, args) => {
     if (endereco && fileName) {
         try {
             let obj = {msg: 'Arquivos gerados com sucesso! Acesse a pasta do arquivo original.',value: await analiseIS.run(endereco, fileName)}
-            console.log(obj)
-            console.log("main: "+Date.now())
             return obj
         } catch (error) {
             let obj = {msg: 'Erro! ' + error, value: false}
-            console.log(obj)
-            console.log("main: "+Date.now())
             return obj
         }
     }
     else {
         let obj = {msg: 'Erro! Nome ou caminho do arquivo não encontrados.', value: false}
-        console.log("main: "+Date.now())
         return obj
     }
 })
