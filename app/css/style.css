@@ -119,3 +119,39 @@ label:active, .btn:active {
     padding: 1vh 10vw;
     font-weight: bold;
 }
+
+.c-loader {
+    position: absolute;
+    animation: is-rotating 1s infinite;
+    border: 1em solid #c4c4c4;
+    border-radius: 50%;
+    border-top-color: #51d4db;
+    height: 50vh;
+    width: 50vh;
+    transition: 500ms;
+}
+
+.content {
+    text-align: center;
+    transform: scale(1);
+    filter: opacity(1);
+    transition: 500ms;
+}
+
+.hidder{
+    transform: scale(0.5);
+    filter: opacity(0);
+    transition: 500ms;
+}
+
+@keyframes is-rotating {
+    0% {
+        transform: rotate(0) scale(1);
+    }
+    50% {
+        transform: rotate(360deg) scale(0.75);
+    }
+    100% {
+        transform: rotate(720deg) scale(1);
+    }
+}

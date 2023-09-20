@@ -8,30 +8,33 @@
     <title>ISGeA</title>
 </head>
 <body>
-    <img id="logo" src="../../assets/logo.png" alt="" srcset="">
-    <div>
-        <form id="formSplit" action="">
-            <label class="dividir" for="splitIS"><i class="fa fa-expand" aria-hidden="true"></i>DIVIDIR ARQUIVO IS</label>
-            <input type="file" name="splitIS" id="splitIS" style="display: none;">
-            <div id="splitBtns" class="buttons">
-                <input id="btnConfirmSplit" class="btn confirm" type="button" value="CONFIRMAR">
-                <input id="btnCancelSplit" class="btn cancel" type="reset" value="CANCELAR">
-            </div>
-        </form>
+    <div id="loader" class=""></div>
+    <div class="content">
+        <img id="logo" src="../../assets/logo.png" alt="" srcset="">
+        <div>
+            <form id="formSplit" action="">
+                <label class="dividir" for="splitIS"><i class="fa fa-expand" aria-hidden="true"></i>DIVIDIR ARQUIVO IS</label>
+                <input type="file" name="splitIS" id="splitIS" style="display: none;">
+                <div id="splitBtns" class="buttons">
+                    <input id="btnConfirmSplit" class="btn confirm" type="button" value="CONFIRMAR">
+                    <input id="btnCancelSplit" class="btn cancel" type="reset" value="CANCELAR">
+                </div>
+            </form>
+        </div>
+        <div>
+            <form id="formAnalise" action="">
+                <label class="analisar" style="background: gray; color: darkgrey;" for="analiseIS"><i class="fa fa-search" aria-hidden="true"></i> PRÉ-ANALISAR IS</label>
+                <input type="file" name="analiseIS" id="analiseIS" style="display: none;" disabled>
+                <div id="analiseBtns" class="buttons">
+                    <input class="btn" type="button" value="CONFIRMAR">
+                    <input class="btn" type="reset" value="CANCELAR">
+                </div>
+            </form>
+        </div>
+        <footer>
+    
+        </footer>
     </div>
-    <div>
-        <form id="formAnalise" action="">
-            <label class="analisar" style="background: gray; color: darkgrey;" for="analiseIS"><i class="fa fa-search" aria-hidden="true"></i> PRÉ-ANALISAR IS</label>
-            <input type="file" name="analiseIS" id="analiseIS" style="display: none;" disabled>
-            <div id="analiseBtns" class="buttons">
-                <input class="btn" type="button" value="CONFIRMAR">
-                <input class="btn" type="reset" value="CANCELAR">
-            </div>
-        </form>
-    </div>
-    <footer>
-
-    </footer>
     <script type="module" src="../js/renderer.js"></script>
 </body>
 </html>

@@ -159,7 +159,7 @@ async function run (endereco, fileName) {
     console.log("Convertido binarios em documento html...")
     const lista = doc.window.document.querySelectorAll("body > div > p")
     let concluido = null
-    
+    const date = doc.window.document.querySelector("body > div > p:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2)").innerHTML.replace('Data Publicação:\n<br><strong>','').replace('</strong>','').replaceAll('/','')
     let { prev, trab, civ } = initAndSetIs(lista)
     
     let result = [], promises = []
@@ -173,19 +173,19 @@ async function run (endereco, fileName) {
     }
 
     if (prev.length > 0) {
-        let obj = {fileName: 'PREV', fileBuffer: HTMLtoDOCX(prev, null, documentOptions)}
+        let obj = {fileName: `PREV${date}`, fileBuffer: HTMLtoDOCX(prev, null, documentOptions)}
         result.push(obj)
         promises.push(obj.fileBuffer)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (civ.length > 0) {
-        let obj = {fileName: 'CIV', fileBuffer: HTMLtoDOCX(civ, null, documentOptions)}
+        let obj = {fileName: `CIV${date}`, fileBuffer: HTMLtoDOCX(civ, null, documentOptions)}
         result.push(obj)
         promises.push(obj.fileBuffer)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (trab.length > 0) {
-        let obj = {fileName: 'TRT', fileBuffer: HTMLtoDOCX(trab, null, documentOptions)}
+        let obj = {fileName: `TRT${date}`, fileBuffer: HTMLtoDOCX(trab, null, documentOptions)}
         result.push(obj)
         promises.push(obj.fileBuffer)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
