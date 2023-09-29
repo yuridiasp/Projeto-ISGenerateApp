@@ -173,19 +173,19 @@ async function run (endereco, fileName) {
     }
 
     if (prev.length > 0) {
-        let obj = {fileName: `PREV${date}`, fileBuffer: HTMLtoDOCX(prev, null, documentOptions)}
+        let obj = {fileName: `PREV ${date}`, fileBuffer: HTMLtoDOCX(prev, null, documentOptions)}
         result.push(obj)
         promises.push(obj.fileBuffer)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (civ.length > 0) {
-        let obj = {fileName: `CIV${date}`, fileBuffer: HTMLtoDOCX(civ, null, documentOptions)}
+        let obj = {fileName: `CIV ${date}`, fileBuffer: HTMLtoDOCX(civ, null, documentOptions)}
         result.push(obj)
         promises.push(obj.fileBuffer)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (trab.length > 0) {
-        let obj = {fileName: `TRT${date}`, fileBuffer: HTMLtoDOCX(trab, null, documentOptions)}
+        let obj = {fileName: `TRT ${date}`, fileBuffer: HTMLtoDOCX(trab, null, documentOptions)}
         result.push(obj)
         promises.push(obj.fileBuffer)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
