@@ -20,6 +20,10 @@ function isPrev (is) {
         ': INSTITUTO NACIONAL DE SEGURIDADE SOCIAL',
         'ADO - INSTITUTO NACIONAL DE SEGURIDADE SOCIAL',
         'ANTE - INSTITUTO NACIONAL DE SEGURIDADE SOCIAL',
+        ': I.N.D.S.S',
+        'IDO - I.N.D.S.S',
+        'ADO - I.N.D.S.S',
+        'ANTE - I.N.D.S.S',
     ]
 
     return termos.some(termo => is.includes(termo))
