@@ -31,7 +31,7 @@ label {
     height: 20vh;
     margin: 1em;
     font-weight: bold;
-    gap: 1vw;
+    gap: 3vw;
 }
 
 label:hover, .btn:hover {

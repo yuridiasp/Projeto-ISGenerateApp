@@ -122,7 +122,7 @@ function initAndSetIs(lista) {
     const htmlF = `</div>
     </body></html>`
 
-    let prev = htmlI, civ = htmlI, trab = htmlI
+    let prev = [], civ = [], trab = []
 
     for (let index = 1; index < lista.length; index++) {
         const table = lista[index].querySelector("table")
@@ -135,25 +135,39 @@ function initAndSetIs(lista) {
         if (table) {
             const html = table.innerHTML
             if (isTrab(html)) {
-                trab += `<table>${table.innerHTML}</table><p></p><p></p>`
+                trab.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
             } else {
                 if (isPrev(html)) {
-                    prev += `<table>${table.innerHTML}</table><p></p><p></p>`
+                    prev.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
                 } else {
-                    civ += `<table>${table.innerHTML}</table><p></p><p></p>`
+                    civ.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
                 }
             }
         }
     }
 
-    prev += htmlF
-    civ += htmlF
-    trab += htmlF
+    if (prev.length) {
+        prev.unshift(htmlI)
+        prev.push(htmlF)
+        prev = prev.join()
+    }
+
+    if (civ.length) {
+        civ.unshift(htmlI)
+        civ.push(htmlF)
+        civ = civ.join()
+    }
+
+    if (trab.length) {
+        trab.unshift(htmlI)
+        trab.push(htmlF)
+        trab = trab.join()
+    }
 
     return { prev, trab, civ }
 }
 
-async function run (endereco, fileName) {
+async function splitIS (endereco, fileName) {
     console.log('Processo de extracao iniciado...')
     const caminho = path.resolve(endereco.replaceAll("\\" + fileName,""))
     console.log(`Caminho: ${caminho}`)
@@ -217,6 +231,4 @@ async function run (endereco, fileName) {
     return concluido
 }
 
-module.exports = {
-    run
-}
+module.exports = splitIS

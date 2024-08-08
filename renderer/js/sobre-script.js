@@ -8,7 +8,7 @@ const fecharSobreBtn = document.querySelector('#fecharSobre')
 
 async function setHtmlText() {
     const { nomeapp, autor, nodejs, version, electronjs, github } = await window.api.getVersions()
-
+    debugger
     nomeAppSpan.forEach(e => {
         e.innerText = nomeapp
     })

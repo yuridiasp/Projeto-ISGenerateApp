@@ -2,17 +2,18 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('api', {
     splitFileIs: async args => {
-        const result = await ipcRenderer.invoke('split-is', args)
-        return result
+        return await ipcRenderer.invoke('split-is', args)
     },
     getVersions: async () => {
-        const result = await ipcRenderer.invoke('get-versions')
-        return result
+        return await ipcRenderer.invoke('get-versions')
     },
     fecharJanelaSobre: () => {
         ipcRenderer.send('fechar-janela-sobre')
     },
     openGithub: () => {
         ipcRenderer.send('open-github')
+    },
+    intimationValidate: async args => {
+        return await ipcRenderer.invoke('intimation-validate', args)
     }
 })
