@@ -31,6 +31,8 @@ async function getObjectISService ({ endereco, fileName }) {
 function getObjectValidateIntimationsService({ endereco }) {
     
     let obj = null
+
+    const condiction = true
     
     if (endereco) {
         try {
