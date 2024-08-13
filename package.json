@@ -18,7 +18,7 @@
     "html-to-docx": "^1.8.0",
     "mammoth": "^1.6.0",
     "officegen": "^0.6.5",
-    "pdf-lib": "^1.17.1",
+    "pdf2json": "^3.1.4",
     "pizzip": "^3.1.4",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },

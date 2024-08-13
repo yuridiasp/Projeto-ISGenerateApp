@@ -6,7 +6,6 @@ const createWindow = require('../utils/createWindow')
 const { getCookieLoginSistemFR } = require('./loginSistemFR')
 const { getCompromissosProcesso } = require('./compromissosSistemFR')
 const { readExcelFile, writeExcelFile } = require('../utils/excelISFile')
-const { readPDFFile } = require('../utils/pdfISFile')
 
 function getDadosService () {
     return dados
