@@ -1,7 +1,7 @@
 const createApp = require("./app")
 
 const { createMainWindowController } = require("./controllers/controllers")
-const setHandlers = require("./handlers/ipcHandlers")
+const setHandlers = require("./channels/ipcHandlers")
 
 const windows = {
     mainWindow: null,

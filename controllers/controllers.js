@@ -47,7 +47,7 @@ function getIntimations(args) {
     return getObjectValidateIntimationsService(args)
 }
 
-async function intimationsHandleController(event, args) {
+async function intimationsHandleController(event, args, windows) {
     const cookie = await getCookieLoginController()
     const resultado = []
     
@@ -60,14 +60,25 @@ async function intimationsHandleController(event, args) {
     }
 
     intimations.forEach(intimation => {
-        const response = intimationValidateController(intimation, cookie)
+        const response = intimationValidateController(intimation, cookie).then(result => {
+            updateView(result, windows)
+            return result
+        })
 
         resultado.push(response)
     })
 
     const validations = await Promise.all(resultado)
-
+    enableButtonCloseReport(windows)
     return writeExcelFile(validations, args)
+}
+
+function enableButtonCloseReport(windows) {
+    windows.mainWindow.webContents.send('enable-button-close-report')
+}
+
+function updateView(data, windows) {
+    windows.mainWindow.webContents.send('update-view-report-validation', data)
 }
 
 module.exports = {

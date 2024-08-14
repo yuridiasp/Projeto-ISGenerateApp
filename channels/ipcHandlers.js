@@ -4,7 +4,7 @@ const { splitISController, githubController, getVersionsController, closeSobreWi
 
 async function setHandlers (windows) {
 
-    ipcMain.handle('intimation-validate', intimationsHandleController)
+    ipcMain.handle('intimation-validate', (event, args) => intimationsHandleController(event, args, windows))
     
     ipcMain.handle('split-is', splitISController)
     
