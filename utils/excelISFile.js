@@ -9,31 +9,26 @@ function readExcelFile(endereco) {
     const worksheet = workbook.Sheets[sheetName]
     
     const data = XLSX.utils.sheet_to_json(worksheet)
-    console.log(data);
     
     return data
 }
 
-function writeExcelFile(validations, { endereco, fileName  }) {
-    const notRegisteredIntimations = validations.filter(validation => !validation.isRegistered)
+function writeExcelFile({ data, filePath: { endereco, fileName  }, sheetName, prefix = ''}) {
 
-    if (notRegisteredIntimations.length) {
-        const newFilePath = createNewFilePath(endereco, 'RELATORIO-REGISTRO-INTIMACAO-' + fileName)
+    if (data.length) {
+        const newFilePath = createNewFilePath(endereco, prefix + fileName)
 
-        const worksheet = XLSX.utils.json_to_sheet(notRegisteredIntimations)
+        const worksheet = XLSX.utils.json_to_sheet(data)
     
         const workbook = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Relatório")
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
     
         XLSX.writeFile(workbook, newFilePath)
 
-        const pluralOrSingularForIntimacao = notRegisteredIntimations.length > 1 ? 'intimações' : 'intimação'
-
-        return `Encontrado ${notRegisteredIntimations.length} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${newFilePath}`
+        return [ true, newFilePath ]
     }
 
-    return 'Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.'
-
+    return [ false, null ]
 }
 
 module.exports = { readExcelFile, writeExcelFile }

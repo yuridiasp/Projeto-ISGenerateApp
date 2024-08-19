@@ -16,11 +16,11 @@
     "dotenv": "^16.3.1",
     "electron-squirrel-startup": "^1.0.0",
     "html-to-docx": "^1.8.0",
-    "mammoth": "^1.6.0",
     "officegen": "^0.6.5",
     "pdf2json": "^3.1.4",
     "pizzip": "^3.1.4",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "jsdom": "^24.1.1"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.4.2",
@@ -29,7 +29,6 @@
     "@electron-forge/maker-squirrel": "^6.4.2",
     "@electron-forge/maker-zip": "^6.4.2",
     "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
-    "electron": "^26.2.1",
-    "jsdom": "^24.1.1"
+    "electron": "^26.2.1"
   }
 }

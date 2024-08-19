@@ -149,25 +149,25 @@ function initAndSetIs(lista) {
     if (prev.length) {
         prev.unshift(htmlI)
         prev.push(htmlF)
-        prev = prev.join()
+        prev = prev.join('')
     }
 
     if (civ.length) {
         civ.unshift(htmlI)
         civ.push(htmlF)
-        civ = civ.join()
+        civ = civ.join('')
     }
 
     if (trab.length) {
         trab.unshift(htmlI)
         trab.push(htmlF)
-        trab = trab.join()
+        trab = trab.join('')
     }
 
     return { prev, trab, civ }
 }
 
-async function splitIS (endereco, fileName) {
+async function splitISToWord (endereco, fileName) {
     console.log('Processo de extracao iniciado...')
     const caminho = path.resolve(endereco.replaceAll("\\" + fileName,""))
     console.log(`Caminho: ${caminho}`)
@@ -231,4 +231,4 @@ async function splitIS (endereco, fileName) {
     return concluido
 }
 
-module.exports = splitIS
+module.exports = splitISToWord

@@ -68,9 +68,18 @@ async function intimationsHandleController(event, args, windows) {
         resultado.push(response)
     })
 
-    const validations = await Promise.all(resultado)
+    const validations = await Promise.all(resultado).then(intimationsValidated => intimationsValidated.filter(intimation => !intimation.isRegistered))
     enableButtonCloseReport(windows)
-    return writeExcelFile(validations, args)
+
+    const [ result, newFilePath ] = writeExcelFile({ data: validations, filePath: args, prefix: 'RELATORIO-REGISTRO-INTIMACAO-', sheetName: "Relatório" })
+    
+    if (result) {
+        const pluralOrSingularForIntimacao = validations.length > 1 ? 'intimações' : 'intimação'
+        
+        return `Encontrado ${validations.length} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${newFilePath}`
+    }
+
+    return 'Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.'
 }
 
 function enableButtonCloseReport(windows) {

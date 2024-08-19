@@ -37,9 +37,10 @@ async function getCadastroProcesso(processo, cookie) {
     return 'process'
 }
 
-async function getCompromissosProcesso({ processo, description, publicacao, expediente }, cookie) {
+async function getCompromissosProcesso({ processo, case_number, description, publicacao, publication_date, expediente }, cookie) {
+    const processValue = processo || case_number
     let isRegistered = false, reason = ''
-    const dataCadastro = publicacao || expediente.split(' ')[0]
+    const dataCadastro = publicacao || publication_date || expediente.split(' ')[0]
     const { URL_COMPROMISSOS_SISTEMFR } = process.env
     const body = {
         bsAdvCompromissos: 's',
@@ -50,7 +51,7 @@ async function getCompromissosProcesso({ processo, description, publicacao, expe
         bsAdvCompromissosStatus: '',
         bsAdvCompromissosResponsavel: '',
         bsAdvCompromissosCliente: '',
-        bsAdvCompromissosProcesso: processo,
+        bsAdvCompromissosProcesso: processValue,
         bsAdvCompromissosINSS: '',
         filtrar: 'Filtrar'
     }
@@ -84,10 +85,10 @@ async function getCompromissosProcesso({ processo, description, publicacao, expe
         if (!isRegistered)
             reason = 'publication'
     } else {
-        reason = await getCadastroProcesso(processo, cookie)
+        reason = await getCadastroProcesso(processValue, cookie)
     }
     
-    return { processo, description, publicacao: dataCadastro, isRegistered, reason }
+    return { processo: processValue, description, publicacao: dataCadastro, isRegistered, reason }
 
 }
 

@@ -1,7 +1,7 @@
 const { shell} = require('electron')
 
 const dados = require("../utils/dados")
-const splitIS = require('../utils/fileHandler')
+const splitIS = require('./fileHandlerExcel')
 const createWindow = require('../utils/createWindow')
 const { getCookieLoginSistemFR } = require('./loginSistemFR')
 const { getCompromissosProcesso } = require('./compromissosSistemFR')

@@ -2,6 +2,10 @@ const splitISInput = document.querySelector('#splitIS')
 const buttonsDivSplit = document.querySelector('#splitBtns')
 const btnConfirmSplit = document.querySelector('#btnConfirmSplit')
 const btnCancelSplit = document.querySelector('#btnCancelSplit')
+const registrationISInput = document.querySelector('#registrationIS')
+const buttonsDivRegistrationIS = document.querySelector('#registrationISBtns')
+const btnConfirmRegistrationIS = document.querySelector('#btnConfirmregistrationIS')
+const btnCancelRegistrationIS = document.querySelector('#btnCancelregistrationIS')
 const validateIntimationsInput = document.querySelector('#validateIntimationsIS')
 const buttonsDivValidateIntimations = document.querySelector('#validateIntimationsBtns')
 const btnConfirmValidateIntimations = document.querySelector('#btnConfirmValidateIntimations')
@@ -25,16 +29,17 @@ function setReportFilePath(filePath) {
     filePathTitle.innerHTML = filePath
 }
 
-function insertReportValidation({ processo, publicacao, isRegistered, reason = '' }) {
-    console.log(reason);
+function insertReportValidation({ processo, case_number, publicacao, publication_date, isRegistered, reason = '' }) {
+    const processValue = processo || case_number
+    const publicationValue = publicacao || publication_date
     const resultClass = isRegistered ? 'success' : 'error'
     const resultIcon = isRegistered ? 'check' : 'times'
 
     reportContent.innerHTML += `
         <div class="content-validation-result ${resultClass} ${reason}">
             <i class="fa fa-${resultIcon}" aria-hidden="true"></i>
-            <span id="process-report">${processo.replace("'", "")}</span>
-            <span id="publication-report">${publicacao}</span>
+            <span id="process-report">${processValue.replace("'", "")}</span>
+            <span id="publication-report">${publicationValue}</span>
         </div>
     `
 }
@@ -118,7 +123,44 @@ btnConfirmSplit.addEventListener('click', async () => {
 
 btnCancelSplit.addEventListener('click', () => {
     buttonsDivSplit.classList.remove('aparecer')
-});
+})
+
+registrationISInput.addEventListener('change', event => {
+    const { name, path, size, type } = event.target.files[0]
+
+    argsSplit = { 
+        fileName: name,
+        endereco: path,
+        tamanho: size,
+        tipo: type
+    }
+
+    buttonsDivRegistrationIS.classList.add('aparecer')
+})
+
+btnConfirmRegistrationIS.addEventListener('click', async () => {
+    showLoader()
+    if (registrationISInput.files.length > 0) {
+        let result = await window.api.splitFileIs(argsSplit)
+
+        const { msg, value } = result
+        if (value) {
+            console.log('Sucesso')
+        } else {
+            console.log('Erro')
+        }
+        alert(msg)
+    }
+    else {
+        alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
+    }
+    hiddeLoader()
+    btnCancelRegistrationIS.click()
+})
+
+btnCancelRegistrationIS.addEventListener('click', () => {
+    buttonsDivRegistrationIS.classList.remove('aparecer')
+})
 
 validateIntimationsInput.addEventListener('change', event => {
     const { name, path, size, type } = event.target.files[0]
@@ -137,6 +179,8 @@ btnConfirmValidateIntimations.addEventListener('click', async () => {
     hiddeContent()
     showLoader()
     if (validateIntimationsInput.files.length > 0) {
+        console.log(argsValidate)
+        
         let result = await window.api.intimationValidate(argsValidate)
         
         if (result) {
