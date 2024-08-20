@@ -9,7 +9,7 @@ const {
     getCookieLoginService,
     getObjectValidateIntimationsService,
 } = require('../services/services')
-const { writeExcelFile } = require('../utils/excelISFile')
+const { writeExcelFile } = require('../utils/xlsx/excelISFile')
 
 function createSobreWindowController (window) {
     createSobreWindowService(window)
@@ -47,6 +47,31 @@ function getIntimations(args) {
     return getObjectValidateIntimationsService(args)
 }
 
+async function intimationsRegisterController(event, args, windows) {
+    console.log('Realizando login...')
+    
+    const cookie = await getCookieLoginController()
+
+    if (cookie) {
+        console.log('Login realizado!')
+
+        const resultado = []
+
+        const { msg, value: intimations } = getIntimations(args)
+
+        if (!intimations) {
+            throw new Error(msg)
+        } else {
+            console.log(msg)
+        }
+
+        return 'Sucesso!'
+    } else {
+        console.log('Falha no login!')
+        return 'Falha!'
+    }
+}
+
 async function intimationsHandleController(event, args, windows) {
     const cookie = await getCookieLoginController()
     const resultado = []
@@ -61,7 +86,7 @@ async function intimationsHandleController(event, args, windows) {
 
     intimations.forEach(intimation => {
         const response = intimationValidateController(intimation, cookie).then(result => {
-            updateView(result, windows)
+            updateViewReportValidation(result, windows)
             return result
         })
 
@@ -86,7 +111,7 @@ function enableButtonCloseReport(windows) {
     windows.mainWindow.webContents.send('enable-button-close-report')
 }
 
-function updateView(data, windows) {
+function updateViewReportValidation(data, windows) {
     windows.mainWindow.webContents.send('update-view-report-validation', data)
 }
 
@@ -100,4 +125,5 @@ module.exports = {
     intimationValidateController,
     getCookieLoginController,
     intimationsHandleController,
+    intimationsRegisterController
 }

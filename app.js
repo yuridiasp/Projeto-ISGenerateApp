@@ -1,7 +1,7 @@
 const { app } = require('electron')
 
 const handleSquirrelEvent = require('./handleSquirrel');
-const configMenu = require('./utils/menu');
+const configMenu = require('./utils/menu/menu');
 
 function createApp(window) {
     // this should be placed at top of main.js to handle setup events quickly

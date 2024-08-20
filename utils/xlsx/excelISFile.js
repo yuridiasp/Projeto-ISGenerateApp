@@ -1,5 +1,5 @@
 const XLSX = require('xlsx')
-const { createNewFilePath } = require('./directory')
+const { createNewFilePath } = require('../directory/directory')
 
 function readExcelFile(endereco) {
     

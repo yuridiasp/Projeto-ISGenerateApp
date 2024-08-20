@@ -7,13 +7,13 @@ const createWindow = (width = 400, height = 600,  webPreference = {}, props = {}
         height: height,
         icon: path.join(__dirname,'icon', 'icon.ico'),
         webPreferences: {
-            preload: path.join(__dirname, '..', 'preload.js'),
+            preload: path.join(__dirname, '..', '..', 'preload.js'),
             ...webPreference
         },
         ...props
     })
     
-    win.loadFile(path.resolve(__dirname, '..', 'renderer', 'page', pageHtmlFilename))
+    win.loadFile(path.resolve(__dirname, '..', '..', 'renderer', 'page', pageHtmlFilename))
     return win
 }
 

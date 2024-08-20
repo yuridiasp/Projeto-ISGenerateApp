@@ -15,7 +15,7 @@ const content = document.querySelector('.content')
 const reportContainer = document.querySelector("#report-container")
 const reportContent = document.querySelector("#report-content")
 const closeReportButton = document.querySelector('#closeReport')
-let argsSplit = {}, argsValidate = {}
+let argsSplit = {}, argsValidate = {}, argsRegister = {}
 
 function setReportFileName (fileName) {
     const fileNameTitle = document.querySelector("#fileName")
@@ -128,7 +128,7 @@ btnCancelSplit.addEventListener('click', () => {
 registrationISInput.addEventListener('change', event => {
     const { name, path, size, type } = event.target.files[0]
 
-    argsSplit = { 
+    argsRegister = { 
         fileName: name,
         endereco: path,
         tamanho: size,
@@ -141,15 +141,14 @@ registrationISInput.addEventListener('change', event => {
 btnConfirmRegistrationIS.addEventListener('click', async () => {
     showLoader()
     if (registrationISInput.files.length > 0) {
-        let result = await window.api.splitFileIs(argsSplit)
+        const result = await window.api.intimationRegister(argsRegister)
 
-        const { msg, value } = result
-        if (value) {
+        if (result) {
             console.log('Sucesso')
         } else {
             console.log('Erro')
         }
-        alert(msg)
+        alert(result)
     }
     else {
         alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')

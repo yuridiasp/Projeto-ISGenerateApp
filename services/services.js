@@ -1,11 +1,11 @@
 const { shell} = require('electron')
 
-const dados = require("../utils/dados")
-const splitIS = require('./fileHandlerExcel')
-const createWindow = require('../utils/createWindow')
-const { getCookieLoginSistemFR } = require('./loginSistemFR')
-const { getCompromissosProcesso } = require('./compromissosSistemFR')
-const { readExcelFile, writeExcelFile } = require('../utils/excelISFile')
+const dados = require("../utils/appData/dados")
+const splitIS = require('./fileHandler/fileHandlerExcel')
+const createWindow = require('../utils/window/createWindow')
+const { getCookieLoginSistemFR } = require('./login/loginSistemFR')
+const { getCompromissosProcesso } = require('./compromissos/getCompromissosProcessoSistemFR')
+const { readExcelFile, writeExcelFile } = require('../utils/xlsx/excelISFile')
 
 function getDadosService () {
     return dados

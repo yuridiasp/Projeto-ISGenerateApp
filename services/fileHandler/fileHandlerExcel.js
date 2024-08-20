@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const jsdom = require("jsdom")
-const { writeExcelFile } = require('../utils/excelISFile')
+const { writeExcelFile } = require('../../utils/xlsx/excelISFile')
 
 function isPrev (is) {
     const termos = [

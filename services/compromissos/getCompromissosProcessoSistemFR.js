@@ -3,39 +3,8 @@ const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 require('dotenv').config()
 
-async function getCadastroProcesso(processo, cookie) {
-    const { URL_PROCESSOS_SISTEMFR } = process.env
-    const body = {
-        bsAdvProcessos: 's',
-        org: '',
-        bsAdvProcessosTexto: processo,
-        bsAdvProcessosCpf: '',
-        bsAdvProcessosResponsavel: '',
-        bsAdvProcessosCliente: '',
-        bsAdvProcessosReu: '',
-        filtrar: 'Filtrar'
-    }
-
-    const response = await axios.post(URL_PROCESSOS_SISTEMFR, new URLSearchParams(body).toString(), {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Cookie': cookie,
-            'Connection': 'close'
-        },
-        withCredentials: true
-    })
-
-    const dom = new JSDOM(response.data)
-
-    const compromissosElementHTML = dom.window.document.querySelectorAll('body > section > section > div.fdt-espaco > div > div.fdt-pg-conteudo > div.table-responsive > table > tbody > tr')
-
-    const hasTD = !compromissosElementHTML[0].textContent.includes('Nenhum registro até o momento.')
-
-    if (hasTD)
-        return 'publication'
-    
-    return 'process'
-}
+const getCadastroProcesso = require('../processos/getCadastroProcessoSistemFR');
+const { loggedPostRequest } = require('../../utils/request/postRequest');
 
 async function getCompromissosProcesso({ processo, case_number, description, publicacao, publication_date, expediente }, cookie) {
     const processValue = processo || case_number
@@ -56,14 +25,7 @@ async function getCompromissosProcesso({ processo, case_number, description, pub
         filtrar: 'Filtrar'
     }
 
-    const response = await axios.post(URL_COMPROMISSOS_SISTEMFR, new URLSearchParams(body).toString(), {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Cookie': cookie,
-            'Connection': 'close'
-        },
-        withCredentials: true
-    })
+    const response = await loggedPostRequest(URL_COMPROMISSOS_SISTEMFR, body, cookie)
 
     const dom = new JSDOM(response.data)
 

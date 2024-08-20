@@ -1,6 +1,6 @@
 const { Menu } = require('electron')
 
-const { createSobreWindowController } = require('../controllers/controllers')
+const { createSobreWindowController } = require('../../controllers/controllers')
 
 function configMenu (app, window) {
     const templateMenu = [
