@@ -6,6 +6,14 @@ const createWindow = require('../utils/window/createWindow')
 const { getCookieLoginSistemFR } = require('./login/loginSistemFR')
 const { getCompromissosProcesso } = require('./compromissos/getCompromissosProcessoSistemFR')
 const { readExcelFile, writeExcelFile } = require('../utils/xlsx/excelISFile')
+const { calcularDataTarefa } = require('../utils/prazos/prazos')
+const { validaTipoCompromisso } = require('../utils/compromissos/validarTipoCompromisso')
+const { Cliente } = require('../models/Cliente')
+
+const parametros = {
+    tarefaContatar: 1,
+    tarefaAdvogado: 2
+}
 
 function getDadosService () {
     return dados
@@ -90,6 +98,33 @@ async function intimationValidateService(processo, cookie) {
     return await getCompromissosProcesso(processo, cookie)
 }
 
+function createBodyForCreateTask({ publication_date, case_number, related_case_number, description, internal_deadline, fatal_deadline, time, expert_or_defendant, local_adress}) {
+
+    const cliente = new Cliente({ publication_date, case_number, related_case_number, description, internal_deadline, fatal_deadline, time, expert_or_defendant, local_adress })
+
+    const tipoCompromisso = validaTipoCompromisso(description)
+
+    const arrayAudiencias = ["AUDIÊNCIA DE INSTRUÇÃO E JULGAMENTO", "AUDIÊNCIA UNA", "AUDIÊNCIA DE INSTRUÇÃO", "AUDIÊNCIA INICIAL", "AUDIÊNCIA INAUGURAL"],
+        ehTarefaParaAdmOuSac = ((cliente.compromisso.tarefas[0] == "CONTATAR CLIENTE") || (cliente.compromisso.tarefas[0] == "LEMBRAR CLIENTE") || (cliente.compromisso.tarefas[0] == "SMS E WHATSAPP")),
+        ehAudiencia = (arrayAudiencias.includes(tipoCompromisso)),
+        parametro = (ehTarefaParaAdmOuSac || ehAudiencia) ? parametros.tarefaContatar : parametros.tarefaAdvogado
+
+    calcularDataTarefa(parametro, cliente)
+
+    if ((horarioInicial.value.length == 0 || local.value.length == 0))
+        atualizaDescricao(descricaoTarefa, horarioInicial, horarioFinal, local)
+
+    selecionarResponsavelExecutor(option)
+
+    submitAtualizarTarefa()
+
+    if (cliente.compromisso.tarefas.length === 1) {
+        desmarcarCaixaTarefaSequencia()
+    }
+
+    selectTipoIntimacao()
+}
+
 module.exports = {
     getDadosService,
     getObjectISService,
@@ -101,4 +136,5 @@ module.exports = {
     getCookieLoginService,
     getObjectValidateIntimationsService,
     writeExcelFileService,
+    createBodyForCreateTask
 }
