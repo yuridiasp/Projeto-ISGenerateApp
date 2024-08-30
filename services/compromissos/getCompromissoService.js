@@ -3,7 +3,7 @@ const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 require('dotenv').config()
 
-const getCadastroProcesso = require('../processos/getCadastroProcessoSistemFR');
+const getCadastroProcesso = require('../processos/getCadatroProcessoService');
 const { loggedPostRequest } = require('../../utils/request/postRequest');
 
 async function getCompromissosProcesso({ processo, case_number, description, publicacao, publication_date, expediente }, cookie) {
@@ -47,7 +47,8 @@ async function getCompromissosProcesso({ processo, case_number, description, pub
         if (!isRegistered)
             reason = 'publication'
     } else {
-        reason = await getCadastroProcesso(processValue, cookie)
+        const responseProcess = await getCadastroProcesso(processValue, cookie)
+        reason = responseProcess.reason
     }
     
     return { processo: processValue, description, publicacao: dataCadastro, isRegistered, reason }
