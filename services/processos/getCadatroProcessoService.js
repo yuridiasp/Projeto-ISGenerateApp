@@ -1,3 +1,5 @@
+const { JSDOM } = require("jsdom")
+
 const { loggedPostRequest } = require("../../utils/request/postRequest")
 
 async function getCadastroProcesso(processo, cookie) {
@@ -21,10 +23,13 @@ async function getCadastroProcesso(processo, cookie) {
 
     const hasTD = !compromissosElementHTML[0].textContent.includes('Nenhum registro até o momento.')
 
-    if (hasTD)
-        return 'publication'
+    if (hasTD) {
+        const url = dom.window.document.querySelector("body > section > section > div.fdt-espaco > div > div.fdt-pg-conteudo > div.table-responsive > table > tbody > tr > td.fdt-acao > div > div > a:nth-child(1)").href
+
+        return { reason: 'publication', url }
+    }
     
-    return 'process'
+    return { reason: 'process' }
 }
 
 module.exports = getCadastroProcesso

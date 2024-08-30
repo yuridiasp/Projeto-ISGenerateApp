@@ -1,4 +1,4 @@
-function validaTipoCompromisso(descriptionCompromisso) {
+function validaTipoCompromisso(cliente, descriptionCompromisso) {
     const { cidade, estado } = cliente.processo
     const descriptionCompromissoNormalizado = removeAcentuacaoString(descriptionCompromisso)
     const pauta = ["PAUTA", "RETIRADO DE PAUTA"]

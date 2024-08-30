@@ -1,3 +1,6 @@
+const { createCliente } = require('../services/clientes/clienteService')
+const { createCompromissoService } = require('../services/compromissos/compromissoService')
+const { createCompromisso } = require('../services/compromissos/createCompromissoService')
 const {
     getObjectISService,
     getDadosService,
@@ -9,6 +12,7 @@ const {
     getCookieLoginService,
     getObjectValidateIntimationsService,
 } = require('../services/services')
+const { createTaskService } = require('../services/tarefas/taskService')
 const { writeExcelFile } = require('../utils/xlsx/excelISFile')
 
 function createSobreWindowController (window) {
@@ -55,19 +59,27 @@ async function intimationsRegisterController(event, args, windows) {
     if (cookie) {
         console.log('Login realizado!')
 
-        const resultado = []
-
         const { msg, value: intimations } = getIntimations(args)
 
         if (!intimations) {
             throw new Error(msg)
-        } else {
-            console.log(msg)
         }
+        
+        console.log(msg)
+
+        const resultados = Promise.all(intimations.map(intimation => createCliente({ ...intimation }, cookie)
+            .then(cliente => {
+                const response = createCompromissoService(cliente)
+                return createTaskService({ cliente, cookie })
+            }).then(resultadoCadastro => updateViewRegistrationIntimations(resultadoCadastro, windows))))
+
+        console.log(resultados)
+        
 
         return 'Sucesso!'
     } else {
         console.log('Falha no login!')
+
         return 'Falha!'
     }
 }
@@ -113,6 +125,10 @@ function enableButtonCloseReport(windows) {
 
 function updateViewReportValidation(data, windows) {
     windows.mainWindow.webContents.send('update-view-report-validation', data)
+}
+
+function updateViewRegistrationIntimations(data, windows) {
+    windows.mainWindow.webContents.send('update-view-registration-intimations', data)
 }
 
 module.exports = {

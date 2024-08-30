@@ -1,4 +1,4 @@
-require("config").config()
+require("dotenv").config()
 
 const { loggedPostRequest } = require("../../utils/request/postRequest")
 
