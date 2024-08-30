@@ -105,7 +105,7 @@ function createBodyForCreateTask({ publication_date, case_number, related_case_n
     const tipoCompromisso = validaTipoCompromisso(description)
 
     const arrayAudiencias = ["AUDIÊNCIA DE INSTRUÇÃO E JULGAMENTO", "AUDIÊNCIA UNA", "AUDIÊNCIA DE INSTRUÇÃO", "AUDIÊNCIA INICIAL", "AUDIÊNCIA INAUGURAL"],
-        ehTarefaParaAdmOuSac = ((cliente.compromisso.tarefas[0] == "CONTATAR CLIENTE") || (cliente.compromisso.tarefas[0] == "LEMBRAR CLIENTE") || (cliente.compromisso.tarefas[0] == "SMS E WHATSAPP")),
+        ehTarefaParaAdmOuSac = ((cliente.compromisso.tarefas[0] === "CONTATAR CLIENTE") || (cliente.compromisso.tarefas[0] === "LEMBRAR CLIENTE") || (cliente.compromisso.tarefas[0] === "SMS E WHATSAPP")),
         ehAudiencia = (arrayAudiencias.includes(tipoCompromisso)),
         parametro = (ehTarefaParaAdmOuSac || ehAudiencia) ? parametros.tarefaContatar : parametros.tarefaAdvogado
 
