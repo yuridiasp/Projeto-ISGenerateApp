@@ -1,4 +1,4 @@
-export type InfoCompromissoFromFile = {
+export interface iCompromissoFromFile {
     processo?: string,
     case_number?: string,
     description?: string,

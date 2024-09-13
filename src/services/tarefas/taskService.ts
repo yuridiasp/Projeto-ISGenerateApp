@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom"
 
-import { parametros } from "../../utils/appData/parametros"
+import { parametros } from "../../utils/feriados/parametros"
 import { removeAcentuacaoString } from "../../utils/textFormatting/textFormatting"
 import { getTarefa } from "./getTaskService"
 import { calcularDataTarefa } from "../../utils/prazos/prazos"

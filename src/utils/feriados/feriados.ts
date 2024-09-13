@@ -1,6 +1,6 @@
 import { Cliente } from "../../models/cliente/Cliente"
 import { Holiday } from "../../models/feriado/Holiday"
-import { parametros } from "../appData/parametros"
+import { parametros } from "./parametros"
 
 function calculaPascoa(ano: number) {
     let X,

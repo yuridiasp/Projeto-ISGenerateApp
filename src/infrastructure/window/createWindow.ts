@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron'
 
-export function createWindow (width: number = 400, height: number = 600,  webPreference: object = {}, props: object = {}, pageHtmlFilename: string): BrowserWindow {
+export function createWindow (width: number = 400, height: number = 600,  webPreference: object = {}, props: object = {}, pageHtmlFolderPath: string): BrowserWindow {
     const path = require('path')
     const win = new BrowserWindow({
         width: width,
@@ -13,7 +13,7 @@ export function createWindow (width: number = 400, height: number = 600,  webPre
         ...props
     })
     
-    win.loadFile(path.resolve(__dirname, '..', '..', '..', 'public', 'page', pageHtmlFilename))
+    win.loadFile(path.resolve(pageHtmlFolderPath, 'index.html'))
     
     return win
 }

@@ -13,6 +13,10 @@
     --scrollbar-background: #171827;
     --report-button-close-color: #FEFEFF;
     --report-button-close-background: #4855E2;
+    --loader-bg1: #51d4db;
+    --loader-bg2: #c4c4c4;
+    --text-main-menu-btn: tomato;
+    --bg-main-menu-btn: midnightblue;
 }
 
 * {
@@ -31,7 +35,7 @@ body {
     align-items: center;
 }
 
-h2, label {
+label {
     font-size: 5vw;
     cursor: default;
 }
@@ -42,8 +46,8 @@ label {
     align-items: center;
     flex-direction: row;
     border-radius: 0.5em;
-    background: midnightblue;
-    color: tomato;
+    background: var(--bg-main-menu-btn);
+    color: var(--text-main-menu-btn);
     width: 80vw;
     height: 20vh;
     margin: 1em;
@@ -100,49 +104,18 @@ label:active, .btn:active {
     color: rgb(121, 11, 33);
 }
 
-#autor {
-    cursor: pointer;
-}
-
 #logo {
     margin: 1em 0;
     width: 15em;
     height: 5em;
 }
 
-.dev {
-    color: brown;
-}
-
-.container {
-    text-align: center;
-    margin: 10vh 10vw;
-    font-size: 0.7em;
-}
-
-.container h2 {
-    margin-bottom: 5vh;
-}
-
-.container p {
-    margin: 1em;
-}
-
-.container span {
-    font-weight: bold;
-}
-
-.container input {
-    padding: 1vh 10vw;
-    font-weight: bold;
-}
-
 .c-loader {
     position: absolute;
     animation: is-rotating 1s infinite;
-    border: 1em solid #c4c4c4;
+    border: 1em solid var(--loader-bg2);
     border-radius: 50%;
-    border-top-color: #51d4db;
+    border-top-color: var(--loader-bg1);
     height: 50vh;
     width: 50vh;
     transition: 500ms;
@@ -274,7 +247,6 @@ label:active, .btn:active {
 }
 
 /* Scrollbar */
-
     #report-content::-webkit-scrollbar {
         width: 0.3rem;
     }

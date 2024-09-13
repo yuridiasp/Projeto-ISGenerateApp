@@ -1,5 +1,6 @@
 import XLSX from 'xlsx'
-import { createNewFilePath } from '../directory/directory'
+import { createNewFilePath } from '../../utils/directory/directory'
+import { iFileData } from 'src/models/file/iFileData'
 
 export function readExcelFile(endereco: string) {
     
@@ -13,7 +14,7 @@ export function readExcelFile(endereco: string) {
     return data
 }
 
-export function writeExcelFile({ data, filePath: { endereco, fileName  }, sheetName, prefix = ''}: {data: object[], filePath: { endereco: string, fileName: string }, sheetName: string, prefix?: string}): [ boolean, string | null ] {
+export function writeExcelFileService({ data, filePath: { endereco, fileName  }, sheetName, prefix = ''}: {data: object[], filePath: iFileData, sheetName: string, prefix?: string}): [ boolean, string ] {
     
     if (data.length) {
         const newFilePath = createNewFilePath(endereco, prefix + fileName)

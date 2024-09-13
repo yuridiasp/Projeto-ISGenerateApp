@@ -5,9 +5,9 @@ require('dotenv').config()
 import { getCadastroProcesso } from '../processos/getCadatroProcessoService'
 import { loggedPostRequest } from '../../utils/request/postRequest'
 import { iValidationReport } from "src/models/validation/iValidationReport"
-import { InfoCompromissoFromFile } from "src/models/compromisso/typeCompromissoFromFile"
+import { iCompromissoFromFile } from "src/models/compromisso/iCompromissoFromFile"
 
-export async function getCompromissosProcesso({ processo, case_number, description, publicacao, publication_date, expediente }: InfoCompromissoFromFile, cookie: string): Promise<iValidationReport> {
+export async function intimationValidateService({ processo, case_number, description, publicacao, publication_date, expediente }: iCompromissoFromFile, cookie: string): Promise<iValidationReport> {
     //console.log(processo, case_number, description, publicacao, publication_date, expediente)
     const processValue = processo || case_number
     let isRegistered = false, reason = ''
@@ -56,5 +56,3 @@ export async function getCompromissosProcesso({ processo, case_number, descripti
     return { processo: processValue, description, publicacao: dataCadastro, isRegistered, reason }
 
 }
-
-module.exports = { getCompromissosProcesso }

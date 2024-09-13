@@ -1,8 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import jsdom from "jsdom"
-import { writeExcelFile } from '../../utils/xlsx/excelISFile'
-import { createNewFilePath } from 'src/utils/directory/directory'
+import { writeExcelFileService } from '../../repositories/xlsx/excelISFile'
 
 function isPrev (is: string) {
     const termos = [
@@ -127,7 +126,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
 
         console.log(`Iniciando criacao do documento xlsx ${prevFileName}`)
 
-        const [ result ] = writeExcelFile({ data: prev, filePath: { endereco, fileName: `${prevFileName}.xlsx` }, sheetName: prevFileName })
+        const [ result ] = writeExcelFileService({ data: prev, filePath: { endereco, fileName: `${prevFileName}.xlsx` }, sheetName: prevFileName })
         
         if (result) {
             console.log(`File ${prevFileName}.xlsx created successfully`)
@@ -141,7 +140,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
         
         console.log(`Iniciando criacao do documento xlsx ${civFileName}`)
 
-        const [ result ] = writeExcelFile({ data: civ, filePath: { endereco, fileName: `${civFileName}.xlsx` }, sheetName: civFileName })
+        const [ result ] = writeExcelFileService({ data: civ, filePath: { endereco, fileName: `${civFileName}.xlsx` }, sheetName: civFileName })
         
         if (result) {
             console.log(`File ${civFileName}.xlsx created successfully`)
@@ -155,7 +154,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
         
         console.log(`Iniciando criacao do documento xlsx ${trtFileName}`)
 
-        const [ result ] = writeExcelFile({ data: trt, filePath: { endereco, fileName: `${trtFileName}.xlsx` }, sheetName: trtFileName })
+        const [ result ] = writeExcelFileService({ data: trt, filePath: { endereco, fileName: `${trtFileName}.xlsx` }, sheetName: trtFileName })
         
         if (result) {
             console.log(`File ${trtFileName}.xlsx created successfully`)
