@@ -1,17 +1,7 @@
-/**
- * 
- * @param {string} string 
- * @returns {string}
- */
 export function removeAcentuacaoString (string: string): string {
     return string.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 }
 
-/**
- * 
- * @param {string} numeroProcesso 
- * @returns {string}
- */
 export function removeCaracteresProcesso(numeroProcesso: string): string {
     
     let processoFormatado = ''
@@ -26,4 +16,10 @@ export function removeCaracteresProcesso(numeroProcesso: string): string {
     }
 
     return processoFormatado
+}
+
+export function cleanCharDocument (text: string) {
+    const cleanedText = text.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F]/g, '')
+
+    return cleanedText
 }

@@ -3,9 +3,9 @@ require("dotenv").config()
 
 import { loggedGetRequest } from "../../utils/request/getRequest"
 import { AxiosResponse } from "axios"
-import { iColaborador } from "src/models/colaborador/iColaborador"
+import { seletores } from "src/models/seletores/iSeletores"
 
-function getTiposSelect(dom: JSDOM, id: string) {
+function getTiposSelect(dom: JSDOM, id: string): seletores[] {
     const select: HTMLSelectElement  = dom.window.document.querySelector(id)
     const tiposSelect = Array.from(select.options).map(option => ({ id: option.value, nome: option.textContent.trim() }))
     

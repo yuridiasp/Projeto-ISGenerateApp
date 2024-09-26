@@ -4,7 +4,7 @@ export interface iCompromissoBody {
     idResponsavelAvisado: string,
     idPK: string,
     idAgendamentoINSS: string,
-    idTipoCompromisso: number,
+    idTipoCompromisso: string,
     numeroProcesso: string,
     descricao: string,
     dataPublicacao: string,

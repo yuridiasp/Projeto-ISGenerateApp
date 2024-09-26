@@ -1,14 +1,14 @@
 export interface iCreateTarefa {
     idPK?: string,
-    idCO: number,
-    idPR: number,
+    idCO: string,
+    idPR: string,
     idCL?: string,
     org?: string,
     superior?: string,
     idResponsavelAvisado?: string,
     agendada: string,
     acaoColetiva: string,
-    idTipoTarefa: number,
+    idTipoTarefa: string,
     pautaIdUsuarioResp?: string,
     dataParaFinalizacaoAgendada?: string,
     onde?: string,
@@ -16,7 +16,8 @@ export interface iCreateTarefa {
     horarioFinal?: string,
     dataParaFinalizacao: string,
     descricao: string,
-    idResponsavel: number,
-    idExecutor: number,
-    lembreteQuandoFinalizarPara?: string
+    idResponsavel: string,
+    idExecutor: string,
+    lembreteQuandoFinalizarPara?: string,
+    incluirOutra: string
 }

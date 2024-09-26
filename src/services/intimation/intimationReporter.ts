@@ -31,7 +31,7 @@ export async function handleIntimationsReport (windows: iWindows, cookie: string
     const validations = await Promise.all(resultado).then(intimationsValidated => intimationsValidated.filter((intimation: { isRegistered: boolean }) => !intimation.isRegistered))
     enableButtonCloseReport(windows)
 
-    const [ result, newFilePath ] = generateValidationReport({ data: validations, file: file, prefix: 'RELATORIO-REGISTRO-INTIMACAO-' })
+    const { result, newFilePath } = generateValidationReport({ data: validations, file: file, prefix: 'RELATORIO-REGISTRO-INTIMACAO-' })
     
     if (result) {
         const pluralOrSingularForIntimacao = validations.length > 1 ? 'intimações' : 'intimação'

@@ -5,7 +5,7 @@ import { closeSobreWindowService, createSobreWindowService } from '../services/w
 import { createMainWindowService } from '../services/windows/main/mainWindow'
 import { getObjectISService } from '../services/splitIS/splitISService'
 import { getDadosService, openPageGithubService } from '../services/appData/appData'
-import { getCookieLoginService } from '../services/login/loginService'
+import { credential, getCookieLoginService } from '../services/login/loginService'
 import { intimationValidateService } from '../services/compromissos/getCompromissoService'
 import { getObjectValidateIntimationsService } from '../services/validateIntimations/validateIntimationsService'
 import { handleIntimationsReport } from '../services/intimation/intimationReporter'

@@ -44,7 +44,7 @@ async function setCookieLoginForm() {
     }
 }
 
-export async function getCookieLoginService(credentials: credential) {
+export async function getCookieLoginService(credentials?: credential) {
 
     try {
         const cookie = await setCookieLoginForm()

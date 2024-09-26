@@ -126,7 +126,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
 
         console.log(`Iniciando criacao do documento xlsx ${prevFileName}`)
 
-        const [ result ] = writeExcelFileService({ data: prev, filePath: { endereco, fileName: `${prevFileName}.xlsx` }, sheetName: prevFileName })
+        const { result } = writeExcelFileService({ data: prev, filePath: { endereco, fileName: `${prevFileName}.xlsx` }, sheetName: prevFileName })
         
         if (result) {
             console.log(`File ${prevFileName}.xlsx created successfully`)
@@ -140,7 +140,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
         
         console.log(`Iniciando criacao do documento xlsx ${civFileName}`)
 
-        const [ result ] = writeExcelFileService({ data: civ, filePath: { endereco, fileName: `${civFileName}.xlsx` }, sheetName: civFileName })
+        const { result } = writeExcelFileService({ data: civ, filePath: { endereco, fileName: `${civFileName}.xlsx` }, sheetName: civFileName })
         
         if (result) {
             console.log(`File ${civFileName}.xlsx created successfully`)
@@ -154,7 +154,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
         
         console.log(`Iniciando criacao do documento xlsx ${trtFileName}`)
 
-        const [ result ] = writeExcelFileService({ data: trt, filePath: { endereco, fileName: `${trtFileName}.xlsx` }, sheetName: trtFileName })
+        const { result } = writeExcelFileService({ data: trt, filePath: { endereco, fileName: `${trtFileName}.xlsx` }, sheetName: trtFileName })
         
         if (result) {
             console.log(`File ${trtFileName}.xlsx created successfully`)

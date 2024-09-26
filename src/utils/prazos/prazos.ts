@@ -2,23 +2,41 @@ import { Cliente } from "src/models/cliente/Cliente"
 import { removeAcentuacaoString } from "../textFormatting/textFormatting"
 import { isFeriado } from "../feriados/feriados"
 
-function extrairDataPrazoFatalInput (prazoFatal: string): number[] {
+type isFeriadoFunctionMock = (date: Date) =>  { isHoliday: boolean }
+
+interface mockContarDiasDTO {
+    date: Date
+    isFeriado: isFeriadoFunctionMock
+}
+
+interface mockNormalizedStringDTO {
+    tipoCompromissoNormalizado: string
+    tarefaAtualNormalizada: string
+}
+
+interface calcularDataTarefaMock {
+    hoje: Date
+    prazoFatal: Date
+}
+
+export function extrairDataPrazoFatalInput (prazoFatal: string): number[] {
     const [ dia, mes, ano ] = prazoFatal.split('/')
+    
     return [ Number(dia), Number(mes)-1, Number(ano)]
 }
 
-function contarDias(dataInterno: Date, parametro: number, cliente: Cliente): { uteis: number, todosDias: number} {
+export function contarDias(dataInterno: Date, parametro: number, cliente: Cliente, mockContarDias?: mockContarDiasDTO, hojeMock?: Date ): { uteis: number, todosDias: number} {
     let contaTodos = 0,
         contaUteis = 0,
         domingos = 0,
-        date = new Date()
+        date = mockContarDias ? mockContarDias.date : hojeMock || new Date()
 
     if (date.toDateString() == dataInterno.toDateString())
         return { uteis: 0, todosDias: 0}
 
     while (date < dataInterno) {
         date.setDate(date.getDate() + 1)
-        const { isHoliday } = isFeriado(date, parametro, cliente)
+        const { isHoliday } = mockContarDias ? mockContarDias.isFeriado(date) : isFeriado(date, parametro, cliente)
         const weekDay = date.getDay()
         const sundayIndex = 0
         const saturdayIndex = 6
@@ -39,7 +57,7 @@ function contarDias(dataInterno: Date, parametro: number, cliente: Cliente): { u
     return { uteis: contaUteis, todosDias: contaTodos}
 }
 
-function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente) {
+export function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente, mockNormalizedString?: mockNormalizedStringDTO) {
     const { tipoCompromisso, tarefas, semanas, quantidadeTarefas } = cliente.compromisso,
         { estado } = cliente.processo,
         contDois = {
@@ -51,8 +69,8 @@ function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente) {
         contTres = "PERICIA",
         contQuatro = ["AUDIENCIA DE CONCILIACAO", "AUDIENCIA CONCILIATORIA", "AUDIENCIA DE INTERROGATORIO"],
         contCinco = ["AUDIENCIA DE INSTRUCAO", "AUDIENCIA INAUGURAL", "AUDIENCIA INICIAL", "AUDIENCIA DE INSTRUCAO E JULGAMENTO", "AUDIENCIA UNA"],
-        tipoCompromissoNormalizado = removeAcentuacaoString(tipoCompromisso),
-        tarefaAtualNormalizada = removeAcentuacaoString(tarefas[0]),
+        tipoCompromissoNormalizado = mockNormalizedString ? mockNormalizedString.tipoCompromissoNormalizado : removeAcentuacaoString(tipoCompromisso),
+        tarefaAtualNormalizada = mockNormalizedString ? mockNormalizedString.tarefaAtualNormalizada : removeAcentuacaoString(tarefas[0]),
         isDFOrGO = estado === 'GO' || estado === 'DF'
 
     if (((contCinco.includes(tipoCompromisso) && dias > 11) || (contQuatro.includes(tipoCompromissoNormalizado) && dias > 10) || (tipoCompromissoNormalizado.search(contTres) === 0) && dias > 10)) {
@@ -135,8 +153,8 @@ function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente) {
     return 0
 }
 
-function dataContato(intervalo: number, internalDeadline: Date, param: number, cliente: Cliente) {
-    let today = new Date(),
+export function dataContato(intervalo: number, internalDeadline: Date, param: number, cliente: Cliente, dataContatoMock?: mockContarDiasDTO, hojeMock?: Date) {
+    let today = dataContatoMock ? dataContatoMock.date : hojeMock || new Date(),
         endInterval = Number(intervalo),
         date
         
@@ -152,7 +170,7 @@ function dataContato(intervalo: number, internalDeadline: Date, param: number, c
 
         while (businessDayCount < endInterval) {
             date.setDate(date.getDate() -1)
-            const { isHoliday } = isFeriado(date, param, cliente)
+            const { isHoliday } = dataContatoMock ? dataContatoMock.isFeriado(date) : isFeriado(date, param, cliente)
             const weekDay = date.getDay()
             const isSunday = weekDay === sundayIndex
             const isSaturday = weekDay === saturdayIndex
@@ -173,12 +191,13 @@ function dataContato(intervalo: number, internalDeadline: Date, param: number, c
     return date
 }
 
-export function calcularDataTarefa(parametro: number, cliente: Cliente) {
-    const [ diaPrazoInterno, mesPrazoInterno, anoPrazoInterno ] = extrairDataPrazoFatalInput(cliente.compromisso.prazoFatal)
+export function calcularDataTarefa(parametro: number, cliente: Cliente, calcularDataTarefaMock?: calcularDataTarefaMock) {
+    const dateString = calcularDataTarefaMock ? calcularDataTarefaMock.prazoFatal.toLocaleDateString() : cliente.compromisso.prazoFatal
+    const [ diaPrazoInterno, mesPrazoInterno, anoPrazoInterno ] = extrairDataPrazoFatalInput(dateString)
     const dataInterno = new Date(anoPrazoInterno, mesPrazoInterno, diaPrazoInterno)
-    const { uteis } = contarDias(dataInterno, parametro, cliente)
+    const { uteis } = contarDias(dataInterno, parametro, cliente, null, calcularDataTarefaMock ? new Date(calcularDataTarefaMock.hoje): null)
     const intervalo = calculaIntervaloTarefasJudicial(uteis, cliente)
-    const dataTarefa = dataContato(intervalo, dataInterno, parametro, cliente)
+    const dataTarefa = dataContato(intervalo, dataInterno, parametro, cliente, null, calcularDataTarefaMock ? new Date(calcularDataTarefaMock.hoje): null)
     
     return dataTarefa
 }

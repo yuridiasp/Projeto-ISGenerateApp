@@ -10,8 +10,22 @@ import { getEndereço } from "../../utils/locais/audiencias"
 import { iColaborador } from "../../models/colaborador/iColaborador"
 import { iCreateTarefa } from "../../models/tarefa/iCreateTarefa"
 import { createTarefa } from "./createTaskService"
+import { seletores } from "src/models/seletores/iSeletores"
 
-function atualizaHoraFinal (horarioInicial: string) {
+interface getTipoTarefaMockDTO {
+    tipoIntimacaoToUpperNormalized: string
+    removeAcentuacaoStringMock: (string: string) => string
+}
+
+interface getDescricaoMockDTO {
+    fistWordInTarefa: string,
+    localText: string,
+    numero: string,
+    tipoTarefaNormalizado: string,
+    tipoCompromissoNormalizado: string
+}
+
+export function atualizaHoraFinal (horarioInicial: string) {
     const duracaoAudicencia = 2
     let hora = (Number(horarioInicial.slice(0,2)) + duracaoAudicencia).toString()
 
@@ -31,21 +45,21 @@ function atualizaHoraFinal (horarioInicial: string) {
     return `${hora}:${horarioInicial.slice(3)}`
 }
 
-function existeOrigem(cliente: Cliente) {
+export function existeOrigem(cliente: Cliente) {
     if (cliente.processo.dependente)
         if (cliente.processo.dependente.length > 0)
             return `${cliente.processo.dependente} (ORIGEM ${cliente.processo.origem})`
     return cliente.processo.origem
 }
 
-function getDescricao (cliente: Cliente) {
-    const fistWordInTarefa = removeAcentuacaoString(cliente.compromisso.tarefas[0].split(" ")[0]),
-        localText = getEndereço(cliente.compromisso.local),
-        numero = existeOrigem(cliente),
-        tipoTarefaNormalizado = removeAcentuacaoString(cliente.compromisso.tarefas[0]),
-        tipoCompromissoNormalizado = removeAcentuacaoString(cliente.compromisso.tipoCompromisso)
+export function getDescricao (cliente: Cliente, getDescricaoMock?: getDescricaoMockDTO) {
+    const fistWordInTarefa = getDescricaoMock ? getDescricaoMock.fistWordInTarefa : removeAcentuacaoString(cliente.compromisso.tarefas[0].split(" ")[0]),
+        localText = getDescricaoMock ? getDescricaoMock.localText : getEndereço(cliente.compromisso.local),
+        numero = getDescricaoMock ? getDescricaoMock.numero : existeOrigem(cliente),
+        tipoTarefaNormalizado = getDescricaoMock ? getDescricaoMock.tipoTarefaNormalizado : removeAcentuacaoString(cliente.compromisso.tarefas[0]),
+        tipoCompromissoNormalizado = getDescricaoMock ? getDescricaoMock.tipoCompromissoNormalizado : removeAcentuacaoString(cliente.compromisso.tipoCompromisso)
     
-    if (cliente.compromisso.descricao && removeAcentuacaoString(fistWordInTarefa) !== "ANALISE" && tipoTarefaNormalizado !== "ATO ORDINATORIO" && cliente.compromisso.tipoCompromisso !== "EMENDAR"  && !tipoCompromissoNormalizado.includes('DECISAO ANTECIPACAO PERICIA')) {
+    if (cliente.compromisso.descricao && fistWordInTarefa !== "ANALISE" && tipoTarefaNormalizado !== "ATO ORDINATORIO" && cliente.compromisso.tipoCompromisso !== "EMENDAR"  && !tipoCompromissoNormalizado.includes('DECISAO ANTECIPACAO PERICIA')) {
 
         return cliente.compromisso.descricao
 
@@ -56,7 +70,7 @@ function getDescricao (cliente: Cliente) {
 
         if (fistWordInTarefa == "AUDIENCIA" && cliente.compromisso.quantidadeTarefas === cliente.compromisso.tarefas.length) {
 
-            return `${numero} - ${cliente.compromisso.tipoCompromisso} DE ${cliente.nome} (${cliente.cpf}) X ${cliente.processo.reu}, NO DIA ${cliente.compromisso.prazoInterno} ÀS ${cliente.compromisso.horario}, LOCAL: ${localText}`
+            return `${numero} - ${cliente.compromisso.tipoCompromisso} DE ${cliente.nome} (${cliente.cpf}) X ${cliente.compromisso.peritoOrReu}, NO DIA ${cliente.compromisso.prazoInterno} ÀS ${cliente.compromisso.horario}, LOCAL: ${localText}`
 
         }
         else if (tipoTarefaNormalizado === "ATO ORDINATORIO" && tipoCompromissoNormalizado.includes('PERICIA')) {
@@ -81,7 +95,7 @@ function getDescricao (cliente: Cliente) {
     }
 }
 
-async function validaResponsavelTj (cliente: Cliente, processLength: number) {
+export async function validaResponsavelTj (cliente: Cliente, processLength: number) {
     const digito = Number(cliente.processo.origem[processLength - 1]),
         financeiro = ["RPV TRF1 BRASILIA", "RPV TRF1 GOIAS", "RPV TRF5 ARACAJU", "RPV TRF5 ESTANCIA", "RPV TRF1 BAHIA", "RECEBIMENTO DE PRECATORIO"],
         tarefasAdm = ["CONTATAR CLIENTE","LEMBRAR CLIENTE"],
@@ -137,7 +151,7 @@ async function validaResponsavelTj (cliente: Cliente, processLength: number) {
     }
 }
 
-async function validaResponsavelFederal (cliente: Cliente, processLength: number) {
+export async function validaResponsavelFederal (cliente: Cliente, processLength: number) {
     const tarefaAtualNormalizada = removeAcentuacaoString(cliente.compromisso.tarefas[0]),
         numeroProcesso = cliente.processo.origem,
         financeiro = ["RPV TRF1 BRASILIA", "RPV TRF1 GOIAS", "RPV TRF5 ARACAJU", "RPV TRF5 ESTANCIA", "RPV TRF1 BAHIA", "RECEBIMENTO DE PRECATORIO"],
@@ -287,7 +301,7 @@ async function validaResponsavelFederal (cliente: Cliente, processLength: number
     }
 }
 
-async function getTarefasColaboradores(colaborador: iColaborador, data: Date) {
+export async function getTarefasColaboradores(colaborador: iColaborador, data: Date) {
     let contador = 0
 
     const dateString = data.toLocaleDateString()
@@ -314,7 +328,7 @@ async function getTarefasColaboradores(colaborador: iColaborador, data: Date) {
     return colaborador
 }
 
-async function validaEsferaProcesso(cliente: Cliente) {
+export async function validaEsferaProcesso(cliente: Cliente) {
     const caracteresProcesso = cliente.processo.origem.length
     const lengthCharProcessTJ = 12
     const lengthCharProcessFederalProtocol = 15
@@ -332,7 +346,7 @@ async function validaEsferaProcesso(cliente: Cliente) {
     throw new Error("Erro no cadastro do número do processo")
 }
 
-function filterColaboradoresJudicial (cliente: Cliente) {
+export function filterColaboradoresJudicial (cliente: Cliente) {
     const colaboradores = []
 
     //Última atualização: 24/05/2024
@@ -475,7 +489,7 @@ function filterColaboradoresCalculo () {
     return calculo
 }
 
-async function selectExecutorContatarJudicial (colaboradores: Promise<iColaborador>[], cliente: Cliente) {
+export async function selectExecutorContatarJudicial (colaboradores: Promise<iColaborador>[], cliente: Cliente) {
     const adm = await Promise.all(colaboradores)
     let responsavel = 'JULIANO OLIVEIRA DE SOUZA'
 
@@ -520,16 +534,16 @@ async function selectExecutorCalculo (colaboradores: Promise<iColaborador>[]) {
 }
 
 async function selectExecutorContatar(colaboradores: Promise<iColaborador>[], cliente: Cliente) {
-    const isTaskCalculo = removeAcentuacaoString(cliente.compromisso.tipoCompromisso).includes("CALCULO") && removeAcentuacaoString(cliente.compromisso.tarefas[0]).includes("CALCULO")
+    /* const isTaskCalculo = removeAcentuacaoString(cliente.compromisso.tipoCompromisso).includes("CALCULO") && removeAcentuacaoString(cliente.compromisso.tarefas[0]).includes("CALCULO")
 
     if (isTaskCalculo) {
         return await selectExecutorCalculo(colaboradores)
-    }
+    } */
     
     return await selectExecutorContatarJudicial(colaboradores, cliente)
 }
 
-async function requererTarefasContatar(data: Date, cliente: Cliente) {
+export async function requererTarefasContatar(data: Date, cliente: Cliente) {
 
     const isTaskCalculo = removeAcentuacaoString(cliente.compromisso.tipoCompromisso).includes("CALCULO") && removeAcentuacaoString(cliente.compromisso.tarefas[0]).includes("CALCULO")
 
@@ -540,7 +554,7 @@ async function requererTarefasContatar(data: Date, cliente: Cliente) {
     })
 }
 
-async function validaExecutorContatarOrCalculo (data: Date, cliente: Cliente) {
+export async function validaExecutorContatarOrCalculo (data: Date, cliente: Cliente) {
 
     const colaboradores = await requererTarefasContatar(data, cliente)
     
@@ -549,7 +563,7 @@ async function validaExecutorContatarOrCalculo (data: Date, cliente: Cliente) {
     return responsavelExecutorContatarOrCalculo
 }
 
-async function getResponsavelExecutor(task: string, cliente: Cliente, data: Date) {
+export async function getResponsavelExecutor(task: string, cliente: Cliente, data: Date) {
 
     const isTaskCalculo = removeAcentuacaoString(cliente.compromisso.tipoCompromisso).includes("CALCULO") && removeAcentuacaoString(cliente.compromisso.tarefas[0]).includes("CALCULO")
     const isTaskContatar = task == "CONTATAR CLIENTE"
@@ -615,7 +629,7 @@ export function validaTipoCompromisso(descriptionCompromisso: string, cliente: C
     return descriptionCompromisso
 }
 
-function getParametroData (tarefa: string, cliente: Cliente): number {
+export function getParametroData (tarefa: string, cliente: Cliente): number {
     const arrayAudiencias = ["AUDIÊNCIA DE INSTRUÇÃO E JULGAMENTO", "AUDIÊNCIA UNA", "AUDIÊNCIA DE INSTRUÇÃO", "AUDIÊNCIA INICIAL", "AUDIÊNCIA INAUGURAL"]
     const ehTarefaParaAdmOuSac = ((tarefa == "CONTATAR CLIENTE") || (tarefa == "LEMBRAR CLIENTE") || (tarefa == "SMS E WHATSAPP"))
     const ehAudiencia = (arrayAudiencias.includes(cliente.compromisso.tipoCompromisso))
@@ -679,28 +693,82 @@ lembreteQuandoFinalizarPara:
 incluirOutra: s
 */
 
+export function getTipoTarefa(cliente: Cliente, tiposTarefas: seletores[], getTipoTarefaMock?: getTipoTarefaMockDTO) {
+    
+    const tipoIntimacaoToUpperNormalized = getTipoTarefaMock ? getTipoTarefaMock.tipoIntimacaoToUpperNormalized : removeAcentuacaoString(cliente.compromisso.tarefas[0].toUpperCase()).split("-")[0].trim()
+    let achou = false,
+        inputManifestacao = null,
+        shortInput = null
+    
+    for (const option of tiposTarefas) {
+        const optionToUpperNormalized = getTipoTarefaMock ? option.normalizado : removeAcentuacaoString(option.nome.toUpperCase().trim())
+        const isManifestacao = optionToUpperNormalized.includes("MANIFESTACAO")
+        const isTask = optionToUpperNormalized === tipoIntimacaoToUpperNormalized
+        const fistWordIncluded = optionToUpperNormalized.split(" ").includes(tipoIntimacaoToUpperNormalized.split(" ")[0])
+        
+        if (isManifestacao) {
+            inputManifestacao = option.id
+        }
 
-async function createBodyForCreateTask({ cliente, colaboradores, tiposTarefas }: { cliente: Cliente; colaboradores: iColaborador[], tiposTarefas: { id: string; nome: string; }[] }): Promise<iCreateTarefa[]> {
+        if (isTask) {
+            return option.id
+        } else {
+            if (!shortInput && fistWordIncluded) {
+                shortInput = option.id
+                achou = true
+            }
+        }
+    }
+    
+    if (achou) {
+        return shortInput
+    }
+    
+    return inputManifestacao
+}
 
-    const parametro = getParametroData(cliente.compromisso.tarefas[0], cliente)
+export async function createBodyForCreateTask({ cliente, colaboradores, tiposTarefas }: { cliente: Cliente; colaboradores: iColaborador[], tiposTarefas: seletores[] }): Promise<iCreateTarefa[]> {
 
-    const dataTarefa = calcularDataTarefa(parametro, cliente)
+    const { tarefas } = cliente.compromisso
 
-    const descricaoTarefa = getDescricao(cliente) //TODO: Pensar em um jeito de adicionar os parametros para essa função
+    return await Promise.all(tarefas.map(async () => {
+        const parametro = getParametroData(cliente.compromisso.tarefas[0], cliente)
+        const dataTarefa = calcularDataTarefa(parametro, cliente)
+        const descricaoTarefa = getDescricao(cliente)
+        const idTipoTarefa = getTipoTarefa(cliente, tiposTarefas)
+    
+        const { responsavel, executor } = await getResponsavelExecutor(cliente.compromisso.tarefas[0], cliente, dataTarefa)
+    
+        const [{ id: idExecutor }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === executor)
+        const [{ id: idResponsavel }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === responsavel)
 
-    const { responsavel, executor } = await getResponsavelExecutor(cliente.compromisso.tarefas[0], cliente, dataTarefa)
+        cliente.compromisso.tarefas.shift()
 
-    const [{ id: idExecutor }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === executor)
-    const [{ id: idResponsavel }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === responsavel)
+        return {
+                idPK: "",
+                idCO: cliente.compromisso.id,
+                idPR: cliente.processo.id,
+                idCL: "",
+                org: "",
+                superior: "",
+                idResponsavelAvisado: "",
+                agendada: "n",
+                acaoColetiva: "False",
+                idTipoTarefa,
+                pautaIdUsuarioResp: "",
+                dataParaFinalizacaoAgendada: "",
+                onde: "",
+                horarioInicial: "",
+                horarioFinal: "",
+                dataParaFinalizacao: "",
+                descricao: descricaoTarefa,
+                idResponsavel: idResponsavel,
+                idExecutor: idExecutor,
+                lembreteQuandoFinalizarPara: "",
+                incluirOutra: ""
+            } as iCreateTarefa
+    }))
 
-    //submitAtualizarTarefa()
-
-    /* if (cliente.compromisso.tarefas.length === 1) {
-        desmarcarCaixaTarefaSequencia()
-    } */
-
-    //selectTipoIntimacao()
-    return {} as iCreateTarefa[]
 }
 
 export async function createTaskService({ cliente, cookie }: { cliente: Cliente, cookie: string }) {
