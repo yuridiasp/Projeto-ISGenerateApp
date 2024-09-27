@@ -16,7 +16,7 @@ describe('Function getTipoTarefa: Recuperar o ID do tipo da tarefa a partir do t
         }
         
         const resultado = getTipoTarefa(cliente, tiposTarefasMock, getTipoTarefaMock)
-        expect('89').toBe(resultado)
+        expect(resultado).toBe('89')
     })
 
     it('Tipo de intimação não existe na lista de tipos de tarefa', () => {
@@ -25,6 +25,6 @@ describe('Function getTipoTarefa: Recuperar o ID do tipo da tarefa a partir do t
         }
 
         const resultado = getTipoTarefa(cliente, tiposTarefasMock, getTipoTarefaMock)
-        expect('44').toBe(resultado)
+        expect(resultado).toBe('44')
     })
 })

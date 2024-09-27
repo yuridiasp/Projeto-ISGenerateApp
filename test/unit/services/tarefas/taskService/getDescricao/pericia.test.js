@@ -27,7 +27,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - PERICIA MÉDICA DE LAILTON DE SOUZA AGUIAR (085.650.825-04), NO DIA DD/MM/AAAA ÀS HH:MM, PERITO: PERITO QUALQUER, LOCAL: CLÍNICA CLIMAGEM'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 
     it('Gerar descrição para tarefa "SMS E WHATSAPP" em compromisso de perícia', () => {
@@ -56,7 +56,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - PERICIA MÉDICA DE LAILTON DE SOUZA AGUIAR (085.650.825-04), NO DIA DD/MM/AAAA ÀS HH:MM, PERITO: PERITO QUALQUER, LOCAL: CLÍNICA CLIMAGEM'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 
     it('Gerar descrição para tarefa "LEMBRAR CLIENTE" em compromisso de perícia', () => {
@@ -85,7 +85,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - PERICIA MÉDICA DE LAILTON DE SOUZA AGUIAR (085.650.825-04), NO DIA DD/MM/AAAA ÀS HH:MM, PERITO: PERITO QUALQUER, LOCAL: CLÍNICA CLIMAGEM'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 
     it('Gerar descrição para tarefa "ATO ORDINATÓRIO" em compromisso de perícia', () => {
@@ -114,6 +114,6 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - ATO ORDINATÓRIO (PERÍCIA DESIGNADA)'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 })

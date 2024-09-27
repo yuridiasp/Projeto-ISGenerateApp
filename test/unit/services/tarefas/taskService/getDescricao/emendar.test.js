@@ -27,7 +27,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - EMENDAR'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 
     it('Gerar descrição para tarefa "CONTATAR CLIENTE" em compromisso de emendar', () => {
@@ -56,6 +56,6 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - '
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 })

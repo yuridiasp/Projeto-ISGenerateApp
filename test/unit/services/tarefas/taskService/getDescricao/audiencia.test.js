@@ -27,7 +27,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 
     it('Gerar descrição para tarefa "CONTATAR CLIENTE" em compromisso de audiência', () => {
@@ -56,7 +56,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 
     it('Gerar descrição para tarefa "SMS E WHATSAPP" em compromisso de audiência', () => {
@@ -85,7 +85,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 
     it('Gerar descrição para tarefa "LEMBRAR CLIENTE" em compromisso de audiência', () => {
@@ -114,7 +114,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 
     it('Gerar descrição para tarefa "ANÁLISE" em compromisso de audiência', () => {
@@ -143,7 +143,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - VERIFICAR NECESSIDADE DE TESTEMUNHAS'
 
-        expect(expectedDescription).toBe(resultDescription)
+        expect(resultDescription).toBe(expectedDescription)
     })
 
 })

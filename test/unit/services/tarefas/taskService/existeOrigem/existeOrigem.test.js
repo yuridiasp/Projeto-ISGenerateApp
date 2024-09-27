@@ -11,7 +11,7 @@ describe('Function existeOrigem: Verificar se há processo dependente para const
         const expectResultHasOrigem = '202311800989 (ORIGEM 201811800803)'
         const resultadoHasOrigem = existeOrigem(clienteMockHasOrigem)
     
-        expect(expectResultHasOrigem).toBe(resultadoHasOrigem)
+        expect(resultadoHasOrigem).toBe(expectResultHasOrigem)
     })
 
     it('Não existe processo dependente', () => {
@@ -23,6 +23,6 @@ describe('Function existeOrigem: Verificar se há processo dependente para const
         const expectResultNotHasOrigem = '201811800803'
         const resultadoNotHasOrigem = existeOrigem(clienteMockNotHasOrigem)
     
-        expect(expectResultNotHasOrigem).toBe(resultadoNotHasOrigem)
+        expect(resultadoNotHasOrigem).toBe(expectResultNotHasOrigem)
     })
 })

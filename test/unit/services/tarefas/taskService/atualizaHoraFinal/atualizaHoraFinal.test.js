@@ -6,5 +6,5 @@ test('Function atualizaHoraFinal: A partir de uma string de hora informada, soma
 
     const resultado = atualizaHoraFinal(horarioInicial)
 
-    expect(resultado).toBe(horarioEsperado)
+    expect(horarioEsperado).toBe(resultado)
 })

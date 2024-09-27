@@ -12,6 +12,20 @@ import { iCreateTarefa } from "../../models/tarefa/iCreateTarefa"
 import { createTarefa } from "./createTaskService"
 import { seletores } from "src/models/seletores/iSeletores"
 
+type removeAcentuacaoStringMock = (string: string) => string
+
+interface getTarefasColaboradoresDTO {
+    dom: JSDOM
+}
+
+interface validaResponsavelDTO {
+    tipoCompromissoNormalizado: string
+    tarefaAtualNormalizada: string
+    digito: number
+    digitoVerificador?: string
+    secao?: string
+}
+
 interface getTipoTarefaMockDTO {
     tipoIntimacaoToUpperNormalized: string
     removeAcentuacaoStringMock: (string: string) => string
@@ -95,15 +109,15 @@ export function getDescricao (cliente: Cliente, getDescricaoMock?: getDescricaoM
     }
 }
 
-export async function validaResponsavelTj (cliente: Cliente, processLength: number) {
-    const digito = Number(cliente.processo.origem[processLength - 1]),
+export function validaResponsavelTj (cliente: Cliente, processLength: number, validaResponsavelMock?: validaResponsavelDTO) {
+    const digito = validaResponsavelMock ? validaResponsavelMock.digito : Number(cliente.processo.origem[processLength - 1]),
         financeiro = ["RPV TRF1 BRASILIA", "RPV TRF1 GOIAS", "RPV TRF5 ARACAJU", "RPV TRF5 ESTANCIA", "RPV TRF1 BAHIA", "RECEBIMENTO DE PRECATORIO"],
         tarefasAdm = ["CONTATAR CLIENTE","LEMBRAR CLIENTE"],
         sac = "SMS E WHATSAPP",
         liminarPericiaAdm = "ACOMPANHAR",
         natureza = cliente.processo.natureza,
-        tipoCompromissoNormalizado = removeAcentuacaoString(cliente.compromisso.tipoCompromisso),
-        tarefaAtualNormalizada = removeAcentuacaoString(cliente.compromisso.tarefas[0])
+        tipoCompromissoNormalizado = validaResponsavelMock? validaResponsavelMock.tipoCompromissoNormalizado : removeAcentuacaoString(cliente.compromisso.tipoCompromisso),
+        tarefaAtualNormalizada = validaResponsavelMock? validaResponsavelMock.tarefaAtualNormalizada : removeAcentuacaoString(cliente.compromisso.tarefas[0])
 
     if (tarefaAtualNormalizada.includes(liminarPericiaAdm)  && tarefaAtualNormalizada.includes("ADM")) {
         return {responsavel: 'LEANDRO SANTOS', executor: 'LEANDRO SANTOS'}
@@ -151,18 +165,23 @@ export async function validaResponsavelTj (cliente: Cliente, processLength: numb
     }
 }
 
-export async function validaResponsavelFederal (cliente: Cliente, processLength: number) {
-    const tarefaAtualNormalizada = removeAcentuacaoString(cliente.compromisso.tarefas[0]),
+export function validaResponsavelFederal (cliente: Cliente, processLength: number, validaResponsavelMock?: validaResponsavelDTO) {
+    const PROCESS_DIGIT_INDEX = 6
+    const PROCESS_SLICE_START = 13
+    const PROCESS_SLICE_END = 16
+
+    const tarefaAtualNormalizada = validaResponsavelMock ? validaResponsavelMock.tarefaAtualNormalizada : removeAcentuacaoString(cliente.compromisso.tarefas[0]),
         numeroProcesso = cliente.processo.origem,
+        varasDF = ["23ª VARA FEDERAL BRASÍLIA", "24ª VARA FEDERAL DE BRASÍLIA", "25ª VARA FEDERAL DE BRASÍLIA", "26ª VARA FEDERAL DE BRASÍLIA", "27ª VARA FEDERAL DE BRASÍLIA", "23ª VARA FEDERAL", "24ª VARA FEDERAL", "25ª VARA FEDERAL", "26ª VARA FEDERAL", "27ª VARA FEDERAL", "BRASILIA", "1ª VARA FEDERAL CÍVEL SJGO", "TJ GOIÁS", "VARA FEDERAL DA SSJ LUZIÂNIA-GO", "VARA DE ÁGUAS LINDAS DE GOIÁS", "VARA FEDERAL DE RIO VERDE-GO", "VARA FEDERAL SJDF"],
         financeiro = ["RPV TRF1 BRASILIA", "RPV TRF1 GOIAS", "RPV TRF5 ARACAJU", "RPV TRF5 ESTANCIA", "RPV TRF1 BAHIA", "RECEBIMENTO DE PRECATORIO"],
         tarefasAdm = ["CONTATAR CLIENTE","LEMBRAR CLIENTE"],
         tarefaSac = "SMS E WHATSAPP",
         liminarPericiaAdm = "ACOMPANHAR",
         lengthSecao = 4,
-        secao = numeroProcesso.slice(processLength - lengthSecao, processLength),
+        secao = validaResponsavelMock ? validaResponsavelMock.secao : numeroProcesso.slice(processLength - lengthSecao, processLength),
         secaoDFGO = ["3400","3501","3502","3506", "0015"],
-        setimoDigito = Number(numeroProcesso[6]),
-        digitoVerificador = numeroProcesso.slice(13,16),
+        setimoDigito = validaResponsavelMock ? validaResponsavelMock.digito : Number(numeroProcesso[PROCESS_DIGIT_INDEX]),
+        digitoVerificador = validaResponsavelMock ? validaResponsavelMock.digitoVerificador : numeroProcesso.slice(PROCESS_SLICE_START, PROCESS_SLICE_END),
         natureza = cliente.processo.natureza
 
     if (tarefaAtualNormalizada.includes(liminarPericiaAdm) && tarefaAtualNormalizada.includes("ADM")) {
@@ -203,7 +222,6 @@ export async function validaResponsavelFederal (cliente: Cliente, processLength:
     }
 
     if (digitoVerificador === "401" || secaoDFGO.includes(secao)) { // Processos do TRF1
-        const varasDF = ["23ª VARA FEDERAL BRASÍLIA", "24ª VARA FEDERAL DE BRASÍLIA", "25ª VARA FEDERAL DE BRASÍLIA", "26ª VARA FEDERAL DE BRASÍLIA", "27ª VARA FEDERAL DE BRASÍLIA", "23ª VARA FEDERAL", "24ª VARA FEDERAL", "25ª VARA FEDERAL", "26ª VARA FEDERAL", "27ª VARA FEDERAL", "BRASILIA", "1ª VARA FEDERAL CÍVEL SJGO", "TJ GOIÁS", "VARA FEDERAL DA SSJ LUZIÂNIA-GO", "VARA DE ÁGUAS LINDAS DE GOIÁS", "VARA FEDERAL DE RIO VERDE-GO", "VARA FEDERAL SJDF"]
         
         if ((cliente.processo.estado === "DF" || cliente.processo.estado === "GO")) {
             if (!varasDF.includes(cliente.processo.vara)) {
@@ -228,14 +246,6 @@ export async function validaResponsavelFederal (cliente: Cliente, processLength:
         }
 
         if (digitoVerificador === "405" && numeroProcesso.search('080') === 0) { //Processos do TRF5
-            if (cliente.processo.merito === "MANDADO DE SEGURANÇA") {
-                if (setimoDigito <= 4) {
-                    return {responsavel: "DIEGO MELO SOBRINHO",executor: "DIEGO MELO SOBRINHO"}
-                }
-
-                return {responsavel: "DIEGO MELO SOBRINHO",executor: "ITALO DE ANDRADE BEZERRA"}
-            }
-
             return {responsavel: "DIEGO MELO SOBRINHO",executor: "DIEGO MELO SOBRINHO"}
         }
 
@@ -295,22 +305,24 @@ export async function validaResponsavelFederal (cliente: Cliente, processLength:
     
     if (natureza === "CÍVEL" || natureza === "CONSUMIDOR" || natureza === "SERVIDOR PÚBLICO" || natureza === "BANCÁRIO") { //Processos de natureza cível
         if (cliente.processo.estado === "DF" || cliente.processo.estado === "GO") {
-            return {responsavel: "BRUNO PRADO GUIMARAES",executor: "BRUNO PRADO GUIMARAES"}
+            if (!varasDF.includes(cliente.processo.vara)) {
+                alert('Atenção: Confirme o responsável e executor da tarefa!')
+            }
+            let bruno = [0,1,2]
+            if (bruno.includes(setimoDigito) || tarefaAtualNormalizada.search("AUDIENCIA") === 0)
+                return {responsavel: "BRUNO PRADO GUIMARAES",executor: "BRUNO PRADO GUIMARAES"}
+            return {responsavel: "BRUNO PRADO GUIMARAES",executor: "PAULO VICTOR SANTANA TEIXEIRA"}
         }
         return {responsavel: "RODRIGO AGUIAR SANTOS",executor: "RODRIGO AGUIAR SANTOS"}
     }
 }
 
-export async function getTarefasColaboradores(colaborador: iColaborador, data: Date) {
+export async function getTarefasColaboradores(colaborador: iColaborador, data: Date, getTarefasColaboradores?: getTarefasColaboradoresDTO) {
     let contador = 0
 
     const dateString = data.toLocaleDateString()
 
-    const response = await getTarefa({ bsAdvTarefasDe: dateString, bsAdvTarefasAte: dateString, bsAdvTarefasExecutor: (colaborador.id).toString() })
-
-    const htmlString = response.data.text()
-    
-    const dom = new JSDOM(htmlString)
+    const dom = getTarefasColaboradores ? getTarefasColaboradores.dom : new JSDOM((await getTarefa({ bsAdvTarefasDe: dateString, bsAdvTarefasAte: dateString, bsAdvTarefasExecutor: (colaborador.id).toString() })).data.text())
 
     const tarefas: NodeListOf<Element> = dom.window.document.querySelectorAll('body > section > section > div.fdt-espaco > div > div.fdt-pg-conteudo > div.table-responsive > table > tbody > tr')
     
@@ -328,7 +340,7 @@ export async function getTarefasColaboradores(colaborador: iColaborador, data: D
     return colaborador
 }
 
-export async function validaEsferaProcesso(cliente: Cliente) {
+export function validaEsferaProcesso(cliente: Cliente) {
     const caracteresProcesso = cliente.processo.origem.length
     const lengthCharProcessTJ = 12
     const lengthCharProcessFederalProtocol = 15
@@ -346,7 +358,7 @@ export async function validaEsferaProcesso(cliente: Cliente) {
     throw new Error("Erro no cadastro do número do processo")
 }
 
-export function filterColaboradoresJudicial (cliente: Cliente) {
+export function filterColaboradoresJudicial (cliente: Cliente, isMocked?: boolean) {
     const colaboradores = []
 
     //Última atualização: 24/05/2024
@@ -376,14 +388,7 @@ export function filterColaboradoresJudicial (cliente: Cliente) {
                 interiores: ["ESTANCIA", "TOBIAS BARRETO", "PEDRINHAS"],
                 datasViagem: [],
                 tarefas: 0
-            }, //[],
-            /* {
-                id: 225,
-                nome: "ERINALDO FARO SANTOS",
-                interiores: [],
-                datasViagem: [],
-                tarefas: 0
-            }, */
+            },
             {
                 id: '188',
                 nome: "VINICIUS SOUSA BOMFIM",
@@ -429,13 +434,6 @@ export function filterColaboradoresJudicial (cliente: Cliente) {
                 tarefas: 0
             },
             {
-                id: '80',
-                nome: "PATRICIA ANDRE SIMÃO DE SOUZA",
-                interiores: [],
-                datasViagem: [],
-                tarefas: 0
-            },
-            {
                 id: '222',
                 nome: "STEFANNY MORAIS DO NASCIMENTO",
                 interiores: [],
@@ -450,7 +448,8 @@ export function filterColaboradoresJudicial (cliente: Cliente) {
         colaboradores.push(...estancia)
     } else {
         if (varaEstancia.includes(cliente.processo.vara)) {
-            alert("Verificar executor manualmente!")
+            if (!isMocked)
+                alert("Verificar executor manualmente!")
             colaboradores.push(...aracaju)
             colaboradores.push(...estancia)
         } else {
@@ -489,12 +488,11 @@ function filterColaboradoresCalculo () {
     return calculo
 }
 
-export async function selectExecutorContatarJudicial (colaboradores: Promise<iColaborador>[], cliente: Cliente) {
-    const adm = await Promise.all(colaboradores)
+export function selectExecutorContatarJudicial (colaboradores: iColaborador[], cliente: Cliente, removeAcentuacaoStringMock?: removeAcentuacaoStringMock) {
     let responsavel = 'JULIANO OLIVEIRA DE SOUZA'
 
-    const responsavelInterior = adm.reduce((previous, currrent) => {
-        if (currrent.interiores.includes(removeAcentuacaoString(cliente.localAtendido))) {
+    const responsavelInterior = colaboradores.reduce((previous, currrent) => {
+        if (currrent.interiores.includes(removeAcentuacaoStringMock(cliente.localAtendido) || removeAcentuacaoString(cliente.localAtendido))) {
             return currrent
         }
         return previous
@@ -504,12 +502,12 @@ export async function selectExecutorContatarJudicial (colaboradores: Promise<iCo
         return {responsavel, executor: responsavelInterior.nome}
     }
 
-    const executor = adm.reduce((previous, currrent) => {
+    const executor = colaboradores.reduce((previous, currrent) => {
         if (previous.tarefas > currrent.tarefas) {
             return currrent
         }
         return previous
-    }, adm[0])
+    }, colaboradores[0])
 
     if (executor.nome.includes("SANDOVAL"))
         responsavel =  'SANDOVAL FILHO CORREIA LIMA FILHO'
@@ -540,7 +538,7 @@ async function selectExecutorContatar(colaboradores: Promise<iColaborador>[], cl
         return await selectExecutorCalculo(colaboradores)
     } */
     
-    return await selectExecutorContatarJudicial(colaboradores, cliente)
+    return selectExecutorContatarJudicial(await Promise.all(colaboradores), cliente)
 }
 
 export async function requererTarefasContatar(data: Date, cliente: Cliente) {
@@ -576,16 +574,16 @@ export async function getResponsavelExecutor(task: string, cliente: Cliente, dat
         return responsavelExecutorContatarOrCalculo
     }
 
-    const isEstadualProcess = await validaEsferaProcesso(cliente)
+    const isEstadualProcess = validaEsferaProcesso(cliente)
 
-    const responsavelExecutorFederal = isEstadualProcess ? await validaResponsavelTj(cliente, cliente.processo.origem.length) : await validaResponsavelFederal(cliente, cliente.processo.origem.length)
+    const responsavelExecutorFederal = isEstadualProcess ? validaResponsavelTj(cliente, cliente.processo.origem.length) : validaResponsavelFederal(cliente, cliente.processo.origem.length)
 
     return responsavelExecutorFederal
 }
 
-export function validaTipoCompromisso(descriptionCompromisso: string, cliente: Cliente) {
+export function validaTipoCompromisso(descriptionCompromisso: string, cliente: Cliente, removeAcentuacaoStringMock?: removeAcentuacaoStringMock) {
     const { cidade, estado } = cliente.processo
-    const descriptionCompromissoNormalizado = removeAcentuacaoString(descriptionCompromisso)
+    const descriptionCompromissoNormalizado = removeAcentuacaoStringMock(descriptionCompromisso) || removeAcentuacaoString(descriptionCompromisso)
     const pauta = ["PAUTA", "RETIRADO DE PAUTA"]
     const emendar = ["DADOS PERICIA SOCIAL", "DADOS COMPLEMENTARES", "EMENDA", "EMENDA A INICIAL", "EMENDAR A INICIAL", "EMENDAR"]
     const pedidoVistas = ["PEDIDO DE VISTAS", "PEDIDO DE VISTA"]
