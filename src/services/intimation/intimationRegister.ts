@@ -17,9 +17,9 @@ export async function handleIntimationsRegistration(windows: iWindows, cookie: s
 
     const resultados = await Promise.all(intimations.map((intimation: createClienteDTO) =>
         createCliente({ ...intimation }, cookie)
-            .then(cliente => {
-                return createCompromissoService(cliente, cookie)
-                    .then(() => createTaskService({ cliente, cookie }))
+            .then(async cliente => {
+                await createCompromissoService(cliente, cookie)
+                return await createTaskService({ cliente, cookie })
             })
             .then(resultadoCadastro => updateViewRegistrationIntimations(resultadoCadastro, windows))
     ))
