@@ -3,12 +3,36 @@ test('Function createBodyForCreateTask: ', () => {
 
     const colaboradoresMock = []
     const tiposTarefasMock = []
-    const clienteMock = {}
+
+    beforeEach(() => {
+        //TODO: Antes de qualquer execução, criar o compromisso TESTE
+    })
+
+    afterEach(() => {
+        //TODO: Após qualquer execução, deletar o compromisso TESTE
+    })
     
-    it('', async () => {
+    it('Criar objeto body de todas as tarefas de um compromisso de audiência', async () => {
+        const clienteMock = {
+            tarefas: [],
+            compromisso: {
+                id
+            },
+            processo: {
+                id
+            }
+        }
+
+        const createBodyForCreateTaskMock = {
+            getParametroData,
+            calcularDataTarefa,
+            getDescricao,
+            getTipoTarefa,
+            getResponsavelExecutor,
+        }
         const desiredBodyTask = []
 
-        const resultados = await createBodyForCreateTask(clienteMock, colaboradoresMock, tiposTarefasMock)
+        const resultados = await createBodyForCreateTask({ cliente: clienteMock, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, createBodyForCreateTaskMock })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredBodyTask))
     })

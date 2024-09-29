@@ -39,6 +39,17 @@ interface getDescricaoMockDTO {
     tipoCompromissoNormalizado: string
 }
 
+interface createBodyForCreateTaskMockDTO {
+    getParametroData:number,
+    calcularDataTarefa:Date,
+    getDescricao: string,
+    getTipoTarefa:string,
+    getResponsavelExecutor: {
+        responsavel: string;
+        executor: string;
+    }
+}
+
 export function atualizaHoraFinal (horarioInicial: string) {
     const duracaoAudicencia = 2
     let hora = (Number(horarioInicial.slice(0,2)) + duracaoAudicencia).toString()
@@ -725,17 +736,17 @@ export function getTipoTarefa(cliente: Cliente, tiposTarefas: seletores[], getTi
     return inputManifestacao
 }
 
-export async function createBodyForCreateTask({ cliente, colaboradores, tiposTarefas }: { cliente: Cliente; colaboradores: iColaborador[], tiposTarefas: seletores[] }): Promise<iCreateTarefa[]> {
+export async function createBodyForCreateTask({ cliente, colaboradores, tiposTarefas, createBodyForCreateTaskMock }: { cliente: Cliente; colaboradores: iColaborador[], tiposTarefas: seletores[], createBodyForCreateTaskMock?: createBodyForCreateTaskMockDTO }): Promise<iCreateTarefa[]> {
 
     const { tarefas } = cliente.compromisso
 
     return await Promise.all(tarefas.map(async () => {
-        const parametro = getParametroData(cliente.compromisso.tarefas[0], cliente)
-        const dataTarefa = calcularDataTarefa(parametro, cliente)
-        const descricaoTarefa = getDescricao(cliente)
-        const idTipoTarefa = getTipoTarefa(cliente, tiposTarefas)
+        const parametro = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getParametroData : getParametroData(cliente.compromisso.tarefas[0], cliente)
+        const dataTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.calcularDataTarefa : calcularDataTarefa(parametro, cliente)
+        const descricaoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getDescricao : getDescricao(cliente)
+        const idTipoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getTipoTarefa : getTipoTarefa(cliente, tiposTarefas)
     
-        const { responsavel, executor } = await getResponsavelExecutor(cliente.compromisso.tarefas[0], cliente, dataTarefa)
+        const { responsavel, executor } = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getResponsavelExecutor : await getResponsavelExecutor(cliente.compromisso.tarefas[0], cliente, dataTarefa)
     
         const [{ id: idExecutor }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === executor)
         const [{ id: idResponsavel }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === responsavel)
