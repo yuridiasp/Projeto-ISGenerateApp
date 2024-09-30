@@ -8,23 +8,26 @@ import { iProcesso } from "../../models/processo/iProcesso"
 function extrairDadosRequisicaoProcessoHtml(response: AxiosResponse<any, any>) {
 
     const dom = new JSDOM(response.data)
+
+    const selectAcaoColetiva: HTMLSelectElement = dom.window.document.querySelector("#acaoColetiva")
+    const indexAcaoColetiva = selectAcaoColetiva.selectedIndex
+    const acaoColetiva = indexAcaoColetiva === -1 ? "" : selectAcaoColetiva.options[indexAcaoColetiva].textContent.toUpperCase()
     
     const selectResponsavelProcesso: HTMLSelectElement = dom.window.document.querySelector("#idResponsavel")
     const indexResponsavelProcesso = selectResponsavelProcesso.selectedIndex
-    const responsavel = indexResponsavelProcesso === -1 ? "" : selectResponsavelProcesso.options[indexResponsavelProcesso].innerText.toUpperCase()
-    document.createElement("select")
+    const responsavel = indexResponsavelProcesso === -1 ? "" : selectResponsavelProcesso.options[indexResponsavelProcesso].textContent.toUpperCase()
     
     const selectNaturezaProcesso: HTMLSelectElement = dom.window.document.querySelector("#idNatureza")
     const indexNaturezaProcesso = selectNaturezaProcesso.selectedIndex
-    const natureza = indexNaturezaProcesso === -1 ? "" : selectNaturezaProcesso.options[indexNaturezaProcesso].innerText.toUpperCase()
+    const natureza = indexNaturezaProcesso === -1 ? "" : selectNaturezaProcesso.options[indexNaturezaProcesso].textContent.toUpperCase()
     
     const selectMeritoProcesso: HTMLSelectElement = dom.window.document.querySelector("#idMerito")
     const indexMeritoProcesso = selectMeritoProcesso.selectedIndex
-    const merito = indexMeritoProcesso === -1 ? "" : selectMeritoProcesso.options[indexMeritoProcesso].innerText.toUpperCase()
+    const merito = indexMeritoProcesso === -1 ? "" : selectMeritoProcesso.options[indexMeritoProcesso].textContent.toUpperCase()
     
     const selectCidadeProcesso: HTMLSelectElement = dom.window.document.querySelector("#lstCidade")
     const indexCidadeProcesso = selectCidadeProcesso.selectedIndex
-    const cidade = indexCidadeProcesso === -1 ? "" : selectCidadeProcesso.options[indexCidadeProcesso].innerText.toUpperCase()
+    const cidade = indexCidadeProcesso === -1 ? "" : selectCidadeProcesso.options[indexCidadeProcesso].textContent.toUpperCase()
     
     const selectEstadoProcesso: HTMLSelectElement = dom.window.document.querySelector("#lstEstado")
     const indexEstadoProcesso = selectEstadoProcesso.selectedIndex
@@ -32,7 +35,7 @@ function extrairDadosRequisicaoProcessoHtml(response: AxiosResponse<any, any>) {
     
     const selectVaraProcesso: HTMLSelectElement = dom.window.document.querySelector("#idVara")
     const indexVaraProcesso = selectVaraProcesso.selectedIndex
-    const vara = indexVaraProcesso === -1 ? "" : selectVaraProcesso.options[indexVaraProcesso].innerText.toUpperCase()
+    const vara = indexVaraProcesso === -1 ? "" : selectVaraProcesso.options[indexVaraProcesso].textContent.toUpperCase()
     
     const idClienteInput: HTMLInputElement = dom.window.document.querySelector("#fdt-form > input[type=hidden]:nth-child(2)")
     const idProcessoInput: HTMLInputElement = dom.window.document.querySelector("#fdt-form > input[type=hidden]:nth-child(1)")
@@ -48,10 +51,35 @@ function extrairDadosRequisicaoProcessoHtml(response: AxiosResponse<any, any>) {
         merito,
         cidade,
         estado,
-        vara
+        vara,
+        acaoColetiva
     }
 
     return { idCliente: idClienteInput.value.toUpperCase(), processo: dataProcesso }
+}
+
+async function extrairDadosRequisicaoProcessoColetivoDemaisEnvolvidosHtml(response: AxiosResponse<any, any>) {
+    let demaisEnvolvidos: string[] = []
+
+    const dom = new JSDOM(response.data)
+
+    const tableRows = dom.window.document.querySelectorAll("#demaisEnvolvidos > div > table > tbody > tr > td:nth-child(4)")
+
+    if (tableRows.length) {
+        demaisEnvolvidos = Array.from(tableRows).map(tr => tr.textContent)
+    }
+
+    return demaisEnvolvidos
+}
+
+async function getIdsProcessoColetivo (cookie: string, dataProcesso: { idCliente: string, processo: iProcesso }) {
+    const { URL_GET_DEMAIS_ENVOLVIDOS_COLETIVO } = process.env
+
+    const url = `${URL_GET_DEMAIS_ENVOLVIDOS_COLETIVO}${dataProcesso.processo.id}`
+
+    const response = await loggedGetRequest({ url, cookie })
+
+    return await extrairDadosRequisicaoProcessoColetivoDemaisEnvolvidosHtml(response)
 }
 
 async function requestDataProcesso(id: string, cookie: string) {
@@ -61,7 +89,13 @@ async function requestDataProcesso(id: string, cookie: string) {
 
     const response = await loggedGetRequest({ url, cookie })
 
-    return extrairDadosRequisicaoProcessoHtml(response)
+    const dataProcesso = extrairDadosRequisicaoProcessoHtml(response)
+
+    if (dataProcesso.processo.acaoColetiva === "Coletiva") {
+        dataProcesso.processo.demaisEnvolvidosCPF = await getIdsProcessoColetivo(cookie, dataProcesso)
+    }
+
+    return dataProcesso
 }
 
 

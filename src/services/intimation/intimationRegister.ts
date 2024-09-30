@@ -1,6 +1,6 @@
 import { iWindows } from "../../models/windows/iWindows"
 import { getIntimations } from "../../controllers/controllers"
-import { createCliente, createClienteDTO } from "../clientes/clienteService"
+import { createCliente, createClienteDTO } from "../clientes/createClienteService"
 import { createCompromissoService } from "../compromissos/compromissoService"
 import { createTaskService } from "../tarefas/taskService"
 import { updateViewRegistrationIntimations } from "../../utils/viewHelpers/viewHelpers"
