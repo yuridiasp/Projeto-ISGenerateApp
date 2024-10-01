@@ -4,6 +4,7 @@ import { JSDOM } from "jsdom"
 import { loggedGetRequest } from "../../utils/request/getRequest"
 import { getCadastroProcesso } from "./getCadatroProcessoService"
 import { iProcesso } from "../../models/processo/iProcesso"
+import { getIdClienteByCPF } from "../clientes/getClienteService"
 
 function extrairDadosRequisicaoProcessoHtml(response: AxiosResponse<any, any>) {
 
@@ -11,7 +12,7 @@ function extrairDadosRequisicaoProcessoHtml(response: AxiosResponse<any, any>) {
 
     const selectAcaoColetiva: HTMLSelectElement = dom.window.document.querySelector("#acaoColetiva")
     const indexAcaoColetiva = selectAcaoColetiva.selectedIndex
-    const acaoColetiva = indexAcaoColetiva === -1 ? "" : selectAcaoColetiva.options[indexAcaoColetiva].textContent.toUpperCase()
+    const acao = indexAcaoColetiva === -1 ? "" : selectAcaoColetiva.options[indexAcaoColetiva].textContent.toUpperCase()
     
     const selectResponsavelProcesso: HTMLSelectElement = dom.window.document.querySelector("#idResponsavel")
     const indexResponsavelProcesso = selectResponsavelProcesso.selectedIndex
@@ -52,7 +53,7 @@ function extrairDadosRequisicaoProcessoHtml(response: AxiosResponse<any, any>) {
         cidade,
         estado,
         vara,
-        acaoColetiva
+        acao
     }
 
     return { idCliente: idClienteInput.value.toUpperCase(), processo: dataProcesso }
@@ -79,7 +80,9 @@ async function getIdsProcessoColetivo (cookie: string, dataProcesso: { idCliente
 
     const response = await loggedGetRequest({ url, cookie })
 
-    return await extrairDadosRequisicaoProcessoColetivoDemaisEnvolvidosHtml(response)
+    const cpfsDemaisEnvolvidos = await extrairDadosRequisicaoProcessoColetivoDemaisEnvolvidosHtml(response)
+
+    return await Promise.all(cpfsDemaisEnvolvidos.map(async cpf => await getIdClienteByCPF(cpf, cookie)))
 }
 
 async function requestDataProcesso(id: string, cookie: string) {
@@ -91,8 +94,8 @@ async function requestDataProcesso(id: string, cookie: string) {
 
     const dataProcesso = extrairDadosRequisicaoProcessoHtml(response)
 
-    if (dataProcesso.processo.acaoColetiva === "Coletiva") {
-        dataProcesso.processo.demaisEnvolvidosCPF = await getIdsProcessoColetivo(cookie, dataProcesso)
+    if (dataProcesso.processo.acao === "Coletiva") {
+        dataProcesso.processo.idsCopias = await getIdsProcessoColetivo(cookie, dataProcesso)
     }
 
     return dataProcesso

@@ -40,14 +40,14 @@ interface getDescricaoMockDTO {
 }
 
 interface createBodyForCreateTaskMockDTO {
-    getParametroData:number,
-    calcularDataTarefa:Date,
-    getDescricao: string,
-    getTipoTarefa:string,
-    getResponsavelExecutor: {
+    getParametroData: (tarefa: string) => number,
+    calcularDataTarefa: (parametro: number) => Date,
+    getDescricao: (cliente: Cliente) => string,
+    getTipoTarefa: (cliente: Cliente, tiposTarefas: seletores[]) => string,
+    getResponsavelExecutor: (tarefa: string, cliente: Cliente, dataTarefa: Date) => ({
         responsavel: string;
         executor: string;
-    }
+    })
 }
 
 export function atualizaHoraFinal (horarioInicial: string) {
@@ -741,41 +741,47 @@ export async function createBodyForCreateTask({ cliente, colaboradores, tiposTar
     const { tarefas } = cliente.compromisso
 
     return await Promise.all(tarefas.map(async () => {
-        const parametro = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getParametroData : getParametroData(cliente.compromisso.tarefas[0], cliente)
-        const dataTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.calcularDataTarefa : calcularDataTarefa(parametro, cliente)
-        const descricaoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getDescricao : getDescricao(cliente)
-        const idTipoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getTipoTarefa : getTipoTarefa(cliente, tiposTarefas)
+        const isAudiencia = removeAcentuacaoString(cliente.compromisso.tarefas[0]).search("AUDIENCIA") === 0
+        const parametro = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getParametroData(cliente.compromisso.tarefas[0]) : getParametroData(cliente.compromisso.tarefas[0], cliente)
+        const dataTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.calcularDataTarefa(parametro) : calcularDataTarefa(parametro, cliente)
+        const descricaoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getDescricao(cliente) : getDescricao(cliente)
+        const idTipoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getTipoTarefa(cliente, tiposTarefas) : getTipoTarefa(cliente, tiposTarefas)
     
-        const { responsavel, executor } = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getResponsavelExecutor : await getResponsavelExecutor(cliente.compromisso.tarefas[0], cliente, dataTarefa)
+        const { responsavel, executor } = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getResponsavelExecutor(cliente.compromisso.tarefas[0], cliente, dataTarefa) : await getResponsavelExecutor(cliente.compromisso.tarefas[0], cliente, dataTarefa)
     
         const [{ id: idExecutor }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === executor)
         const [{ id: idResponsavel }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === responsavel)
 
         cliente.compromisso.tarefas.shift()
 
-        return {
-                idPK: "",
-                idCO: cliente.compromisso.id,
-                idPR: cliente.processo.id,
-                idCL: "",
-                org: "",
-                superior: "",
-                idResponsavelAvisado: "",
-                agendada: "n",
-                acaoColetiva: "False",
-                idTipoTarefa,
-                pautaIdUsuarioResp: "",
-                dataParaFinalizacaoAgendada: "",
-                onde: "",
-                horarioInicial: "",
-                horarioFinal: "",
-                dataParaFinalizacao: "",
-                descricao: descricaoTarefa,
-                idResponsavel: idResponsavel,
-                idExecutor: idExecutor,
-                lembreteQuandoFinalizarPara: "",
-                incluirOutra: ""
-            } as iCreateTarefa
+        const dataParaFinalizacao = dataTarefa.toLocaleDateString()
+
+        const body: iCreateTarefa = {
+            idCO: cliente.compromisso.id,
+            idPR: cliente.processo.id,
+            agendada: "n",
+            idTipoTarefa,
+            dataParaFinalizacao,
+            descricao: descricaoTarefa,
+            idResponsavel: idResponsavel,
+            idExecutor: idExecutor,
+            acaoColetiva: "False"
+        }
+
+        if (cliente.processo.idsCopias) {
+            body.idsCopias = cliente.processo.idsCopias
+            body.acaoColetiva = "True"
+        }
+
+        if (isAudiencia) {
+            body.dataParaFinalizacaoAgendada = dataParaFinalizacao,
+            body.onde = cliente.compromisso.local,
+            body.horarioInicial = cliente.compromisso.horario,
+            body.horarioFinal = atualizaHoraFinal(cliente.compromisso.horario)
+            body.agendada = "s"
+        }
+
+        return body
     }))
 
 }

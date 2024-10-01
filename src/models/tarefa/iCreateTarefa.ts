@@ -19,5 +19,6 @@ export interface iCreateTarefa {
     idResponsavel: string,
     idExecutor: string,
     lembreteQuandoFinalizarPara?: string,
-    incluirOutra: string
+    incluirOutra?: string
+    idsCopias?: string[]
 }

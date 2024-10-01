@@ -9,6 +9,6 @@ export interface iProcesso {
     cidade: string
     estado: string
     vara: string
-    acaoColetiva: string
-    demaisEnvolvidosCPF?: string[]
+    acao?: string
+    idsCopias?: string[]
 }

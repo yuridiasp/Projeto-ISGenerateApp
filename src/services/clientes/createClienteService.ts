@@ -1,6 +1,6 @@
 import { validaTipoCompromisso } from "../../utils/compromissos/validarTipoCompromisso"
 import { buscarDadosProcesso } from "../processos/getProcessoService"
-import { buscarDadosCliente } from "./getClienteService"
+import { getClienteByID } from "./getClienteService"
 import { Cliente } from "../../models/cliente/Cliente"
 
 export interface createClienteDTO {
@@ -21,7 +21,7 @@ export interface createClienteDTO {
 export async function createCliente({ publication_date, case_number, related_case_number, description, internal_deadline, fatal_deadline, time, expert_or_defendant, local_adress, executor, separate_task, justification }: createClienteDTO, cookie: string) {
     const { idCliente, processo } = await buscarDadosProcesso({ processo: case_number, cookie })
     
-    const cliente = await buscarDadosCliente(idCliente, cookie)
+    const cliente = await getClienteByID(idCliente, cookie)
 
     const newCliente = new Cliente({ publication_date, case_number, related_case_number, description, internal_deadline, fatal_deadline, time, expert_or_defendant, local_adress, dataCliente: cliente, dataProcesso: processo })
 
