@@ -23,7 +23,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'PERICIA MEDICA'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - PERICIA MÉDICA DE LAILTON DE SOUZA AGUIAR (085.650.825-04), NO DIA DD/MM/AAAA ÀS HH:MM, PERITO: PERITO QUALQUER, LOCAL: CLÍNICA CLIMAGEM'
 
@@ -52,7 +52,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'PERICIA MEDICA'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - PERICIA MÉDICA DE LAILTON DE SOUZA AGUIAR (085.650.825-04), NO DIA DD/MM/AAAA ÀS HH:MM, PERITO: PERITO QUALQUER, LOCAL: CLÍNICA CLIMAGEM'
 
@@ -81,7 +81,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'PERICIA MEDICA'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - PERICIA MÉDICA DE LAILTON DE SOUZA AGUIAR (085.650.825-04), NO DIA DD/MM/AAAA ÀS HH:MM, PERITO: PERITO QUALQUER, LOCAL: CLÍNICA CLIMAGEM'
 
@@ -110,7 +110,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'PERICIA MEDICA'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - ATO ORDINATÓRIO (PERÍCIA DESIGNADA)'
 

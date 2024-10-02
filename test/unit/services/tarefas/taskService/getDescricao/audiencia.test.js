@@ -23,7 +23,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'AUDIENCIA'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO'
 
@@ -52,7 +52,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'AUDIENCIA'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO'
 
@@ -81,7 +81,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'AUDIENCIA'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO'
 
@@ -110,7 +110,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'AUDIENCIA'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO'
 
@@ -139,7 +139,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'AUDIENCIA'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - VERIFICAR NECESSIDADE DE TESTEMUNHAS'
 

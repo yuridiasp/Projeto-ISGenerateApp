@@ -23,7 +23,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: 'LEANDRO SANTOS', executor: 'LEANDRO SANTOS'}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -48,7 +48,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "VICTOR MENDES DOS SANTOS",executor: "VICTOR MENDES DOS SANTOS"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -73,7 +73,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "LUCIANA LIMA REZENDE",executor: "SHEYLA SANTANA SANTOS"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -98,7 +98,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "SANDOVAL FILHO CORREIA LIMA FILHO",executor: "SANDOVAL FILHO CORREIA LIMA FILHO"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -124,7 +124,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "HENYR GOIS DOS SANTOS", executor: "HENYR GOIS DOS SANTOS"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -150,7 +150,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "LAIS PEREIRA MORAES",executor: "LAIS PEREIRA MORAES"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -182,7 +182,7 @@ describe('Function validaResponsavelFederal: ', () => {
         const resultados = digitos.map(digito => {
             const newvalidaResponsavelFederalMock = { ...validaResponsavelFederalMock }
             newvalidaResponsavelFederalMock.digito = digito
-            return validaResponsavelFederal(cliente, processLengthFederal, newvalidaResponsavelFederalMock)
+            return validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, newvalidaResponsavelFederalMock)
         })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -215,7 +215,7 @@ describe('Function validaResponsavelFederal: ', () => {
         const resultados = digitos.map(digito => {
             const newvalidaResponsavelFederalMock = { ...validaResponsavelFederalMock }
             newvalidaResponsavelFederalMock.digito = digito
-            return validaResponsavelFederal(cliente, processLengthFederal, newvalidaResponsavelFederalMock)
+            return validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, newvalidaResponsavelFederalMock)
         })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -241,7 +241,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "DIEGO MELO SOBRINHO",executor: "DIEGO MELO SOBRINHO"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -266,7 +266,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "JULIANO OLIVEIRA DE SOUZA",executor: "JULIANO OLIVEIRA DE SOUZA"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -291,7 +291,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "HENYR GOIS DOS SANTOS",executor: "LAYNE DA SILVA GOIS"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -316,7 +316,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "FELIPE PANTA CARDOSO",executor: "FELIPE PANTA CARDOSO"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -341,7 +341,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "RODRIGO AGUIAR SANTOS",executor: "RODRIGO AGUIAR SANTOS"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -373,7 +373,7 @@ describe('Function validaResponsavelFederal: ', () => {
         const resultado = digitos.map(digito => {
             const newvalidaResponsavelFederalMock = { ...validaResponsavelFederalMock }
             newvalidaResponsavelFederalMock.digito = digito
-            return validaResponsavelFederal(cliente, processLengthFederal, newvalidaResponsavelFederalMock)
+            return validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, newvalidaResponsavelFederalMock)
         })
 
         resultado.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -406,7 +406,7 @@ describe('Function validaResponsavelFederal: ', () => {
         const resultado = digitos.map(digito => {
             const newvalidaResponsavelFederalMock = { ...validaResponsavelFederalMock }
             newvalidaResponsavelFederalMock.digito = digito
-            return validaResponsavelFederal(cliente, processLengthFederal, newvalidaResponsavelFederalMock)
+            return validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, newvalidaResponsavelFederalMock)
         })
 
         resultado.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -433,7 +433,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "DIEGO MELO SOBRINHO",executor: "DIEGO MELO SOBRINHO"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -460,7 +460,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "DIEGO MELO SOBRINHO",executor: "DIEGO MELO SOBRINHO"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -491,7 +491,7 @@ describe('Function validaResponsavelFederal: ', () => {
         const resultados = digitos.map(digito => {
             const newvalidaResponsavelFederalMock = { ...validaResponsavelFederalMock }
             newvalidaResponsavelFederalMock.digito = digito
-            return validaResponsavelFederal(cliente, processLengthFederal, newvalidaResponsavelFederalMock)
+            return validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, newvalidaResponsavelFederalMock)
         })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -523,7 +523,7 @@ describe('Function validaResponsavelFederal: ', () => {
         const resultados = digitos.map(digito => {
             const newvalidaResponsavelFederalMock = { ...validaResponsavelFederalMock }
             newvalidaResponsavelFederalMock.digito = digito
-            return validaResponsavelFederal(cliente, processLengthFederal, newvalidaResponsavelFederalMock)
+            return validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, newvalidaResponsavelFederalMock)
         })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -551,7 +551,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "LAIS PEREIRA MORAES",executor: "LAIS PEREIRA MORAES"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -582,7 +582,7 @@ describe('Function validaResponsavelFederal: ', () => {
         const resultados = digitos.map(digito => {
             const newvalidaResponsavelFederalMock = { ...validaResponsavelFederalMock }
             newvalidaResponsavelFederalMock.digito = digito
-            return validaResponsavelFederal(cliente, processLengthFederal, newvalidaResponsavelFederalMock)
+            return validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, newvalidaResponsavelFederalMock)
         })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -614,7 +614,7 @@ describe('Function validaResponsavelFederal: ', () => {
         const resultados = digitos.map(digito => {
             const newvalidaResponsavelFederalMock = { ...validaResponsavelFederalMock }
             newvalidaResponsavelFederalMock.digito = digito
-            return validaResponsavelFederal(cliente, processLengthFederal, newvalidaResponsavelFederalMock)
+            return validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, newvalidaResponsavelFederalMock)
         })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -642,7 +642,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "SARA GONÇALVES PINHEIRO",executor: "SARA GONÇALVES PINHEIRO"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -669,7 +669,7 @@ describe('Function validaResponsavelFederal: ', () => {
 
         const desiredRespExec = {responsavel: "LAIS PEREIRA MORAES",executor: "LAIS PEREIRA MORAES"}
 
-        const resultado = validaResponsavelFederal(cliente, processLengthFederal, validaResponsavelFederalMock)
+        const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })

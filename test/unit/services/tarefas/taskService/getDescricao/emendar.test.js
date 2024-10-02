@@ -23,7 +23,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'EMENDAR'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - EMENDAR'
 
@@ -52,7 +52,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             tipoCompromissoNormalizado: 'EMENDAR'
         }
 
-        const resultDescription = getDescricao(cliente, getDescricaoMock)
+        const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
 
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - '
 

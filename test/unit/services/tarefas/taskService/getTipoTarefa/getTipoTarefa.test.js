@@ -15,7 +15,7 @@ describe('Function getTipoTarefa: Recuperar o ID do tipo da tarefa a partir do t
             tipoIntimacaoToUpperNormalized: 'ACORDAO'
         }
         
-        const resultado = getTipoTarefa(cliente, tiposTarefasMock, getTipoTarefaMock)
+        const resultado = getTipoTarefa(getTipoTarefaMock.tipoIntimacaoToUpperNormalized, cliente, tiposTarefasMock, getTipoTarefaMock)
         expect(resultado).toBe('89')
     })
 
@@ -24,7 +24,7 @@ describe('Function getTipoTarefa: Recuperar o ID do tipo da tarefa a partir do t
             tipoIntimacaoToUpperNormalized: 'MANIFESTACAO SOBRE DOCUMENTOS'
         }
 
-        const resultado = getTipoTarefa(cliente, tiposTarefasMock, getTipoTarefaMock)
+        const resultado = getTipoTarefa(getTipoTarefaMock.tipoIntimacaoToUpperNormalized, cliente, tiposTarefasMock, getTipoTarefaMock)
         expect(resultado).toBe('44')
     })
 })

@@ -41,10 +41,10 @@ interface getDescricaoMockDTO {
 
 interface createBodyForCreateTaskMockDTO {
     getParametroData: (tarefa: string) => number,
-    calcularDataTarefa: (parametro: number) => Date,
-    getDescricao: (cliente: Cliente) => string,
-    getTipoTarefa: (cliente: Cliente, tiposTarefas: seletores[]) => string,
-    getResponsavelExecutor: (tarefa: string, cliente: Cliente, dataTarefa: Date) => ({
+    calcularDataTarefa: (parametro: number, tarefa: string) => Date,
+    getDescricao: (tarefa: string) => string,
+    getTipoTarefa: (tarefa: string) => string,
+    getResponsavelExecutor: (tarefa: string) => ({
         responsavel: string;
         executor: string;
     })
@@ -77,11 +77,11 @@ export function existeOrigem(cliente: Cliente) {
     return cliente.processo.origem
 }
 
-export function getDescricao (cliente: Cliente, getDescricaoMock?: getDescricaoMockDTO) {
-    const fistWordInTarefa = getDescricaoMock ? getDescricaoMock.fistWordInTarefa : removeAcentuacaoString(cliente.compromisso.tarefas[0].split(" ")[0]),
+export function getDescricao (tarefa: string, cliente: Cliente, getDescricaoMock?: getDescricaoMockDTO) {
+    const fistWordInTarefa = getDescricaoMock ? getDescricaoMock.fistWordInTarefa : removeAcentuacaoString(tarefa.split(" ")[0]),
         localText = getDescricaoMock ? getDescricaoMock.localText : getEndereço(cliente.compromisso.local),
         numero = getDescricaoMock ? getDescricaoMock.numero : existeOrigem(cliente),
-        tipoTarefaNormalizado = getDescricaoMock ? getDescricaoMock.tipoTarefaNormalizado : removeAcentuacaoString(cliente.compromisso.tarefas[0]),
+        tipoTarefaNormalizado = getDescricaoMock ? getDescricaoMock.tipoTarefaNormalizado : removeAcentuacaoString(tarefa),
         tipoCompromissoNormalizado = getDescricaoMock ? getDescricaoMock.tipoCompromissoNormalizado : removeAcentuacaoString(cliente.compromisso.tipoCompromisso)
     
     if (cliente.compromisso.descricao && fistWordInTarefa !== "ANALISE" && tipoTarefaNormalizado !== "ATO ORDINATORIO" && cliente.compromisso.tipoCompromisso !== "EMENDAR"  && !tipoCompromissoNormalizado.includes('DECISAO ANTECIPACAO PERICIA')) {
@@ -106,7 +106,7 @@ export function getDescricao (cliente: Cliente, getDescricaoMock?: getDescricaoM
 
             return `${numero} - VERIFICAR NECESSIDADE DE TESTEMUNHAS`
 
-        } else if ((cliente.compromisso.tipoCompromisso === "EMENDAR") && (cliente.compromisso.tarefas[0] === "CONTATAR CLIENTE")) {
+        } else if ((cliente.compromisso.tipoCompromisso === "EMENDAR") && (tarefa === "CONTATAR CLIENTE")) {
 
             return `${numero} - `
 
@@ -120,7 +120,7 @@ export function getDescricao (cliente: Cliente, getDescricaoMock?: getDescricaoM
     }
 }
 
-export function validaResponsavelTj (cliente: Cliente, processLength: number, validaResponsavelMock?: validaResponsavelDTO) {
+export function validaResponsavelTj (tarefa: string, cliente: Cliente, processLength: number, validaResponsavelMock?: validaResponsavelDTO) {
     const digito = validaResponsavelMock ? validaResponsavelMock.digito : Number(cliente.processo.origem[processLength - 1]),
         financeiro = ["RPV TRF1 BRASILIA", "RPV TRF1 GOIAS", "RPV TRF5 ARACAJU", "RPV TRF5 ESTANCIA", "RPV TRF1 BAHIA", "RECEBIMENTO DE PRECATORIO"],
         tarefasAdm = ["CONTATAR CLIENTE","LEMBRAR CLIENTE"],
@@ -128,7 +128,7 @@ export function validaResponsavelTj (cliente: Cliente, processLength: number, va
         liminarPericiaAdm = "ACOMPANHAR",
         natureza = cliente.processo.natureza,
         tipoCompromissoNormalizado = validaResponsavelMock? validaResponsavelMock.tipoCompromissoNormalizado : removeAcentuacaoString(cliente.compromisso.tipoCompromisso),
-        tarefaAtualNormalizada = validaResponsavelMock? validaResponsavelMock.tarefaAtualNormalizada : removeAcentuacaoString(cliente.compromisso.tarefas[0])
+        tarefaAtualNormalizada = validaResponsavelMock? validaResponsavelMock.tarefaAtualNormalizada : removeAcentuacaoString(tarefa)
 
     if (tarefaAtualNormalizada.includes(liminarPericiaAdm)  && tarefaAtualNormalizada.includes("ADM")) {
         return {responsavel: 'LEANDRO SANTOS', executor: 'LEANDRO SANTOS'}
@@ -176,12 +176,12 @@ export function validaResponsavelTj (cliente: Cliente, processLength: number, va
     }
 }
 
-export function validaResponsavelFederal (cliente: Cliente, processLength: number, validaResponsavelMock?: validaResponsavelDTO) {
+export function validaResponsavelFederal (tarefa: string, cliente: Cliente, processLength: number, validaResponsavelMock?: validaResponsavelDTO) {
     const PROCESS_DIGIT_INDEX = 6
     const PROCESS_SLICE_START = 13
     const PROCESS_SLICE_END = 16
 
-    const tarefaAtualNormalizada = validaResponsavelMock ? validaResponsavelMock.tarefaAtualNormalizada : removeAcentuacaoString(cliente.compromisso.tarefas[0]),
+    const tarefaAtualNormalizada = validaResponsavelMock ? validaResponsavelMock.tarefaAtualNormalizada : removeAcentuacaoString(tarefa),
         numeroProcesso = cliente.processo.origem,
         varasDF = ["23ª VARA FEDERAL BRASÍLIA", "24ª VARA FEDERAL DE BRASÍLIA", "25ª VARA FEDERAL DE BRASÍLIA", "26ª VARA FEDERAL DE BRASÍLIA", "27ª VARA FEDERAL DE BRASÍLIA", "23ª VARA FEDERAL", "24ª VARA FEDERAL", "25ª VARA FEDERAL", "26ª VARA FEDERAL", "27ª VARA FEDERAL", "BRASILIA", "1ª VARA FEDERAL CÍVEL SJGO", "TJ GOIÁS", "VARA FEDERAL DA SSJ LUZIÂNIA-GO", "VARA DE ÁGUAS LINDAS DE GOIÁS", "VARA FEDERAL DE RIO VERDE-GO", "VARA FEDERAL SJDF"],
         financeiro = ["RPV TRF1 BRASILIA", "RPV TRF1 GOIAS", "RPV TRF5 ARACAJU", "RPV TRF5 ESTANCIA", "RPV TRF1 BAHIA", "RECEBIMENTO DE PRECATORIO"],
@@ -552,9 +552,9 @@ async function selectExecutorContatar(colaboradores: Promise<iColaborador>[], cl
     return selectExecutorContatarJudicial(await Promise.all(colaboradores), cliente)
 }
 
-export async function requererTarefasContatar(data: Date, cliente: Cliente) {
+export async function requererTarefasContatar(tarefa: string, data: Date, cliente: Cliente) {
 
-    const isTaskCalculo = removeAcentuacaoString(cliente.compromisso.tipoCompromisso).includes("CALCULO") && removeAcentuacaoString(cliente.compromisso.tarefas[0]).includes("CALCULO")
+    const isTaskCalculo = removeAcentuacaoString(cliente.compromisso.tipoCompromisso).includes("CALCULO") && removeAcentuacaoString(tarefa).includes("CALCULO")
 
     const colaboradores = isTaskCalculo ? filterColaboradoresCalculo() : filterColaboradoresJudicial(cliente)
 
@@ -563,31 +563,31 @@ export async function requererTarefasContatar(data: Date, cliente: Cliente) {
     })
 }
 
-export async function validaExecutorContatarOrCalculo (data: Date, cliente: Cliente) {
+export async function validaExecutorContatarOrCalculo (tarefa: string, data: Date, cliente: Cliente) {
 
-    const colaboradores = await requererTarefasContatar(data, cliente)
+    const colaboradores = await requererTarefasContatar(tarefa, data, cliente)
     
     const responsavelExecutorContatarOrCalculo = await selectExecutorContatar(colaboradores, cliente)
 
     return responsavelExecutorContatarOrCalculo
 }
 
-export async function getResponsavelExecutor(task: string, cliente: Cliente, data: Date) {
+export async function getResponsavelExecutor(tarefa: string, cliente: Cliente, data: Date) {
 
-    const isTaskCalculo = removeAcentuacaoString(cliente.compromisso.tipoCompromisso).includes("CALCULO") && removeAcentuacaoString(cliente.compromisso.tarefas[0]).includes("CALCULO")
-    const isTaskContatar = task == "CONTATAR CLIENTE"
-    const isTaskLembrar = task == "LEMBRAR CLIENTE"
-    const isTaskWhatsapp = task == "SMS E WHATSAPP"
+    const isTaskCalculo = removeAcentuacaoString(cliente.compromisso.tipoCompromisso).includes("CALCULO") && removeAcentuacaoString(tarefa).includes("CALCULO")
+    const isTaskContatar = tarefa == "CONTATAR CLIENTE"
+    const isTaskLembrar = tarefa == "LEMBRAR CLIENTE"
+    const isTaskWhatsapp = tarefa == "SMS E WHATSAPP"
     const isDFOrGO = cliente.processo.estado === "DF" || cliente.processo.estado === "GO"
 
     if ((isTaskContatar || isTaskLembrar) || (isDFOrGO && (isTaskContatar || isTaskLembrar)) || isTaskCalculo) {
-        const responsavelExecutorContatarOrCalculo = validaExecutorContatarOrCalculo(data, cliente) //TODO: Implementar algum jeito de obter um objeto Date referente a data de execução da tarefa
+        const responsavelExecutorContatarOrCalculo = validaExecutorContatarOrCalculo(tarefa, data, cliente) //TODO: Implementar algum jeito de obter um objeto Date referente a data de execução da tarefa
         return responsavelExecutorContatarOrCalculo
     }
 
     const isEstadualProcess = validaEsferaProcesso(cliente)
 
-    const responsavelExecutorFederal = isEstadualProcess ? validaResponsavelTj(cliente, cliente.processo.origem.length) : validaResponsavelFederal(cliente, cliente.processo.origem.length)
+    const responsavelExecutorFederal = isEstadualProcess ? validaResponsavelTj(tarefa, cliente, cliente.processo.origem.length) : validaResponsavelFederal(tarefa, cliente, cliente.processo.origem.length)
 
     return responsavelExecutorFederal
 }
@@ -702,9 +702,9 @@ lembreteQuandoFinalizarPara:
 incluirOutra: s
 */
 
-export function getTipoTarefa(cliente: Cliente, tiposTarefas: seletores[], getTipoTarefaMock?: getTipoTarefaMockDTO) {
+export function getTipoTarefa(tarefa: string, cliente: Cliente, tiposTarefas: seletores[], getTipoTarefaMock?: getTipoTarefaMockDTO) {
     
-    const tipoIntimacaoToUpperNormalized = getTipoTarefaMock ? getTipoTarefaMock.tipoIntimacaoToUpperNormalized : removeAcentuacaoString(cliente.compromisso.tarefas[0].toUpperCase()).split("-")[0].trim()
+    const tipoIntimacaoToUpperNormalized = getTipoTarefaMock ? getTipoTarefaMock.tipoIntimacaoToUpperNormalized : removeAcentuacaoString(tarefa.toUpperCase()).split("-")[0].trim()
     let achou = false,
         inputManifestacao = null,
         shortInput = null
@@ -740,19 +740,17 @@ export async function createBodyForCreateTask({ cliente, colaboradores, tiposTar
 
     const { tarefas } = cliente.compromisso
 
-    return await Promise.all(tarefas.map(async () => {
-        const isAudiencia = removeAcentuacaoString(cliente.compromisso.tarefas[0]).search("AUDIENCIA") === 0
-        const parametro = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getParametroData(cliente.compromisso.tarefas[0]) : getParametroData(cliente.compromisso.tarefas[0], cliente)
-        const dataTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.calcularDataTarefa(parametro) : calcularDataTarefa(parametro, cliente)
-        const descricaoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getDescricao(cliente) : getDescricao(cliente)
-        const idTipoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getTipoTarefa(cliente, tiposTarefas) : getTipoTarefa(cliente, tiposTarefas)
+    return await Promise.all(tarefas.map(async tarefa => {
+        const isAudiencia = removeAcentuacaoString(tarefa).search("AUDIENCIA") === 0
+        const parametro = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getParametroData(tarefa) : getParametroData(tarefa, cliente)
+        const dataTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.calcularDataTarefa(parametro, tarefa) : calcularDataTarefa(parametro, cliente)
+        const descricaoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getDescricao(tarefa) : getDescricao(tarefa, cliente)
+        const idTipoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getTipoTarefa(tarefa) : getTipoTarefa(tarefa, cliente, tiposTarefas)
     
-        const { responsavel, executor } = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getResponsavelExecutor(cliente.compromisso.tarefas[0], cliente, dataTarefa) : await getResponsavelExecutor(cliente.compromisso.tarefas[0], cliente, dataTarefa)
-    
-        const [{ id: idExecutor }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === executor)
-        const [{ id: idResponsavel }] = colaboradores.filter(({ nome }) => nome.toUpperCase().trim() === responsavel)
-
-        cliente.compromisso.tarefas.shift()
+        const { responsavel, executor } = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getResponsavelExecutor(tarefa) : await getResponsavelExecutor(tarefa, cliente, dataTarefa)
+        
+        const executorTask = colaboradores.find(colaborador => colaborador.nome.toUpperCase().trim() === executor)
+        const responsavelTask = colaboradores.find(colaborador => colaborador.nome.toUpperCase().trim() === responsavel)
 
         const dataParaFinalizacao = dataTarefa.toLocaleDateString()
 
@@ -763,8 +761,8 @@ export async function createBodyForCreateTask({ cliente, colaboradores, tiposTar
             idTipoTarefa,
             dataParaFinalizacao,
             descricao: descricaoTarefa,
-            idResponsavel: idResponsavel,
-            idExecutor: idExecutor,
+            idResponsavel: responsavelTask.id,
+            idExecutor: executorTask.id,
             acaoColetiva: "False"
         }
 

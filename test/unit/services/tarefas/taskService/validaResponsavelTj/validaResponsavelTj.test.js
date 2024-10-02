@@ -19,7 +19,7 @@ describe('Function validaResponsavelTj: ', () => {
 
         const desiredRespExec = {responsavel: 'LEANDRO SANTOS', executor: 'LEANDRO SANTOS'}
 
-        const resultado = validaResponsavelTj(cliente, processLengthTJSE, validaResponsavelTjMock)
+        const resultado = validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, validaResponsavelTjMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -40,7 +40,7 @@ describe('Function validaResponsavelTj: ', () => {
 
         const desiredRespExec = {responsavel: "VICTOR MENDES DOS SANTOS",executor: "VICTOR MENDES DOS SANTOS"}
 
-        const resultado = validaResponsavelTj(cliente, processLengthTJSE, validaResponsavelTjMock)
+        const resultado = validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, validaResponsavelTjMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -61,7 +61,7 @@ describe('Function validaResponsavelTj: ', () => {
 
         const desiredRespExec = {responsavel: "LUCIANA LIMA REZENDE",executor: "SHEYLA SANTANA SANTOS"}
 
-        const resultado = validaResponsavelTj(cliente, processLengthTJSE, validaResponsavelTjMock)
+        const resultado = validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, validaResponsavelTjMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -83,7 +83,7 @@ describe('Function validaResponsavelTj: ', () => {
 
         const desiredRespExec = {responsavel: "SANDOVAL FILHO CORREIA LIMA FILHO",executor: "SANDOVAL FILHO CORREIA LIMA FILHO"}
 
-        const resultado = validaResponsavelTj(cliente, processLengthTJSE, validaResponsavelTjMock)
+        const resultado = validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, validaResponsavelTjMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -105,7 +105,7 @@ describe('Function validaResponsavelTj: ', () => {
 
         const desiredRespExec = {responsavel: "JULIANO OLIVEIRA DE SOUZA",executor: "JULIANO OLIVEIRA DE SOUZA"}
 
-        const resultado = validaResponsavelTj(cliente, processLengthTJSE, validaResponsavelTjMock)
+        const resultado = validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, validaResponsavelTjMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -127,7 +127,7 @@ describe('Function validaResponsavelTj: ', () => {
 
         const desiredRespExec = {responsavel: "HENYR GOIS DOS SANTOS",executor: "LAYNE DA SILVA GOIS"}
 
-        const resultado = validaResponsavelTj(cliente, processLengthTJSE, validaResponsavelTjMock)
+        const resultado = validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, validaResponsavelTjMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -149,7 +149,7 @@ describe('Function validaResponsavelTj: ', () => {
 
         const desiredRespExec = {responsavel: "GUILHERME JASMIM", executor: "GUILHERME JASMIM"}
 
-        const resultado = validaResponsavelTj(cliente, processLengthTJSE, validaResponsavelTjMock)
+        const resultado = validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, validaResponsavelTjMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -171,7 +171,7 @@ describe('Function validaResponsavelTj: ', () => {
 
         const desiredRespExec = {responsavel: "FELIPE PANTA CARDOSO",executor: "FELIPE PANTA CARDOSO"}
 
-        const resultado = validaResponsavelTj(cliente, processLengthTJSE, validaResponsavelTjMock)
+        const resultado = validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, validaResponsavelTjMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -193,7 +193,7 @@ describe('Function validaResponsavelTj: ', () => {
 
         const desiredRespExec = {responsavel: "KEVEN FARO DE CARVALHO", executor: "KEVEN FARO DE CARVALHO"}
 
-        const resultado = validaResponsavelTj(cliente, processLengthTJSE, validaResponsavelTjMock)
+        const resultado = validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, validaResponsavelTjMock)
 
         expect(resultado).toMatchObject(desiredRespExec)
     })
@@ -220,7 +220,7 @@ describe('Function validaResponsavelTj: ', () => {
         const resultados = digitos.map(digito => {
             const newValidaResponsavelTjMock = { ...validaResponsavelTjMock }
             newValidaResponsavelTjMock.digito = digito
-            return validaResponsavelTj(cliente, processLengthTJSE, newValidaResponsavelTjMock)
+            return validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, newValidaResponsavelTjMock)
         })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -248,7 +248,7 @@ describe('Function validaResponsavelTj: ', () => {
         const resultados = digitos.map(digito => {
             const newValidaResponsavelTjMock = { ...validaResponsavelTjMock }
             newValidaResponsavelTjMock.digito = digito
-            return validaResponsavelTj(cliente, processLengthTJSE, newValidaResponsavelTjMock)
+            return validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, newValidaResponsavelTjMock)
         })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
@@ -276,7 +276,7 @@ describe('Function validaResponsavelTj: ', () => {
         const resultados = digitos.map(digito => {
             const newValidaResponsavelTjMock = { ...validaResponsavelTjMock }
             newValidaResponsavelTjMock.digito = digito
-            return validaResponsavelTj(cliente, processLengthTJSE, newValidaResponsavelTjMock)
+            return validaResponsavelTj(validaResponsavelTjMock.tarefaAtualNormalizada, cliente, processLengthTJSE, newValidaResponsavelTjMock)
         })
 
         resultados.forEach(resultado => expect(resultado).toMatchObject(desiredRespExec))
