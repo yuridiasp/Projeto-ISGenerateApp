@@ -2,7 +2,7 @@ import { AxiosResponse } from "axios"
 import { JSDOM } from "jsdom"
 
 import { loggedGetRequest } from "../../utils/request/getRequest"
-import { loggedPostRequest } from "src/utils/request/postRequest"
+import { loggedPostRequest } from "../../utils/request/postRequest"
 
 function extrairIdBuscaClienteByCPFHtml(response: AxiosResponse<any, any>) {
     const dom = new JSDOM(response.data)

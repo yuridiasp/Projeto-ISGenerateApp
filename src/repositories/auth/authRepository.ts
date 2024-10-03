@@ -5,6 +5,13 @@ const credentialsFilePath = path.join(__dirname, '..', '..', '..', 'data', 'cred
 
 export async function storeCredentials(username: string, encryptedPassword: string) {
     const data = { username, encryptedPassword }
+
+    const dir = path.dirname(credentialsFilePath)
+
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+    
     fs.writeFileSync(credentialsFilePath, JSON.stringify(data))
 }
 

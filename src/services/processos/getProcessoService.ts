@@ -94,7 +94,7 @@ async function requestDataProcesso(id: string, cookie: string) {
 
     const dataProcesso = extrairDadosRequisicaoProcessoHtml(response)
 
-    if (dataProcesso.processo.acao === "Coletiva") {
+    if (dataProcesso.processo.acao === "COLETIVA") {
         dataProcesso.processo.idsCopias = await getIdsProcessoColetivo(cookie, dataProcesso)
     }
 

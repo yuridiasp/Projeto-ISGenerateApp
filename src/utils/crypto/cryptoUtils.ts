@@ -1,8 +1,12 @@
 import crypto from 'crypto'
+import dotEnv from 'dotenv'
 
-const algorithm = 'aes-256-cbc'
-const secretKey = 'mySecretKey'
-const iv = crypto.randomBytes(16)
+dotEnv.config()
+
+const algorithm = process.env.ALGORITHM
+const secretKey = Buffer.from(process.env.SECRETKEY, 'hex')
+const ivnum = Number(process.env.IVNUM)
+const iv = crypto.randomBytes(ivnum)
 
 export function encrypt(text: string) {
     const cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey), iv)

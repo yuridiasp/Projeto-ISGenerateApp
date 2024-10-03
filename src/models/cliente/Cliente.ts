@@ -2,7 +2,7 @@ import { iCompromisso } from "../compromisso/iCompromisso"
 import { iProcesso } from "../processo/iProcesso"
 import { iDataCliente } from "./iDataCliente"
 
-interface iClienteConstructor {
+export interface ISAnalysisDTO {
     publication_date: string;
     case_number: string;
     related_case_number: string;
@@ -14,6 +14,9 @@ interface iClienteConstructor {
     local_adress: string;
     dataCliente: iDataCliente;
     dataProcesso: iProcesso;
+    executor: string;
+    separate_task: string;
+    justification: string
 }
 
 export class Cliente {
@@ -28,7 +31,7 @@ export class Cliente {
     compromisso: iCompromisso
     processo: iProcesso
 
-    constructor ({ publication_date, case_number, related_case_number = null, description, internal_deadline, fatal_deadline, time = null, expert_or_defendant = null, local_adress = null, dataCliente, dataProcesso }: iClienteConstructor){
+    constructor (ISAnalysis: ISAnalysisDTO, dataCliente: iDataCliente, dataProcesso: iProcesso){
         this.id = dataCliente.id
         this.nome = dataCliente.nome
         this.cpf = dataCliente.cpf
@@ -39,22 +42,22 @@ export class Cliente {
         this.situacao = dataCliente.situacao,
         this.compromisso = {
             id: null,
-            prazoInterno: internal_deadline,
-            prazoFatal: fatal_deadline,
+            prazoInterno: ISAnalysis.internal_deadline,
+            prazoFatal: ISAnalysis.fatal_deadline,
             tarefas: null,
             quantidadeTarefas: null,
-            tipoCompromisso: description,
+            tipoCompromisso: ISAnalysis.description,
             descricao: null,
             semanas: null,
-            publicacao: publication_date,
-            peritoOrReu: expert_or_defendant,
-            local: local_adress,
-            horario: time
+            publicacao: ISAnalysis.publication_date,
+            peritoOrReu: ISAnalysis.expert_or_defendant,
+            local: ISAnalysis.local_adress,
+            horario: ISAnalysis.time
         }
         this.processo = {
             id: dataProcesso.id,
-            origem: case_number,
-            dependente: related_case_number,
+            origem: ISAnalysis.case_number,
+            dependente: ISAnalysis.related_case_number,
             reu: dataProcesso.reu,
             responsavel: dataProcesso.responsavel,
             natureza: dataProcesso.natureza,

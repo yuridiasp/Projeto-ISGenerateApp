@@ -5,6 +5,7 @@
   "main": "dist/main.js",
   "scripts": {
     "test": "npm run build && jest",
+    "test:watch": "npm run build && jest --watchAll --detectOpenHandles",
     "build": "tsc",
     "start": "npm run build && electron .",
     "package": "npm run build && electron-forge package",

@@ -2077,7 +2077,7 @@ describe('Function getTarefasColaboradores: Realiza contagem das tarefas de inti
             dom: new JSDOM(html)
         }
 
-        const resultado = await getTarefasColaboradores(colaborador.mock, data, getTarefasColaboradoresMock)
+        const resultado = await getTarefasColaboradores(colaborador.mock, data, null, getTarefasColaboradoresMock)
 
         expect(colaborador.expect.tarefas).toBe(resultado.tarefas)
     })

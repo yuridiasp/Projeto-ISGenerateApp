@@ -957,16 +957,16 @@ describe('Function createBodyForCreateTask: ', () => {
     ]
     const getParametroData = (tarefa) => {
         const parametros = {
-            "AUDIÊNCIA DE INSTRUÇÃO": 1,
+            "AUDIÊNCIA DE INSTRUÇÃO": 2,
             "CONTATAR CLIENTE": 1,
             "SMS E WHATSAPP": 1,
             "LEMBRAR CLIENTE": 1,
-            "ANÁLISE": 1
+            "ANÁLISE": 2
         }
 
         return parametros[tarefa]
     }
-    const calcularDataTarefa = (parametro, tarefa) => {
+    const calcularDataTarefa = (parametro, { descricao: tarefa }) => {
         const datasTarefas = {
             "AUDIÊNCIA DE INSTRUÇÃO": new Date('2024-11-01'),
             "CONTATAR CLIENTE": new Date('2024-10-02'),
@@ -977,7 +977,7 @@ describe('Function createBodyForCreateTask: ', () => {
 
         return datasTarefas[tarefa]
     }
-    const getDescricao = (tarefa) => {
+    const getDescricao = ({ descricao: tarefa }) => {
         const descricoes = {
             "AUDIÊNCIA DE INSTRUÇÃO": "202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA",
             "CONTATAR CLIENTE": "202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA",
@@ -988,7 +988,7 @@ describe('Function createBodyForCreateTask: ', () => {
 
         return descricoes[tarefa]
     }
-    const getTipoTarefa = (tarefa) => {
+    const getTipoTarefa = ({ descricao: tarefa }) => {
         const tiposTarefas = {
             "AUDIÊNCIA DE INSTRUÇÃO": "28",
             "CONTATAR CLIENTE": "15",
@@ -999,7 +999,7 @@ describe('Function createBodyForCreateTask: ', () => {
 
         return tiposTarefas[tarefa]
     }
-    const getResponsavelExecutor = (tarefa) => {
+    const getResponsavelExecutor = ({ descricao: tarefa }) => {
         const responsaveisExecutores = {
             "AUDIÊNCIA DE INSTRUÇÃO": {
             responsavel: "RODRIGO AGUIAR SANTOS",
@@ -1033,11 +1033,11 @@ describe('Function createBodyForCreateTask: ', () => {
                 local: "VIDEOCONFERÊNCIA",
                 horario: "08:00",
                 tarefas: [
-                    "AUDIÊNCIA DE INSTRUÇÃO",
-                    "CONTATAR CLIENTE",
-                    "SMS E WHATSAPP",
-                    "LEMBRAR CLIENTE",
-                    "ANÁLISE"
+                    { descricao: "AUDIÊNCIA DE INSTRUÇÃO", dataParaFinalizacao: calcularDataTarefa(1, "AUDIÊNCIA DE INSTRUÇÃO") },
+                    { descricao: "CONTATAR CLIENTE", dataParaFinalizacao: calcularDataTarefa(1, "CONTATAR CLIENTE") },
+                    { descricao: "SMS E WHATSAPP", dataParaFinalizacao: calcularDataTarefa(1, "SMS E WHATSAPP") },
+                    { descricao: "LEMBRAR CLIENTE", dataParaFinalizacao: calcularDataTarefa(1, "LEMBRAR CLIENTE") },
+                    { descricao: "ANÁLISE", dataParaFinalizacao: calcularDataTarefa(1, "ANÁLISE") }
                 ],
             },
             processo: {
@@ -1127,11 +1127,11 @@ describe('Function createBodyForCreateTask: ', () => {
                 local: "VIDEOCONFERÊNCIA",
                 horario: "08:00",
                 tarefas: [
-                    "AUDIÊNCIA DE INSTRUÇÃO",
-                    "CONTATAR CLIENTE",
-                    "SMS E WHATSAPP",
-                    "LEMBRAR CLIENTE",
-                    "ANÁLISE"
+                    { descricao: "AUDIÊNCIA DE INSTRUÇÃO" },
+                    { descricao: "CONTATAR CLIENTE" },
+                    { descricao: "SMS E WHATSAPP" },
+                    { descricao: "LEMBRAR CLIENTE" },
+                    { descricao: "ANÁLISE" }
                 ],
             },
             processo: {

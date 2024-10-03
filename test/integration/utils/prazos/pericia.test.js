@@ -24,7 +24,10 @@ describe('Calcular data da tarefa de compromisso de PERÍCIA a partir do tipo de
         compromisso: {
           semanas: 0,
           tipoCompromisso: 'PERICIA',
-          tarefas: ['CONTATAR CLIENTE', 'SMS E WHATSAPP'],
+          tarefas: [
+            { descricao: 'CONTATAR CLIENTE' },
+            { descricao: 'SMS E WHATSAPP' }
+          ],
           semanas: 1,
           quantidadeTarefas: 2
         },

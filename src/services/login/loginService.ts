@@ -17,7 +17,7 @@ async function login(cookie: string, credentials: credential) {
         senha: SENHA
     }
 
-    const response = await loggedPostRequest({ url: URL_LOGIN_SISTEMFR, body: credentials || credentialsYuri, cookie })
+    const response = await loggedPostRequest({ url: URL_LOGIN_SISTEMFR, body: credentialsYuri, cookie })
 
     if (response.request.res.responseUrl === URL_LOGIN_FAIL_SISTEMFR) {
         throw new LoginError("Dados não encontrados!", HttpStatusCodes.UNAUTHORIZED)

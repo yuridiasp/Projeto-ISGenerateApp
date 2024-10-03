@@ -70,7 +70,7 @@ export function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente, 
         contQuatro = ["AUDIENCIA DE CONCILIACAO", "AUDIENCIA CONCILIATORIA", "AUDIENCIA DE INTERROGATORIO"],
         contCinco = ["AUDIENCIA DE INSTRUCAO", "AUDIENCIA INAUGURAL", "AUDIENCIA INICIAL", "AUDIENCIA DE INSTRUCAO E JULGAMENTO", "AUDIENCIA UNA"],
         tipoCompromissoNormalizado = mockNormalizedString ? mockNormalizedString.tipoCompromissoNormalizado : removeAcentuacaoString(tipoCompromisso),
-        tarefaAtualNormalizada = mockNormalizedString ? mockNormalizedString.tarefaAtualNormalizada : removeAcentuacaoString(tarefas[0]),
+        tarefaAtualNormalizada = mockNormalizedString ? mockNormalizedString.tarefaAtualNormalizada : removeAcentuacaoString(tarefas[0].descricao),
         isDFOrGO = estado === 'GO' || estado === 'DF'
 
     if (((contCinco.includes(tipoCompromisso) && dias > 11) || (contQuatro.includes(tipoCompromissoNormalizado) && dias > 10) || (tipoCompromissoNormalizado.search(contTres) === 0) && dias > 10)) {

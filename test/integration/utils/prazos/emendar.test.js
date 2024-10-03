@@ -24,7 +24,10 @@ describe('Calcular data da tarefa de compromisso de EMENDAR a partir do tipo de 
           compromisso: {
             semanas: 0,
             tipoCompromisso: 'EMENDAR',
-            tarefas: ['EMENDAR', 'CONTATAR CLIENTE'],
+            tarefas: [
+              { descricao: 'EMENDAR' },
+              { descricao: 'CONTATAR CLIENTE' }
+            ],
             semanas: 1,
             quantidadeTarefas: 2
           },
@@ -43,7 +46,9 @@ describe('Calcular data da tarefa de compromisso de EMENDAR a partir do tipo de 
           compromisso: {
             semanas: 0,
             tipoCompromisso: 'EMENDAR',
-            tarefas: ['CONTATAR CLIENTE'],
+            tarefas: [
+              { descricao: 'CONTATAR CLIENTE' }
+            ],
             semanas: 1,
             quantidadeTarefas: 2
           },

@@ -9,7 +9,10 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
                 descricao: undefined,
                 tipoCompromisso: 'EMENDAR',
                 quantidadeTarefas: 2,
-                tarefas: ['EMENDAR', 'CONTATAR CLIENTE'],
+                tarefas: [
+                    { descricao: 'EMENDAR' },
+                    { descricao: 'CONTATAR CLIENTE' }
+                ],
                 prazoInterno: undefined,
                 horario: undefined,
                 peritoOrReu: undefined,
@@ -38,7 +41,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
                 descricao: '202311800989 (ORIGEM 201811800803) - EMENDAR',
                 tipoCompromisso: 'EMENDAR',
                 quantidadeTarefas: 2,
-                tarefas: ['CONTATAR CLIENTE'],
+                tarefas: [{ descricao: 'CONTATAR CLIENTE' }],
                 prazoInterno: undefined,
                 horario: undefined,
                 peritoOrReu: undefined,

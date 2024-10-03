@@ -22,7 +22,13 @@ describe('Calcular data da tarefa de compromisso de AUDIÊNCIA a partir do tipo 
         const clienteMock = {
             compromisso: {
                 tipoCompromisso: 'AUDIENCIA DE INSTRUCAO',
-                tarefas: ['AUDIENCIA DE INSTRUCAO', 'CONTATAR CLIENTE', 'SMS E WHATSAPP', 'ANALISE'],
+                tarefas: [
+                    
+                    { descricao: 'AUDIENCIA DE INSTRUCAO' },
+                    { descricao: 'CONTATAR CLIENTE' },
+                    { descricao: 'SMS E WHATSAPP' },
+                    { descricao: 'ANALISE' }
+                ],
                 semanas: 1,
                 quantidadeTarefas: 4
             },
@@ -40,7 +46,11 @@ describe('Calcular data da tarefa de compromisso de AUDIÊNCIA a partir do tipo 
         const clienteMock = {
             compromisso: {
                 tipoCompromisso: 'AUDIENCIA DE INSTRUCAO',
-                tarefas: ['CONTATAR CLIENTE', 'SMS E WHATSAPP', 'ANALISE'],
+                tarefas: [
+                    { descricao: 'CONTATAR CLIENTE' },
+                    { descricao: 'SMS E WHATSAPP' },
+                    { descricao: 'ANALISE' }
+                ],
                 semanas: 1,
                 quantidadeTarefas: 4
             },
@@ -58,7 +68,10 @@ describe('Calcular data da tarefa de compromisso de AUDIÊNCIA a partir do tipo 
         const clienteMock = {
             compromisso: {
                 tipoCompromisso: 'AUDIENCIA DE INSTRUCAO',
-                tarefas: ['SMS E WHATSAPP', 'ANALISE'],
+                tarefas: [
+                    { descricao: 'SMS E WHATSAPP' },
+                    { descricao: 'ANALISE' }
+                ],
                 semanas: 1,
                 quantidadeTarefas: 4
             },
@@ -76,7 +89,9 @@ describe('Calcular data da tarefa de compromisso de AUDIÊNCIA a partir do tipo 
         const clienteMock = {
             compromisso: {
                 tipoCompromisso: 'AUDIENCIA DE INSTRUCAO',
-                tarefas: ['ANALISE'],
+                tarefas: [
+                    { descricao: 'ANALISE' }
+                ],
                 semanas: 1,
                 quantidadeTarefas: 4
             },
