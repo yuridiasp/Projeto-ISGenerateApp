@@ -1,20 +1,96 @@
+import { describe, expect, it, beforeEach } from '@jest/globals';
+
+import { validaResponsavelTj } from "../../../../../../src/services/tarefas/taskService"
+
 describe('Function validaResponsavelTj: ', () => {
-    const { validaResponsavelTj } = require("../../../../../../dist/services/tarefas/taskService")
 
     const processLengthTJSE = 12
+
+    let cliente = {
+        id: '',
+        nome: '',
+        cpf: '',
+        cidade: '',
+        estado: 'SE',
+        localAtendido: 'ARACAJU',
+        parceiro: '',
+        situacao: '',
+        compromisso: {
+            id: '',
+            prazoInterno: '',
+            prazoFatal: '',
+            tarefas: [],
+            quantidadeTarefas: 0,
+            tipoCompromisso: '',
+            descricao: '',
+            semanas: 0,
+            publicacao: '',
+            peritoOrReu: '',
+            local: '',
+            horario: '',
+        },
+        processo: {
+            id: '',
+            origem: '',
+            dependente: '',
+            reu: '',
+            responsavel: '',
+            natureza: 'TRABALHISTA',
+            merito: '',
+            vara: '',
+            acao: '',
+            idsCopias: [],
+            cidade: "ARACAJU",
+            estado: "SERGIPE"
+        }
+    }
+
+    beforeEach(() => {
+        cliente = {
+            id: '',
+            nome: '',
+            cpf: '',
+            cidade: '',
+            estado: 'SE',
+            localAtendido: 'ARACAJU',
+            parceiro: '',
+            situacao: '',
+            compromisso: {
+                id: '',
+                prazoInterno: '',
+                prazoFatal: '',
+                tarefas: [],
+                quantidadeTarefas: 0,
+                tipoCompromisso: '',
+                descricao: '',
+                semanas: 0,
+                publicacao: '',
+                peritoOrReu: '',
+                local: '',
+                horario: '',
+            },
+            processo: {
+                id: '',
+                origem: '',
+                dependente: '',
+                reu: '',
+                responsavel: '',
+                natureza: 'TRABALHISTA',
+                merito: '',
+                vara: '',
+                acao: '',
+                idsCopias: [],
+                cidade: "ARACAJU",
+                estado: "SERGIPE"
+            }
+        }
+    })
 
     it('Definir responsável/executor de tarefa de acompanhamento para o Adminstrativo da matriz', () => {
         const validaResponsavelTjMock = {
             tipoCompromissoNormalizado: "DECISÃO",
             tarefaAtualNormalizada: "ACOMPANHAR - ADM",
             digito: 0
-        }
-    
-        const cliente = {
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
         }
 
         const desiredRespExec = {responsavel: 'LEANDRO SANTOS', executor: 'LEANDRO SANTOS'}
@@ -30,13 +106,6 @@ describe('Function validaResponsavelTj: ', () => {
             tarefaAtualNormalizada: "RECEBIMENTO DE ALVARA - FINANCEIRO",
             digito: 0
         }
-    
-        const cliente = {
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
-        }
 
         const desiredRespExec = {responsavel: "VICTOR MENDES DOS SANTOS",executor: "VICTOR MENDES DOS SANTOS"}
 
@@ -50,13 +119,6 @@ describe('Function validaResponsavelTj: ', () => {
             tipoCompromissoNormalizado: "RPV TRF5 ARACAJU",
             tarefaAtualNormalizada: "RPV TRF5 ARACAJU - FINANCEIRO",
             digito: 0
-        }
-    
-        const cliente = {
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
         }
 
         const desiredRespExec = {responsavel: "LUCIANA LIMA REZENDE",executor: "SHEYLA SANTANA SANTOS"}
@@ -72,14 +134,9 @@ describe('Function validaResponsavelTj: ', () => {
             tarefaAtualNormalizada: "CONTATAR CLIENTE",
             digito: 0
         }
-    
-        const cliente = {
-            cidade: "ESTANCIA",
-            localAtendido: "ESTANCIA",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
-        }
+
+        cliente.localAtendido = "ESTANCIA"
+        cliente.processo.natureza = "TRABALHISTA"
 
         const desiredRespExec = {responsavel: "SANDOVAL FILHO CORREIA LIMA FILHO",executor: "SANDOVAL FILHO CORREIA LIMA FILHO"}
 
@@ -93,14 +150,6 @@ describe('Function validaResponsavelTj: ', () => {
             tipoCompromissoNormalizado: "PERICIA TECNICA",
             tarefaAtualNormalizada: "CONTATAR CLIENTE",
             digito: 0
-        }
-    
-        const cliente = {
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
         }
 
         const desiredRespExec = {responsavel: "JULIANO OLIVEIRA DE SOUZA",executor: "JULIANO OLIVEIRA DE SOUZA"}
@@ -116,14 +165,6 @@ describe('Function validaResponsavelTj: ', () => {
             tarefaAtualNormalizada: "SMS E WHATSAPP",
             digito: 0
         }
-    
-        const cliente = {
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
-        }
 
         const desiredRespExec = {responsavel: "HENYR GOIS DOS SANTOS",executor: "LAYNE DA SILVA GOIS"}
 
@@ -138,14 +179,8 @@ describe('Function validaResponsavelTj: ', () => {
             tarefaAtualNormalizada: "ANALISE",
             digito: 0
         }
-    
-        const cliente = {
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "CÍVEL"
-            }
-        }
+
+        cliente.processo.natureza = "CÍVEL"
 
         const desiredRespExec = {responsavel: "GUILHERME JASMIM", executor: "GUILHERME JASMIM"}
 
@@ -159,14 +194,6 @@ describe('Function validaResponsavelTj: ', () => {
             tipoCompromissoNormalizado: "MANIFESTACAO",
             tarefaAtualNormalizada: "MANIFESTACAO",
             digito: 0
-        }
-    
-        const cliente = {
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
         }
 
         const desiredRespExec = {responsavel: "FELIPE PANTA CARDOSO",executor: "FELIPE PANTA CARDOSO"}
@@ -182,14 +209,8 @@ describe('Function validaResponsavelTj: ', () => {
             tarefaAtualNormalizada: "MANIFESTACAO",
             digito: 0
         }
-    
-        const cliente = {
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "KEVEN FARO DE CARVALHO", executor: "KEVEN FARO DE CARVALHO"}
 
@@ -207,13 +228,7 @@ describe('Function validaResponsavelTj: ', () => {
             digito: 0
         }
     
-        const cliente = {
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "CÍVEL"
-            }
-        }
+        cliente.processo.natureza = "CÍVEL"
 
         const desiredRespExec = {responsavel: "RODRIGO AGUIAR SANTOS",executor: "GABRIEL DAVILA FILGUEIRAS MELLONE"}
 
@@ -234,14 +249,8 @@ describe('Function validaResponsavelTj: ', () => {
             tarefaAtualNormalizada: "MANIFESTACAO",
             digito: 0
         }
-    
-        const cliente = {
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "CÍVEL"
-            }
-        }
+
+        cliente.processo.natureza = "CÍVEL"
 
         const desiredRespExec = {responsavel: "RODRIGO AGUIAR SANTOS",executor: "ALÃ FEITOSA CARVALHO"}
 
@@ -263,13 +272,7 @@ describe('Function validaResponsavelTj: ', () => {
             digito: 0
         }
     
-        const cliente = {
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "CÍVEL"
-            }
-        }
+        cliente.processo.natureza = "CÍVEL"
 
         const desiredRespExec = {responsavel: "RODRIGO AGUIAR SANTOS",executor: "RODRIGO AGUIAR SANTOS"}
 

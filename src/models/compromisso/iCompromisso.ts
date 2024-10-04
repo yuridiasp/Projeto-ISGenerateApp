@@ -10,7 +10,7 @@ export interface iCompromisso {
     descricao: string
     semanas: number
     publicacao: string
-    peritoOrReu: string | null
-    local: string | null
-    horario: string | null
+    peritoOrReu: string
+    local: string
+    horario: string
 }

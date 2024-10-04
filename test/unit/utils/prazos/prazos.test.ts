@@ -1,5 +1,8 @@
+import { describe, expect, beforeEach, it } from '@jest/globals';
+
+import { extrairDataPrazoFatalInput, contarDias, calculaIntervaloTarefasJudicial, dataContato } from "../../../../src/utils/prazos/prazos"
+
 describe('Unit Tests: Testar módulo de prazos', () => {
-    const { extrairDataPrazoFatalInput, contarDias, calculaIntervaloTarefasJudicial, dataContato } = require("../../../../dist/utils/prazos/prazos")
 
     let dataContatoExpected, dataInicial, dataFinal
     let parametroMock, diasUteis, todosDias, contagemSemanas, intervalo
@@ -21,7 +24,6 @@ describe('Unit Tests: Testar módulo de prazos', () => {
         // Redefinindo o objeto clienteMock
         clienteMock = {
           compromisso: {
-            semanas: 0,
             tipoCompromisso: 'EMENDAR',
             tarefas: ["CONTATAR CLIENTE"],
             semanas: contagemSemanas,

@@ -1,5 +1,8 @@
+import { describe, expect, it, beforeEach } from '@jest/globals'
+
+import { createBodyForCreateTask } from "../../../../../../src/services/tarefas/taskService"
+
 describe('Function createBodyForCreateTask: ', () => {
-    const { createBodyForCreateTask } = require("../../../../../../dist/services/tarefas/taskService")
     //202212600876 - Ação coletiva
     const colaboradoresMock = [
         {
@@ -955,7 +958,85 @@ describe('Function createBodyForCreateTask: ', () => {
             normalizado: "TAREFA ENCERRADA SEM PROVIDENCIA"
         }
     ]
-    const getParametroData = (tarefa) => {
+    let cliente = {
+        id: '',
+        nome: 'LAILTON DE SOUZA AGUIAR',
+        cpf: '085.650.825-04',
+        cidade: '',
+        estado: 'SE',
+        localAtendido: 'ARACAJU',
+        parceiro: '',
+        situacao: '',
+        compromisso: {
+            id: '',
+            prazoInterno: 'DD/MM/AAAA',
+            prazoFatal: 'DD/MM/AAAA',
+            tarefas: [
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'AUDIÊNCIA DE INSTRUÇÃO'
+                },
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'CONTATAR CLIENTE'
+                },
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'SMS E WHATSAPP'
+                },
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'LEMBRAR CLIENTE'
+                },
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'ANÁLISE'
+                }
+            ],
+            quantidadeTarefas: 5,
+            tipoCompromisso: 'AUDIÊNCIA DE INSTRUÇÃO',
+            descricao: '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO',
+            semanas: 2,
+            publicacao: 'DD/MM/AAAA',
+            peritoOrReu: 'NOME_DO_RÉU',
+            local: 'LOCAL_DO_EVENTO',
+            horario: 'HH:MM',
+        },
+        processo: {
+            id: '',
+            origem: '201811800803',
+            dependente: '202311800989',
+            reu: 'NOME_DO_RÉU',
+            responsavel: '',
+            natureza: 'TRABALHISTA',
+            merito: '',
+            vara: '',
+            acao: '',
+            idsCopias: [''],
+            cidade: "ARACAJU",
+            estado: "SERGIPE"
+        }
+    }
+
+    beforeEach(() => {
+        cliente.processo.idsCopias = ['']
+    })
+    const getParametroData = ({ descricao: tarefa }) => {
         const parametros = {
             "AUDIÊNCIA DE INSTRUÇÃO": 2,
             "CONTATAR CLIENTE": 1,
@@ -966,7 +1047,7 @@ describe('Function createBodyForCreateTask: ', () => {
 
         return parametros[tarefa]
     }
-    const calcularDataTarefa = (parametro, { descricao: tarefa }) => {
+    const calcularDataTarefa = ({ descricao: tarefa }) => {
         const datasTarefas = {
             "AUDIÊNCIA DE INSTRUÇÃO": new Date('2024-11-01'),
             "CONTATAR CLIENTE": new Date('2024-10-02'),
@@ -1027,24 +1108,7 @@ describe('Function createBodyForCreateTask: ', () => {
     }
     
     it('Criar objeto body de todas as tarefas de um compromisso de audiência em processo coletivo', async () => {
-        const clienteMock = {
-            compromisso: {
-                id: "245862",
-                local: "VIDEOCONFERÊNCIA",
-                horario: "08:00",
-                tarefas: [
-                    { descricao: "AUDIÊNCIA DE INSTRUÇÃO", dataParaFinalizacao: calcularDataTarefa(1, "AUDIÊNCIA DE INSTRUÇÃO") },
-                    { descricao: "CONTATAR CLIENTE", dataParaFinalizacao: calcularDataTarefa(1, "CONTATAR CLIENTE") },
-                    { descricao: "SMS E WHATSAPP", dataParaFinalizacao: calcularDataTarefa(1, "SMS E WHATSAPP") },
-                    { descricao: "LEMBRAR CLIENTE", dataParaFinalizacao: calcularDataTarefa(1, "LEMBRAR CLIENTE") },
-                    { descricao: "ANÁLISE", dataParaFinalizacao: calcularDataTarefa(1, "ANÁLISE") }
-                ],
-            },
-            processo: {
-                id: "31924",
-                idsCopias: ['18529', '27193', '26049', '12183', '26048', '28952']
-            }
-        }
+        cliente.processo.idsCopias = ['18529', '27193', '26049', '12183', '26048', '28952']
 
         const createBodyForCreateTaskMock = {
             getParametroData,
@@ -1115,29 +1179,12 @@ describe('Function createBodyForCreateTask: ', () => {
             }
           ]
 
-        const resultados = await createBodyForCreateTask({ cliente: clienteMock, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, createBodyForCreateTaskMock })
+        const resultados = await createBodyForCreateTask({ cliente, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie: '', createBodyForCreateTaskMock })
 
         resultados.forEach((resultado, index) => expect(resultado).toMatchObject(desiredBodyTask[index]))
     })
 
     it('Criar objeto body de todas as tarefas de um compromisso de audiência em processo individual', async () => {
-        const clienteMock = {
-            compromisso: {
-                id: "245862",
-                local: "VIDEOCONFERÊNCIA",
-                horario: "08:00",
-                tarefas: [
-                    { descricao: "AUDIÊNCIA DE INSTRUÇÃO" },
-                    { descricao: "CONTATAR CLIENTE" },
-                    { descricao: "SMS E WHATSAPP" },
-                    { descricao: "LEMBRAR CLIENTE" },
-                    { descricao: "ANÁLISE" }
-                ],
-            },
-            processo: {
-                id: "31924",
-            }
-        }
 
         const createBodyForCreateTaskMock = {
             getParametroData,
@@ -1208,7 +1255,7 @@ describe('Function createBodyForCreateTask: ', () => {
             }
           ]
 
-        const resultados = await createBodyForCreateTask({ cliente: clienteMock, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, createBodyForCreateTaskMock })
+        const resultados = await createBodyForCreateTask({ cliente, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie: '' , createBodyForCreateTaskMock })
 
         resultados.forEach((resultado, index) => expect(resultado).toMatchObject(desiredBodyTask[index]))
     })

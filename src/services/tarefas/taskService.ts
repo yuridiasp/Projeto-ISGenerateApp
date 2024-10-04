@@ -29,7 +29,6 @@ interface validaResponsavelDTO {
 
 interface getTipoTarefaMockDTO {
     tipoIntimacaoToUpperNormalized: string
-    removeAcentuacaoStringMock: (string: string) => string
 }
 
 interface getDescricaoMockDTO {
@@ -42,7 +41,7 @@ interface getDescricaoMockDTO {
 
 interface createBodyForCreateTaskMockDTO {
     getParametroData: (tarefa: iTarefa) => number,
-    calcularDataTarefa: (parametro: number, tarefa: iTarefa) => Date,
+    calcularDataTarefa: (tarefa: iTarefa) => Date,
     getDescricao: (tarefa: iTarefa) => string,
     getTipoTarefa: (tarefa: iTarefa) => string,
     getResponsavelExecutor: (tarefa: iTarefa) => ({
@@ -636,7 +635,7 @@ export async function createBodyForCreateTask({ cliente, colaboradores, tiposTar
     return await Promise.all(tarefas.map(async tarefa => {
         const isAudiencia = removeAcentuacaoString(tarefa.descricao).search("AUDIENCIA") === 0
         const parametro = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getParametroData(tarefa) : getParametroData(tarefa, cliente)
-        const dataTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.calcularDataTarefa(parametro, tarefa) : calcularDataTarefa(parametro, cliente)
+        const dataTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.calcularDataTarefa(tarefa) : calcularDataTarefa(parametro, cliente)
         const descricaoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getDescricao(tarefa) : getDescricao(tarefa, cliente)
         const idTipoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getTipoTarefa(tarefa) : getTipoTarefa(tarefa, tiposTarefas)
     

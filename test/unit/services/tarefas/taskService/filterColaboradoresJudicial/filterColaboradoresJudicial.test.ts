@@ -1,11 +1,91 @@
+import { describe, expect, it, beforeEach } from '@jest/globals'
+
+import { filterColaboradoresJudicial } from "../../../../../../src/services/tarefas/taskService"
+
 describe('Function filterColaboradoresJudicial: Filtra colaboradores executores da tarefa', () => {
-    const { filterColaboradoresJudicial } = require("../../../../../../dist/services/tarefas/taskService")
-    it('Filtrar colaboradores de responsabilidade de BSB', () => {
-        const clienteMock = {
-            processo: {
-                estado: 'DF'
-            }
+    let cliente = {
+        id: '',
+        nome: 'LAILTON DE SOUZA AGUIAR',
+        cpf: '085.650.825-04',
+        cidade: '',
+        estado: 'SE',
+        localAtendido: 'ARACAJU',
+        parceiro: '',
+        situacao: '',
+        compromisso: {
+            id: '',
+            prazoInterno: 'DD/MM/AAAA',
+            prazoFatal: 'DD/MM/AAAA',
+            tarefas: [
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'AUDIÊNCIA DE INSTRUÇÃO'
+                },
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'CONTATAR CLIENTE'
+                },
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'SMS E WHATSAPP'
+                },
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'LEMBRAR CLIENTE'
+                },
+                {
+                    tipoId: '',
+                    dataParaFinalizacao: new Date(),
+                    responsavel: '',
+                    executor: '',
+                    descricao: 'ANÁLISE'
+                }
+            ],
+            quantidadeTarefas: 5,
+            tipoCompromisso: 'AUDIÊNCIA DE INSTRUÇÃO',
+            descricao: '202311800989 (ORIGEM 201811800803) - AUDIÊNCIA DE INSTRUÇÃO DE LAILTON DE SOUZA AGUIAR (085.650.825-04) X NOME_DO_RÉU, NO DIA DD/MM/AAAA ÀS ${cliente.compromisso.horario}, LOCAL: LOCAL_DO_EVENTO',
+            semanas: 2,
+            publicacao: 'DD/MM/AAAA',
+            peritoOrReu: 'NOME_DO_RÉU',
+            local: 'LOCAL_DO_EVENTO',
+            horario: 'HH:MM',
+        },
+        processo: {
+            id: '',
+            origem: '201811800803',
+            dependente: '202311800989',
+            reu: 'NOME_DO_RÉU',
+            responsavel: '',
+            natureza: 'TRABALHISTA',
+            merito: '',
+            vara: '',
+            acao: '',
+            idsCopias: [''],
+            cidade: "ARACAJU",
+            estado: "SERGIPE"
         }
+    }
+
+    beforeEach(() => {
+        cliente.processo.origem = '201811800803'
+        cliente.processo.dependente = '202311800989'
+    })
+
+    it('Filtrar colaboradores de responsabilidade de BSB', () => {
+
+        cliente.processo.estado = 'DF'
 
         const expectedResult = [
             {
@@ -31,13 +111,13 @@ describe('Function filterColaboradoresJudicial: Filtra colaboradores executores 
             },
         ]
 
-        const resultado = filterColaboradoresJudicial(clienteMock)
+        const resultado = filterColaboradoresJudicial(cliente)
 
         expect(resultado).toMatchObject(expectedResult)
     })
 
     it('Filtrar colaboradores de responsabilidade de Estância', () => {
-        const clienteMock = {
+        const cliente = {
             cidade: 'ESTANCIA',
             localAtendido: 'ESTANCIA',
             processo: {
@@ -55,13 +135,13 @@ describe('Function filterColaboradoresJudicial: Filtra colaboradores executores 
             }
         ]
 
-        const resultado = filterColaboradoresJudicial(clienteMock)
+        const resultado = filterColaboradoresJudicial(cliente)
 
         expect(resultado).toMatchObject(expectedResult)
     })
 
     it('Filtrar colaboradores de responsabilidade das demais localidades', () => {
-        const clienteMock = {
+        const cliente = {
             cidade: 'ARACAJU',
             localAtendido: 'ARACAJU',
             processo: {
@@ -114,14 +194,14 @@ describe('Function filterColaboradoresJudicial: Filtra colaboradores executores 
             },
         ]
 
-        const resultado = filterColaboradoresJudicial(clienteMock)
+        const resultado = filterColaboradoresJudicial(cliente)
 
         expect(resultado).toMatchObject(expectedResult)
     })
 
     it('Filtrar colaboradores quando responsabilidade não identificada', () => {
         const isMocked = true
-        const clienteMock = {
+        const cliente = {
             cidade: 'ARACAJU',
             localAtendido: 'ARACAJU',
             processo: {
@@ -182,7 +262,7 @@ describe('Function filterColaboradoresJudicial: Filtra colaboradores executores 
             }
         ]
 
-        const resultado = filterColaboradoresJudicial(clienteMock, isMocked)
+        const resultado = filterColaboradoresJudicial(cliente, isMocked)
 
         expect(resultado).toMatchObject(expectedResult)
     })

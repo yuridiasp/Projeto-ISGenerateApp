@@ -1,7 +1,90 @@
+import { describe, expect, it, beforeEach } from '@jest/globals'
+
+import { validaResponsavelFederal } from "../../../../../../src/services/tarefas/taskService"
+
 describe('Function validaResponsavelFederal: ', () => {
-    const { validaResponsavelFederal } = require("../../../../../../dist/services/tarefas/taskService")
 
     const processLengthFederal = 20
+
+    let cliente = {
+        id: '',
+        nome: '',
+        cpf: '',
+        cidade: '',
+        estado: 'SE',
+        localAtendido: 'ARACAJU',
+        parceiro: '',
+        situacao: '',
+        compromisso: {
+            id: '',
+            prazoInterno: '',
+            prazoFatal: '',
+            tarefas: [],
+            quantidadeTarefas: 0,
+            tipoCompromisso: '',
+            descricao: '',
+            semanas: 0,
+            publicacao: '',
+            peritoOrReu: '',
+            local: '',
+            horario: '',
+        },
+        processo: {
+            id: '',
+            origem: '',
+            dependente: '',
+            reu: '',
+            responsavel: '',
+            natureza: 'TRABALHISTA',
+            merito: '',
+            vara: '',
+            acao: '',
+            idsCopias: [],
+            cidade: "ARACAJU",
+            estado: "SERGIPE"
+        }
+    }
+
+    beforeEach(() => {
+        cliente = {
+            id: '',
+            nome: '',
+            cpf: '',
+            cidade: '',
+            estado: 'SE',
+            localAtendido: 'ARACAJU',
+            parceiro: '',
+            situacao: '',
+            compromisso: {
+                id: '',
+                prazoInterno: '',
+                prazoFatal: '',
+                tarefas: [],
+                quantidadeTarefas: 0,
+                tipoCompromisso: '',
+                descricao: '',
+                semanas: 0,
+                publicacao: '',
+                peritoOrReu: '',
+                local: '',
+                horario: '',
+            },
+            processo: {
+                id: '',
+                origem: '',
+                dependente: '',
+                reu: '',
+                responsavel: '',
+                natureza: 'TRABALHISTA',
+                merito: '',
+                vara: '',
+                acao: '',
+                idsCopias: [],
+                cidade: "ARACAJU",
+                estado: "SERGIPE"
+            }
+        }
+    })
 
     it('Definir responsável/executor de tarefa de acompanhamento para o Adminstrativo da matriz', () => {
         const validaResponsavelFederalMock = {
@@ -10,15 +93,6 @@ describe('Function validaResponsavelFederal: ', () => {
             digito: 0,
             secao: '8500',
             digitoVerificador: '405'
-        }
-    
-        const cliente = {
-            estado: 'SE',
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "PREVIDENCIÁRIA"
-            }
         }
 
         const desiredRespExec = {responsavel: 'LEANDRO SANTOS', executor: 'LEANDRO SANTOS'}
@@ -36,15 +110,6 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '0001',
             digitoVerificador: '520'
         }
-    
-        const cliente = {
-            estado: 'SE',
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
-        }
 
         const desiredRespExec = {responsavel: "VICTOR MENDES DOS SANTOS",executor: "VICTOR MENDES DOS SANTOS"}
 
@@ -61,15 +126,8 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '8500',
             digitoVerificador: '405'
         }
-    
-        const cliente = {
-            estado: 'SE',
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "LUCIANA LIMA REZENDE",executor: "SHEYLA SANTANA SANTOS"}
 
@@ -85,15 +143,6 @@ describe('Function validaResponsavelFederal: ', () => {
             digito: 0,
             secao: '0012',
             digitoVerificador: '520'
-        }
-    
-        const cliente = {
-            estado: 'SE',
-            cidade: "ESTANCIA",
-            localAtendido: "ESTANCIA",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
         }
 
         const desiredRespExec = {responsavel: "SANDOVAL FILHO CORREIA LIMA FILHO",executor: "SANDOVAL FILHO CORREIA LIMA FILHO"}
@@ -112,15 +161,7 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '401'
         }
     
-        const cliente = {
-            estado: 'DF',
-            cidade: "BRASILIA",
-            localAtendido: "AGUAS LINDAS",
-            processo: {
-                estado: 'DF',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "HENYR GOIS DOS SANTOS", executor: "HENYR GOIS DOS SANTOS"}
 
@@ -138,15 +179,10 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '401'
         }
     
-        const cliente = {
-            estado: 'BA',
-            cidade: "ALAGOINHAS",
-            localAtendido: "CONDE/BA",
-            processo: {
-                estado: 'BA',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+        cliente.estado = "BA"
+        cliente.cidade = "ALAGOINHAS"
+        cliente.localAtendido = "CONDE/BA"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "LAIS PEREIRA MORAES",executor: "LAIS PEREIRA MORAES"}
 
@@ -165,17 +201,13 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '3400',
             digitoVerificador: '401'
         }
-    
-        const cliente = {
-            estado: 'DF',
-            cidade: "BRASILIA",
-            localAtendido: "AGUAS LINDAS",
-            processo: {
-                estado: 'DF',
-                natureza: "PREVIDENCIÁRIA",
-                vara: '23ª VARA FEDERAL BRASÍLIA'
-            }
-        }
+        
+        cliente.estado = "DF"
+        cliente.cidade = "BRASILIA"
+        cliente.localAtendido = "AGUAS LINDAS"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
+        cliente.processo.estado = "DF"
+        cliente.processo.vara = "23ª VARA FEDERAL BRASÍLIA"
 
         const desiredRespExec = {responsavel: "BRUNO PRADO GUIMARAES",executor: "BRUNO PRADO GUIMARAES"}
 
@@ -199,16 +231,12 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '401'
         }
     
-        const cliente = {
-            estado: 'DF',
-            cidade: "BRASILIA",
-            localAtendido: "AGUAS LINDAS",
-            processo: {
-                estado: 'DF',
-                natureza: "PREVIDENCIÁRIA",
-                vara: "23ª VARA FEDERAL BRASÍLIA"
-            }
-        }
+        cliente.estado = "DF"
+        cliente.cidade = "BRASILIA"
+        cliente.localAtendido = "AGUAS LINDAS"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
+        cliente.processo.estado = "DF"
+        cliente.processo.vara = "23ª VARA FEDERAL BRASÍLIA"
 
         const desiredRespExec = {responsavel: "BRUNO PRADO GUIMARAES",executor: "PAULO VICTOR SANTANA TEIXEIRA"}
 
@@ -229,15 +257,11 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '3600',
             digitoVerificador: '401'
         }
-    
-        const cliente = {
-            estado: 'MT',
-            cidade: "CUIABA",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+
+        cliente.estado = "MT"
+        cliente.cidade = "CUIABA"
+        cliente.localAtendido = "ARACAJU"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "DIEGO MELO SOBRINHO",executor: "DIEGO MELO SOBRINHO"}
 
@@ -253,15 +277,6 @@ describe('Function validaResponsavelFederal: ', () => {
             digito: 0,
             secao: '0001',
             digitoVerificador: '520'
-        }
-    
-        const cliente = {
-            estado: 'SE',
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
         }
 
         const desiredRespExec = {responsavel: "JULIANO OLIVEIRA DE SOUZA",executor: "JULIANO OLIVEIRA DE SOUZA"}
@@ -279,15 +294,6 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '0001',
             digitoVerificador: '520'
         }
-    
-        const cliente = {
-            estado: 'SE',
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
-        }
 
         const desiredRespExec = {responsavel: "HENYR GOIS DOS SANTOS",executor: "LAYNE DA SILVA GOIS"}
 
@@ -303,15 +309,6 @@ describe('Function validaResponsavelFederal: ', () => {
             digito: 0,
             secao: '0001',
             digitoVerificador: '520'
-        }
-    
-        const cliente = {
-            estado: 'SE',
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "TRABALHISTA"
-            }
         }
 
         const desiredRespExec = {responsavel: "FELIPE PANTA CARDOSO",executor: "FELIPE PANTA CARDOSO"}
@@ -330,14 +327,7 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '405'
         }
     
-        const cliente = {
-            estado: 'SE',
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "CÍVEL"
-            }
-        }
+        cliente.processo.natureza = "CÍVEL"
 
         const desiredRespExec = {responsavel: "RODRIGO AGUIAR SANTOS",executor: "RODRIGO AGUIAR SANTOS"}
 
@@ -357,16 +347,12 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '401'
         }
     
-        const cliente = {
-            estado: "DF",
-            cidade: "BRASILIA",
-            localAtendido: "AGUAS LINDAS",
-            processo: {
-                estado: 'DF',
-                natureza: "CÍVEL",
-                vara: '23ª VARA FEDERAL BRASÍLIA'
-            }
-        }
+        cliente.estado = "DF"
+        cliente.cidade = "BRASILIA"
+        cliente.localAtendido = "AGUAS LINDAS"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
+        cliente.processo.estado = "DF"
+        cliente.processo.vara = "23ª VARA FEDERAL BRASÍLIA"
 
         const desiredRespExec = {responsavel: "BRUNO PRADO GUIMARAES",executor: "BRUNO PRADO GUIMARAES"}
 
@@ -390,16 +376,12 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '401'
         }
     
-        const cliente = {
-            estado: "DF",
-            cidade: "BRASILIA",
-            localAtendido: "AGUAS LINDAS",
-            processo: {
-                estado: 'DF',
-                natureza: "CÍVEL",
-                vara: '23ª VARA FEDERAL BRASÍLIA'
-            }
-        }
+        cliente.estado = "DF"
+        cliente.cidade = "BRASILIA"
+        cliente.localAtendido = "AGUAS LINDAS"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
+        cliente.processo.estado = "DF"
+        cliente.processo.vara = "23ª VARA FEDERAL BRASÍLIA"
 
         const desiredRespExec = {responsavel: "BRUNO PRADO GUIMARAES",executor: "PAULO VICTOR SANTANA TEIXEIRA"}
 
@@ -421,15 +403,11 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '6183',
             digitoVerificador: '403'
         }
-    
-        const cliente = {
-            estado: "SP",
-            cidade: "SAO PAULO",
-            localAtendido: "ARACAJU",
-            processo: {
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+
+        cliente.estado = "SP"
+        cliente.cidade = "SAO PAULO"
+        cliente.localAtendido = "ARACAJU"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "DIEGO MELO SOBRINHO",executor: "DIEGO MELO SOBRINHO"}
 
@@ -448,15 +426,8 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '405'
         }
     
-        const cliente = {
-            estado: "SE",
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                origem: '08018449320144058500',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+        cliente.processo.origem = "08018449320144058500"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "DIEGO MELO SOBRINHO",executor: "DIEGO MELO SOBRINHO"}
 
@@ -476,15 +447,8 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '405'
         }
     
-        const cliente = {
-            estado: "SE",
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                origem: '00018449320144058500',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+        cliente.processo.origem = "08018449320144058500"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "KEVEN FARO DE CARVALHO",executor: "KEVEN FARO DE CARVALHO"}
 
@@ -508,15 +472,8 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '405'
         }
     
-        const cliente = {
-            estado: "SE",
-            cidade: "ARACAJU",
-            localAtendido: "ARACAJU",
-            processo: {
-                origem: '00018449320144058500',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+        cliente.processo.origem = "08018449320144058500"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "MARCUS VINICIUS DE SOUZA MORAIS",executor: "MARCUS VINICIUS DE SOUZA MORAIS"}
 
@@ -538,16 +495,10 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '8501',
             digitoVerificador: '405'
         }
-    
-        const cliente = {
-            estado: "SE",
-            cidade: "ITABAIANA",
-            localAtendido: "ARACAJU",
-            processo: {
-                origem: '00018449320144058501',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+
+        cliente.cidade = "ITABAIANA"
+        cliente.processo.origem = "00018449320144058501"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "LAIS PEREIRA MORAES",executor: "LAIS PEREIRA MORAES"}
 
@@ -566,16 +517,11 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '8502',
             digitoVerificador: '405'
         }
-    
-        const cliente = {
-            estado: "SE",
-            cidade: "ESTANCIA",
-            localAtendido: "ESTANCIA",
-            processo: {
-                origem: '00018449320144058502',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+
+        cliente.cidade = "ESTANCIA"
+        cliente.localAtendido = "ESTANCIA"
+        cliente.processo.origem = "00018449320144058501"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "KEVEN FARO DE CARVALHO",executor: "KEVEN FARO DE CARVALHO"}
 
@@ -598,16 +544,11 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '8502',
             digitoVerificador: '405'
         }
-    
-        const cliente = {
-            estado: "SE",
-            cidade: "ESTANCIA",
-            localAtendido: "ESTANCIA",
-            processo: {
-                origem: '00018449320144058502',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+
+        cliente.cidade = "ESTANCIA"
+        cliente.localAtendido = "ESTANCIA"
+        cliente.processo.origem = "00018449320144058502"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "SARA GONÇALVES PINHEIRO",executor: "SARA GONÇALVES PINHEIRO"}
 
@@ -629,16 +570,10 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '8503',
             digitoVerificador: '405'
         }
-    
-        const cliente = {
-            estado: "SE",
-            cidade: "LARGARTO",
-            localAtendido: "ARACAJU",
-            processo: {
-                origem: '00018449320144058503',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+
+        cliente.cidade = "LARGARTO"
+        cliente.processo.origem = "00018449320144058503"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "SARA GONÇALVES PINHEIRO",executor: "SARA GONÇALVES PINHEIRO"}
 
@@ -656,16 +591,11 @@ describe('Function validaResponsavelFederal: ', () => {
             secao: '8504',
             digitoVerificador: '405'
         }
-    
-        const cliente = {
-            estado: "SE",
-            cidade: "LARGARTO",
-            localAtendido: "ARACAJU",
-            processo: {
-                origem: '00018449320144058504',
-                natureza: "PREVIDENCIÁRIA"
-            }
-        }
+
+        cliente.cidade = "LARGARTO"
+        cliente.localAtendido = "ARACAJU"
+        cliente.processo.origem = "00018449320144058504"
+        cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "LAIS PEREIRA MORAES",executor: "LAIS PEREIRA MORAES"}
 

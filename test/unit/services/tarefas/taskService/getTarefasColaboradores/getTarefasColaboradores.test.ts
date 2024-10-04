@@ -1,7 +1,10 @@
+import { describe, expect, it } from '@jest/globals'
+
+import { getTarefasColaboradores } from "../../../../../../src/services/tarefas/taskService"
+
 describe('Function getTarefasColaboradores: Realiza contagem das tarefas de intimações de um colaborador', () => {
     const { JSDOM } = require("jsdom")
 
-    const { getTarefasColaboradores } = require("../../../../../../dist/services/tarefas/taskService")
 
     const html = `<html lang="pt-br"><head>
         <meta charset="utf-8">
@@ -2062,13 +2065,13 @@ describe('Function getTarefasColaboradores: Realiza contagem das tarefas de inti
 </body></html>`
 	
     it('Contagem de tarefas de intimações a partir de um documento html', async () => {
-        const colaborador = {
-            mock: {
-                tarefas: 0
-            },
-            expect: {
-                tarefas: 3
-            }
+
+        const expectCountTasks = 3
+        
+        const colaboradorMock = {
+            id: '',
+            nome: '',
+            tarefas: 0
         }
 
         const data = new Date("2024-09-27")
@@ -2077,8 +2080,8 @@ describe('Function getTarefasColaboradores: Realiza contagem das tarefas de inti
             dom: new JSDOM(html)
         }
 
-        const resultado = await getTarefasColaboradores(colaborador.mock, data, null, getTarefasColaboradoresMock)
+        const resultado = await getTarefasColaboradores(colaboradorMock, data, '', getTarefasColaboradoresMock)
 
-        expect(colaborador.expect.tarefas).toBe(resultado.tarefas)
+        expect(expectCountTasks).toBe(resultado.tarefas)
     })
 })
