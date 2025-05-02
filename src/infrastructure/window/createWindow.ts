@@ -1,6 +1,6 @@
-import { BrowserWindow } from 'electron'
+import { BaseWindowConstructorOptions, BrowserWindow, WebPreferences } from 'electron'
 
-export function createWindow (width: number = 400, height: number = 600,  webPreference: object = {}, props: object = {}, pageHtmlFolderPath: string): BrowserWindow {
+export function createWindow (width: number = 400, height: number = 600,  webPreference: WebPreferences = {}, props: Omit<BaseWindowConstructorOptions, 'width' | 'height' | 'icon'| 'webPreferences'> = {}, pageHtmlFolderPath: string): BrowserWindow {
     const path = require('path')
     const win = new BrowserWindow({
         width: width,

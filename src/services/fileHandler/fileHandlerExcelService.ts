@@ -24,6 +24,7 @@ function isPrev (is: string) {
         'IDO - I.N.D.S.S',
         'ADO - I.N.D.S.S',
         'ANTE - I.N.D.S.S',
+        ': INSTITUTO NACIONAL DE SEGURIDADE - INSS',
     ]
 
     return termos.some(termo => is.includes(termo))
