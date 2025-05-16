@@ -1,13 +1,15 @@
+import { ValidationError } from 'src/models/errors/validationError'
 import { loginService, retrieveCredentialsService } from '../services/auth/authService'
 
-export async function loginController(username: string = null, password: string = null) {
-    const result = await loginService(username, password)
-
-    if (result) {
-        console.log('Login bem-sucedido')
-    } else {
-        console.log('Falha no login')
+export async function loginController(username: string, password: string) {
+    if (!username || !password) {
+        return {
+            success: false,
+            error: new ValidationError("Nome de usuário e/ou senha não informados.")
+        }
     }
+
+    const result = await loginService(username, password)
 
     return result
 }
@@ -18,6 +20,6 @@ export function getCredentialsController() {
     if (credentials) {
         console.log(`Credenciais recuperadas: ${credentials.login}`)
     } else {
-        console.log('Nenhuma credencial encontrada');
+        console.log('Nenhuma credencial encontrada')
     }
 }

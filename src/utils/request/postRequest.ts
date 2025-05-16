@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from 'axios'
-import { loginController } from '../../controllers/authController'
 import { iCompromissoBody } from '../../models/compromisso/iCompromissoBody'
 import { iCreateTarefa } from '../../models/tarefa/iCreateTarefa'
 import { credential } from '../../services/login/loginService'

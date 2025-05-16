@@ -1026,7 +1026,7 @@ describe('Function createBodyForCreateTask: ', () => {
             natureza: 'TRABALHISTA',
             merito: '',
             vara: '',
-            acao: '',
+            acaoColetiva: '',
             idsCopias: [''],
             cidade: "ARACAJU",
             estado: "SERGIPE"
@@ -1177,7 +1177,14 @@ describe('Function createBodyForCreateTask: ', () => {
               idExecutor: '55',
               acaoColetiva: 'True'
             }
-          ]
+        ]
+
+        cliente.compromisso.local = "VIDEOCONFERÊNCIA"
+        cliente.compromisso.horario = "08:00"
+        cliente.compromisso.id = "245862"
+
+        cliente.processo.id = "31924"
+        cliente.processo.acaoColetiva = "True"
 
         const resultados = await createBodyForCreateTask({ cliente, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie: '', createBodyForCreateTaskMock })
 
@@ -1253,7 +1260,9 @@ describe('Function createBodyForCreateTask: ', () => {
               idExecutor: '55',
               acaoColetiva: 'False'
             }
-          ]
+        ]
+
+        cliente.processo.acaoColetiva = "False"
 
         const resultados = await createBodyForCreateTask({ cliente, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie: '' , createBodyForCreateTaskMock })
 

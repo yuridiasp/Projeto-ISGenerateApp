@@ -406,4 +406,4 @@ const colaboradoresMock = [
     }
 ]
 
-module.exports = colaboradoresMock
+export default colaboradoresMock

@@ -1,7 +1,12 @@
 import XLSX from 'xlsx'
+
 import { createNewFilePath } from '../../utils/directory/directory'
-import { iExcelFileDTO } from 'src/models/file/iExcelFileDTO'
-import { iWriteFileResponse } from 'src/models/file/iWriteFileResponse'
+import { iExcelFileDTO } from '../../models/file/iExcelFileDTO'
+
+type ResultWriteEFile = {
+    newFilePath?: string,
+    result: boolean
+}
 
 export function readExcelFile(endereco: string) {
     
@@ -15,7 +20,7 @@ export function readExcelFile(endereco: string) {
     return data
 }
 
-export function writeExcelFileService({ data, filePath: { endereco, fileName  }, sheetName, prefix = ''}: iExcelFileDTO): iWriteFileResponse {
+export function writeExcelFileRepository({ data, filePath: { endereco, fileName  }, sheetName, prefix = ''}: iExcelFileDTO): ResultWriteEFile {
     
     if (data.length) {
         const newFilePath = createNewFilePath(endereco, prefix + fileName)
@@ -27,8 +32,13 @@ export function writeExcelFileService({ data, filePath: { endereco, fileName  },
     
         XLSX.writeFile(workbook, newFilePath)
 
-        return { result: true, newFilePath }
+        return {
+            newFilePath,
+            result: true
+        }
     }
 
-    return { result: false, newFilePath: null }
+    return {
+        result: false
+    }
 }

@@ -1,27 +1,28 @@
+import { Result } from '../../models/result/result';
 import { storeCredentials, retrieveCredentials } from '../../repositories/auth/authRepository';
 import { encrypt, decrypt } from '../../utils/crypto/cryptoUtils';
-import { getCookieLoginService } from '../login/loginService';
+import { Cookie, getCookieLoginService } from '../login/loginService';
 
-export async function loginService(username: string, password: string) {
+export async function loginService(username: string | undefined, password: string | undefined): Promise<Result<Cookie>> {
     
-    const loginSuccessful = await getCookieLoginService({ login: username, senha: password })
+    const result = await getCookieLoginService({ login: username, senha: password })
 
-    if (loginSuccessful) {
+    if (result.success) {
         const encryptedPassword = encrypt(password)
 
         await storeCredentials(username, encryptedPassword)
     }
 
-    return loginSuccessful
+    return result
 }
 
 export function retrieveCredentialsService() {
-    const { login, encryptedPassword } = retrieveCredentials()
+    const result = retrieveCredentials()
 
-    if (login && encryptedPassword) {
-        const decryptedPassword = decrypt(encryptedPassword)
+    if (result.success) {
+        const decryptedPassword = decrypt(result.data.encryptedPassword)
 
-        return { login, senha: decryptedPassword }
+        return { login: result.data.login, senha: decryptedPassword }
     }
     
     return null

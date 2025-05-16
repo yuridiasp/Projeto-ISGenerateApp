@@ -78,11 +78,11 @@ export function existeOrigem(cliente: Cliente) {
 }
 
 export function getDescricao (tarefa: iTarefa, cliente: Cliente, getDescricaoMock?: getDescricaoMockDTO) {
-    const fistWordInTarefa = getDescricaoMock ? getDescricaoMock.fistWordInTarefa : removeAcentuacaoString(tarefa.descricao.split(" ")[0]),
-        localText = getDescricaoMock ? getDescricaoMock.localText : getEndereço(cliente.compromisso.local),
-        numero = getDescricaoMock ? getDescricaoMock.numero : existeOrigem(cliente),
-        tipoTarefaNormalizado = getDescricaoMock ? getDescricaoMock.tipoTarefaNormalizado : removeAcentuacaoString(tarefa.descricao),
-        tipoCompromissoNormalizado = getDescricaoMock ? getDescricaoMock.tipoCompromissoNormalizado : removeAcentuacaoString(cliente.compromisso.tipoCompromisso)
+    const fistWordInTarefa = getDescricaoMock?.fistWordInTarefa ?? removeAcentuacaoString(tarefa.descricao.split(" ")[0]),
+        localText = getDescricaoMock?.localText ?? getEndereço(cliente.compromisso.local),
+        numero = getDescricaoMock?.numero ?? existeOrigem(cliente),
+        tipoTarefaNormalizado = getDescricaoMock?.tipoTarefaNormalizado ?? removeAcentuacaoString(tarefa.descricao),
+        tipoCompromissoNormalizado = getDescricaoMock?.tipoCompromissoNormalizado ?? removeAcentuacaoString(cliente.compromisso.tipoCompromisso)
     
     if (cliente.compromisso.descricao && fistWordInTarefa !== "ANALISE" && tipoTarefaNormalizado !== "ATO ORDINATORIO" && cliente.compromisso.tipoCompromisso !== "EMENDAR"  && !tipoCompromissoNormalizado.includes('DECISAO ANTECIPACAO PERICIA')) {
 
@@ -145,7 +145,7 @@ export function validaResponsavelTj (tarefa: string, cliente: Cliente, processLe
     }
 
     if (tarefasAdm.includes(tarefaAtualNormalizada)) {
-        if (cliente.cidade === "ESTANCIA" && cliente.localAtendido === "ESTANCIA")
+        if (cliente.cidade === "ESTANCIA" || cliente.localAtendido === "ESTANCIA")
             return {responsavel: "SANDOVAL FILHO CORREIA LIMA FILHO",executor: "SANDOVAL FILHO CORREIA LIMA FILHO"}
         return {responsavel: "JULIANO OLIVEIRA DE SOUZA",executor: "JULIANO OLIVEIRA DE SOUZA"}
     }
@@ -216,7 +216,7 @@ export function validaResponsavelFederal (tarefa: string, cliente: Cliente, proc
         }
 
         //Tarefa contatar para escritório de Estância
-        if(cliente.cidade === "ESTANCIA"  && cliente.localAtendido === "ESTANCIA") { 
+        if(cliente.cidade === "ESTANCIA"  || cliente.localAtendido === "ESTANCIA") { 
             return {responsavel: "SANDOVAL FILHO CORREIA LIMA FILHO",executor: "SANDOVAL FILHO CORREIA LIMA FILHO"}
         }
 
@@ -589,9 +589,9 @@ export function validaTipoCompromisso(descriptionCompromisso: string, cliente: C
 export function getParametroData (tarefa: iTarefa, cliente: Cliente): number {
     const arrayAudiencias = ["AUDIÊNCIA DE INSTRUÇÃO E JULGAMENTO", "AUDIÊNCIA UNA", "AUDIÊNCIA DE INSTRUÇÃO", "AUDIÊNCIA INICIAL", "AUDIÊNCIA INAUGURAL"]
     const ehTarefaParaAdmOuSac = ((tarefa.descricao == "CONTATAR CLIENTE") || (tarefa.descricao == "LEMBRAR CLIENTE") || (tarefa.descricao == "SMS E WHATSAPP"))
-    const ehAudiencia = (arrayAudiencias.includes(cliente.compromisso.tipoCompromisso))
+    // const ehAudiencia = (arrayAudiencias.includes(cliente.compromisso.tipoCompromisso))
 
-    return (ehTarefaParaAdmOuSac || ehAudiencia) ? parametros.tarefaContatar : parametros.tarefaAdvogado
+    return ehTarefaParaAdmOuSac ? parametros.tarefaContatar : parametros.tarefaAdvogado
 }
 
 export function getTipoTarefa(tarefa: iTarefa, tiposTarefas: seletores[], getTipoTarefaMock?: getTipoTarefaMockDTO) {
@@ -658,9 +658,9 @@ export async function createBodyForCreateTask({ cliente, colaboradores, tiposTar
             acaoColetiva: "False"
         }
 
-        if (cliente.processo.idsCopias) {
+        if (cliente.processo.idsCopias?.length) {
             body.idsCopias = cliente.processo.idsCopias
-            body.acaoColetiva = "True"
+            body.acaoColetiva = cliente.processo.acaoColetiva
         }
 
         if (isAudiencia) {
@@ -670,13 +670,13 @@ export async function createBodyForCreateTask({ cliente, colaboradores, tiposTar
             body.horarioFinal = atualizaHoraFinal(cliente.compromisso.horario)
             body.agendada = "s"
         }
-
+        
         return body
     }))
 
 }
 
-export async function createTaskService({ cliente, cookie }: { cliente: Cliente, cookie: string }) {
+export async function createTaskService({ cliente, cookie }: { cliente: Cliente, cookie: string | null }) {
 
     const { colaboradores, tiposTarefas } = await getSelectsTask(cookie)
     

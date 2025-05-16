@@ -4,10 +4,10 @@ import { createCliente } from "../clientes/createClienteService"
 import { createCompromissoService } from "../compromissos/compromissoService"
 import { createTaskService } from "../tarefas/taskService"
 import { updateViewRegistrationIntimations } from "../../utils/viewHelpers/viewHelpers"
-import { iFileData } from "../../models/file/iFileData"
 import { ISAnalysisDTO } from "../../models/cliente/Cliente"
+import { iFileData } from "../validateIntimations/validateIntimationsService"
 
-export async function handleIntimationsRegistration(windows: iWindows, cookie: string, file: iFileData) {
+export async function handleIntimationsRegistrationService(windows: iWindows, cookie: string, file: iFileData) {
     const { msg, value: intimations } = getIntimations(file)
 
     if (!intimations) {

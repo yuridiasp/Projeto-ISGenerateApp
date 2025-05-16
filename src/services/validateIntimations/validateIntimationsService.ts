@@ -1,5 +1,9 @@
-import { iFileData } from "../../models/file/iFileData"
 import { readExcelFile } from "../../repositories/xlsx/excelISFile"
+
+export interface iFileData {
+    endereco: string,
+    fileName?: string
+}
 
 export function getObjectValidateIntimationsService({ endereco }: iFileData) {
     

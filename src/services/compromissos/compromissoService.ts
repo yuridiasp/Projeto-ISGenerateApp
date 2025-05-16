@@ -5,6 +5,8 @@ import { iCompromissoBody } from "../../models/compromisso/iCompromissoBody"
 import { seletores } from "../../models/seletores/iSeletores"
 import { removeAcentuacaoString } from "../../utils/textFormatting/textFormatting"
 import { getSelectsCompromisso } from "../seletores/seletoresService"
+import { AxiosResponse } from "axios"
+import { HttpStatusCodes } from "src/helpers/statusCode"
 
 type Compromisso = {
     tipoCompromisso: string
@@ -69,6 +71,14 @@ function createBodyForCreateCompromisso({ compromisso, processo, tiposCompromiss
     return body
 }
 
+function ValidateCreationCompromisso(response: AxiosResponse<any, any>) {
+    if (response.request.res.responseUrl.includes("http://fabioribeiro.eastus.cloudapp.azure.com/adv/tarefas/formulario")) {
+        return true
+    }
+
+    return false
+}
+
 export async function createCompromissoService(cliente: Cliente, cookie: string) {
     const { descricao, prazoFatal, prazoInterno, publicacao } = cliente.compromisso
 
@@ -87,7 +97,13 @@ export async function createCompromissoService(cliente: Cliente, cookie: string)
 
     const body = createBodyForCreateCompromisso({ compromisso, processo, tiposCompromisso })
 
-    return await createCompromisso(body, cookie)
+    const result = await createCompromisso(body, cookie)
+
+    if (ValidateCreationCompromisso(result)) {
+        return true
+    }
+
+    return false
 }
 
 /* 

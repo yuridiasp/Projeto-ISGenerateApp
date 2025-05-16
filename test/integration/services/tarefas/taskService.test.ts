@@ -1,16 +1,29 @@
-describe('Criar tarefas de compromissos', () => {
-    const tiposTarefasMock = require("../../../utils/tiposTarefasMock")
-    const colaboradoresMock = require("../../../utils/colaboradoresMock")
-    const { createBodyForCreateTask } = require("../../../../dist/services/tarefas/taskService")
-    const { loginService } = require("../../../../dist/services/auth/authService")
+import dotEnv from 'dotenv'
+import { describe, expect, it, beforeAll } from '@jest/globals'
 
-    let cookie
+import tiposTarefasMock from "../../../utils/tiposTarefasMock"
+import colaboradoresMock from "../../../utils/colaboradoresMock"
+import { createBodyForCreateTask, createTaskService } from "../../../../src/services/tarefas/taskService"
+import { loginService } from "../../../../src/services/auth/authService"
+
+dotEnv.config()
+
+describe('Criar tarefas de compromissos', () => {
+
+    let cookie: string
 
     beforeAll(async () => {
-        require("dotenv").config()
+        const { LOGIN, SENHA } = process.env
+        const result = await loginService(LOGIN, SENHA)
 
-        cookie = await loginService(process.env.LOGIN, process.env.SENHA)
+        if(result.success) {
+            cookie = result.data.cookie
+        }
     })
+
+    /* it("Criando tarefa avulsa", async () => {
+        const response = await createTaskService({ cliente, cookie })
+    }) */
 
     it("Criando body para tarefas de compromisso de audiência com prazo para o evento acima de 2 semanas", async () => {
 
@@ -84,7 +97,7 @@ describe('Criar tarefas de compromissos', () => {
                 cidade: "ARACAJU",
                 estado: "SE",
                 vara: "26ª VARA CÍVEL DE ARACAJU",
-                acao: "COLETIVA",
+                acaoColetiva: "True",
                 idsCopias: [
                     "18529",
                     "26049",
@@ -95,6 +108,7 @@ describe('Criar tarefas de compromissos', () => {
                 ]
             }
         }
+        const dataParaFinalizacao = new Date()
 
         const desiredBodyTask = [
             {
@@ -102,13 +116,13 @@ describe('Criar tarefas de compromissos', () => {
               idPR: '31924',
               agendada: 's',
               idTipoTarefa: '28',
-              dataParaFinalizacao: '01/11/2024',
+              dataParaFinalizacao: dataParaFinalizacao.toLocaleDateString(),
               descricao: '202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA',
               idResponsavel: '55',
               idExecutor: '55',
               acaoColetiva: 'True',
               idsCopias: [ '18529', '26049', '26048', '27193', '12183', '28952' ],
-              dataParaFinalizacaoAgendada: '01/11/2024',
+              dataParaFinalizacaoAgendada: dataParaFinalizacao.toLocaleDateString(),
               onde: 'VIDEOCONFERÊNCIA',
               horarioInicial: '08:00',
               horarioFinal: '10:00'
@@ -118,10 +132,10 @@ describe('Criar tarefas de compromissos', () => {
               idPR: '31924',
               agendada: 'n',
               idTipoTarefa: '15',
-              dataParaFinalizacao: '01/11/2024',
+              dataParaFinalizacao: dataParaFinalizacao.toLocaleDateString(),
               descricao: '202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA',
               idResponsavel: '51',
-              idExecutor: '199',
+              idExecutor: '196',
               acaoColetiva: 'True',
               idsCopias: [ '18529', '26049', '26048', '27193', '12183', '28952' ]
             },
@@ -130,7 +144,7 @@ describe('Criar tarefas de compromissos', () => {
               idPR: '31924',
               agendada: 'n',
               idTipoTarefa: '76',
-              dataParaFinalizacao: '01/11/2024',
+              dataParaFinalizacao: dataParaFinalizacao.toLocaleDateString(),
               descricao: '202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA',
               idResponsavel: '62',
               idExecutor: '140',
@@ -142,10 +156,10 @@ describe('Criar tarefas de compromissos', () => {
               idPR: '31924',
               agendada: 'n',
               idTipoTarefa: '63',
-              dataParaFinalizacao: '01/11/2024',
+              dataParaFinalizacao: dataParaFinalizacao.toLocaleDateString(),
               descricao: '202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA',
               idResponsavel: '51',
-              idExecutor: '188',
+              idExecutor: '196',
               acaoColetiva: 'True',
               idsCopias: [ '18529', '26049', '26048', '27193', '12183', '28952' ]
             },
@@ -154,14 +168,14 @@ describe('Criar tarefas de compromissos', () => {
               idPR: '31924',
               agendada: 'n',
               idTipoTarefa: '77',
-              dataParaFinalizacao: '01/11/2024',
+              dataParaFinalizacao: dataParaFinalizacao.toLocaleDateString(),
               descricao: '202212600876 - VERIFICAR NECESSIDADE DE TESTEMUNHAS',
               idResponsavel: '55',
               idExecutor: '187',
               acaoColetiva: 'True',
               idsCopias: [ '18529', '26049', '26048', '27193', '12183', '28952' ]
             }
-          ]
+        ]
 
         const resultados = await createBodyForCreateTask({ cliente: clienteMock, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie })
 

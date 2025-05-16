@@ -1,3 +1,5 @@
+import { describe, expect, it, beforeEach } from '@jest/globals'
+
 describe('Calcular data da tarefa de compromisso de EMENDAR a partir do tipo de tarefa e prazo interno', () => {
     const { calcularDataTarefa } = require("../../../../dist/utils/prazos/prazos")
 
@@ -22,7 +24,6 @@ describe('Calcular data da tarefa de compromisso de EMENDAR a partir do tipo de 
       const dataEmendaExpected = new Date('2023-09-10'),
         clienteMock = {
           compromisso: {
-            semanas: 0,
             tipoCompromisso: 'EMENDAR',
             tarefas: [
               { descricao: 'EMENDAR' },
@@ -44,7 +45,6 @@ describe('Calcular data da tarefa de compromisso de EMENDAR a partir do tipo de 
       const dataContatoExpected = new Date("2023-09-05"),
         clienteMock = {
           compromisso: {
-            semanas: 0,
             tipoCompromisso: 'EMENDAR',
             tarefas: [
               { descricao: 'CONTATAR CLIENTE' }

@@ -31,7 +31,7 @@ export async function getSelectsCompromisso(cookie: string) {
     const idSelectTiposCompromissos = "#bsAdvCompromissosTipo"
     const { URL_COMPROMISSOS_SISTEMFR } = process.env
     const response: AxiosResponse<any, any> = await loggedGetRequest({ url: URL_COMPROMISSOS_SISTEMFR, cookie })
-    const result = await response.data.text()
+    const result = response.data
 
     const dom = new JSDOM(result)
 

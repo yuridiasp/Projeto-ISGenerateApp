@@ -1,6 +1,6 @@
 import { getCookieLoginController } from "../../controllers/controllers"
-import { iFileData } from "../../models/file/iFileData"
 import { iWindows } from "../../models/windows/iWindows"
+import { iFileData } from "../validateIntimations/validateIntimationsService"
 
 export async function handleIntimationsAction(
     event: Electron.IpcMainInvokeEvent, 
@@ -10,11 +10,11 @@ export async function handleIntimationsAction(
 ) {
     console.log('Realizando login...')
 
-    const cookie = await getCookieLoginController()
+    const result = await getCookieLoginController()
 
-    if (cookie) {
+    if (result.success) {
         console.log('Login realizado!')
-        const response = await action(windows, cookie, file)
+        const response = await action(windows, result.data.cookie, file)
         return response
     }
 

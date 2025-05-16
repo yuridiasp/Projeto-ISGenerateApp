@@ -5,12 +5,11 @@ import { closeSobreWindowService, createSobreWindowService } from '../services/w
 import { createMainWindowService } from '../services/windows/main/mainWindow'
 import { getObjectISService } from '../services/splitIS/splitISService'
 import { getDadosService, openPageGithubService } from '../services/appData/appData'
-import { credential, getCookieLoginService } from '../services/login/loginService'
+import { getCookieLoginService } from '../services/login/loginService'
 import { intimationValidateService } from '../services/compromissos/getCompromissoService'
-import { getObjectValidateIntimationsService } from '../services/validateIntimations/validateIntimationsService'
-import { handleIntimationsReport } from '../services/intimation/intimationReporter'
-import { handleIntimationsRegistration } from '../services/intimation/intimationRegister'
-import { iFileData } from '../models/file/iFileData'
+import { getObjectValidateIntimationsService, iFileData } from '../services/validateIntimations/validateIntimationsService'
+import { handleIntimationsReportService } from '../services/intimation/intimationReporter'
+import { handleIntimationsRegistrationService } from '../services/intimation/intimationRegister'
 import { handleIntimationsAction } from '../services/intimation/handleIntimationAction'
 
 export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
@@ -54,9 +53,9 @@ export function getIntimations(file: iFileData) {
 }
 
 export async function intimationsRegisterController(event: Electron.IpcMainInvokeEvent, file: iFileData, windows: iWindows) {
-    return handleIntimationsAction(event, file, windows, handleIntimationsRegistration)
+    return handleIntimationsAction(event, file, windows, handleIntimationsRegistrationService)
 }
 
 export async function intimationsReportController(event: Electron.IpcMainInvokeEvent, file: iFileData, windows: iWindows) {
-    return handleIntimationsAction(event, file, windows, handleIntimationsReport)
+    return handleIntimationsAction(event, file, windows, handleIntimationsReportService)
 }

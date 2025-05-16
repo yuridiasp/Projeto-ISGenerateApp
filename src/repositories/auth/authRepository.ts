@@ -1,10 +1,18 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'fs'
+import path from 'path'
+
+import { Result } from '../../models/result/result'
+import { NotFoundError } from '../../models/errors/notFoundError'
 
 const credentialsFilePath = path.join(__dirname, '..', '..', '..', 'data', 'credentials.json')
 
-export async function storeCredentials(username: string, encryptedPassword: string) {
-    const data = { username, encryptedPassword }
+export type EncryptedCredentials = {
+    login: string,
+    encryptedPassword: string
+}
+
+export async function storeCredentials(login: string, encryptedPassword: string) {
+    const data: EncryptedCredentials = { login, encryptedPassword }
 
     const dir = path.dirname(credentialsFilePath)
 
@@ -15,10 +23,18 @@ export async function storeCredentials(username: string, encryptedPassword: stri
     fs.writeFileSync(credentialsFilePath, JSON.stringify(data))
 }
 
-export function retrieveCredentials() {
+export function retrieveCredentials(): Result<EncryptedCredentials> {
     if (fs.existsSync(credentialsFilePath)) {
         const data = JSON.parse(fs.readFileSync(credentialsFilePath, 'utf-8'))
-        return { login: data.login, encryptedPassword: data.encryptedPassword }
+
+        return {
+            success: true,
+            data: { login: data.login, encryptedPassword: data.encryptedPassword }
+        }
     }
-    return null
+
+    return {
+        success: false,
+        error: new NotFoundError(credentialsFilePath)
+    }
 }

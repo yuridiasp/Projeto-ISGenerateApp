@@ -42,7 +42,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
             ],
             quantidadeTarefas: 3,
             tipoCompromisso: 'PERICIA MÉDICA',
-            descricao: '311800989 (ORIGEM 201811800803) - PERICIA MÉDICA DE LAILTON DE SOUZA AGUIAR (085.650.825-04), NO DIA DD/MM/AAAA ÀS HH:MM, PERITO: PERITO QUALQUER, LOCAL: CLÍNICA CLIMAGEM',
+            descricao: '202311800989 (ORIGEM 201811800803) - PERICIA MÉDICA DE LAILTON DE SOUZA AGUIAR (085.650.825-04), NO DIA DD/MM/AAAA ÀS HH:MM, PERITO: PERITO QUALQUER, LOCAL: CLÍNICA CLIMAGEM',
             semanas: 2,
             publicacao: '',
             peritoOrReu: 'PERITO QUALQUER',
@@ -102,7 +102,7 @@ describe('Function getDescricao: Construir descrição da tarefa em compromisso 
         }
 
         const resultDescription = getDescricao(cliente.compromisso.tarefas[0], cliente, getDescricaoMock)
-
+        
         const expectedDescription = '202311800989 (ORIGEM 201811800803) - PERICIA MÉDICA DE LAILTON DE SOUZA AGUIAR (085.650.825-04), NO DIA DD/MM/AAAA ÀS HH:MM, PERITO: PERITO QUALQUER, LOCAL: CLÍNICA CLIMAGEM'
 
         expect(resultDescription).toBe(expectedDescription)

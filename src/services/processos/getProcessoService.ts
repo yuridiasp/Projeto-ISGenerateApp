@@ -12,7 +12,7 @@ function extrairDadosRequisicaoProcessoHtml(response: AxiosResponse<any, any>) {
 
     const selectAcaoColetiva: HTMLSelectElement = dom.window.document.querySelector("#acaoColetiva")
     const indexAcaoColetiva = selectAcaoColetiva.selectedIndex
-    const acao = indexAcaoColetiva === -1 ? "" : selectAcaoColetiva.options[indexAcaoColetiva].textContent.toUpperCase()
+    const acaoColetiva = indexAcaoColetiva === -1 ? "" : selectAcaoColetiva.options[indexAcaoColetiva].textContent.toUpperCase()
     
     const selectResponsavelProcesso: HTMLSelectElement = dom.window.document.querySelector("#idResponsavel")
     const indexResponsavelProcesso = selectResponsavelProcesso.selectedIndex
@@ -53,7 +53,7 @@ function extrairDadosRequisicaoProcessoHtml(response: AxiosResponse<any, any>) {
         cidade,
         estado,
         vara,
-        acao
+        acaoColetiva
     }
 
     return { idCliente: idClienteInput.value.toUpperCase(), processo: dataProcesso }
@@ -94,7 +94,7 @@ async function requestDataProcesso(id: string, cookie: string) {
 
     const dataProcesso = extrairDadosRequisicaoProcessoHtml(response)
 
-    if (dataProcesso.processo.acao === "COLETIVA") {
+    if (dataProcesso.processo.acaoColetiva === "COLETIVA") {
         dataProcesso.processo.idsCopias = await getIdsProcessoColetivo(cookie, dataProcesso)
     }
 

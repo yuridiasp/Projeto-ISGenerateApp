@@ -1,4 +1,4 @@
 export interface iWriteFileResponse {
-    result: boolean
+    message: string
     newFilePath: string
 }

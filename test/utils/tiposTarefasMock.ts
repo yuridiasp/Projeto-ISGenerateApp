@@ -546,4 +546,4 @@ const tiposTarefasMock = [
     }
 ]
 
-module.exports = tiposTarefasMock
+export default tiposTarefasMock

@@ -1,3 +1,5 @@
+import { describe, expect, it, beforeEach } from '@jest/globals'
+
 describe('Calcular data da tarefa de compromisso de AUDIÊNCIA a partir do tipo de tarefa e prazo interno', () => {
     const { calcularDataTarefa } = require("../../../../dist/utils/prazos/prazos")
 

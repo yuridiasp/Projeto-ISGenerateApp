@@ -4,10 +4,14 @@ import { generateValidationReport } from "../../infrastructure/reportGenerator/r
 import { iCompromissoFromFile } from "../../models/compromisso/iCompromissoFromFile"
 import { iValidationReport } from "../../models/validation/iValidationReport"
 import { updateViewReportValidation, enableButtonCloseReport } from "../../utils/viewHelpers/viewHelpers"
-import { iFileData } from "../../models/file/iFileData"
+import { iFileData } from "../validateIntimations/validateIntimationsService"
+import { ValidationError } from "src/models/errors/validationError"
+import { Result } from "../../models/result/result"
+
+type HandleIntimationsReportResult = { message: string; newFilePath: string }
 
     
-export async function handleIntimationsReport (windows: iWindows, cookie: string, file: iFileData) {
+export async function handleIntimationsReportService (windows: iWindows, cookie: string, file: iFileData): Promise<Result<HandleIntimationsReportResult>> {
     const resultado: Promise<iValidationReport>[] = []
     
     const { msg, value: intimations } = getIntimations(file)
@@ -32,13 +36,21 @@ export async function handleIntimationsReport (windows: iWindows, cookie: string
     enableButtonCloseReport(windows)
 
     const { result, newFilePath } = generateValidationReport({ data: validations, file: file, prefix: 'RELATORIO-REGISTRO-INTIMACAO-' })
-    
+
     if (result) {
         const pluralOrSingularForIntimacao = validations.length > 1 ? 'intimações' : 'intimação'
-        
-        return `Encontrado ${validations.length} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${newFilePath}`
+            
+        const message =  `Encontrado ${validations.length} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${newFilePath}`
+
+        return {
+            success: true,
+            data: { message, newFilePath }
+        }   
     }
 
-    return 'Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.'
+    return {
+        success: false,
+        error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.')
+    }
 
 }

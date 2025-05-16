@@ -145,6 +145,8 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '520'
         }
 
+        cliente.localAtendido = "ESTANCIA"
+
         const desiredRespExec = {responsavel: "SANDOVAL FILHO CORREIA LIMA FILHO",executor: "SANDOVAL FILHO CORREIA LIMA FILHO"}
 
         const resultado = validaResponsavelFederal(validaResponsavelFederalMock.tarefaAtualNormalizada, cliente, processLengthFederal, validaResponsavelFederalMock)
@@ -162,6 +164,7 @@ describe('Function validaResponsavelFederal: ', () => {
         }
     
         cliente.processo.natureza = "PREVIDENCIÁRIA"
+        cliente.processo.estado = "DF"
 
         const desiredRespExec = {responsavel: "HENYR GOIS DOS SANTOS", executor: "HENYR GOIS DOS SANTOS"}
 
@@ -183,6 +186,7 @@ describe('Function validaResponsavelFederal: ', () => {
         cliente.cidade = "ALAGOINHAS"
         cliente.localAtendido = "CONDE/BA"
         cliente.processo.natureza = "PREVIDENCIÁRIA"
+        cliente.processo.estado = "BA"
 
         const desiredRespExec = {responsavel: "LAIS PEREIRA MORAES",executor: "LAIS PEREIRA MORAES"}
 
@@ -447,7 +451,7 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '405'
         }
     
-        cliente.processo.origem = "08018449320144058500"
+        cliente.processo.origem = "00018449320144058500"
         cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "KEVEN FARO DE CARVALHO",executor: "KEVEN FARO DE CARVALHO"}
@@ -472,7 +476,7 @@ describe('Function validaResponsavelFederal: ', () => {
             digitoVerificador: '405'
         }
     
-        cliente.processo.origem = "08018449320144058500"
+        cliente.processo.origem = "00018449320144058500"
         cliente.processo.natureza = "PREVIDENCIÁRIA"
 
         const desiredRespExec = {responsavel: "MARCUS VINICIUS DE SOUZA MORAIS",executor: "MARCUS VINICIUS DE SOUZA MORAIS"}

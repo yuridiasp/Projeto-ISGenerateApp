@@ -1,15 +1,21 @@
 require('dotenv').config()
-import axios from 'axios'
-import { LoginError } from '../../utils/errors/LoginError'
-import { HttpStatusCodes } from '../../utils/request/statusCode'
+
+import { LoginError } from '../../models/errors/LoginError'
+import { HttpStatusCodes } from '../../helpers/statusCode'
 import { loggedPostRequest } from '../../utils/request/postRequest'
+import { Result } from '../../models/result/result'
+import { getRequest } from '../../utils/request/getRequest'
 
 export interface credential {
     login: string,
     senha: string
 }
 
-async function login(cookie: string, credentials: credential) {
+export type Cookie = {
+    cookie: string
+}
+
+export async function login(cookie: string, credentials: credential): Promise<Result<Cookie>> {
     const { URL_LOGIN_SISTEMFR, LOGIN, SENHA, URL_HOME_SISTEMFR, URL_LOGIN_FAIL_SISTEMFR } = process.env
 
     const credentialsYuri = {
@@ -18,42 +24,53 @@ async function login(cookie: string, credentials: credential) {
     }
 
     const response = await loggedPostRequest({ url: URL_LOGIN_SISTEMFR, body: credentialsYuri, cookie })
-
+    
     if (response.request.res.responseUrl === URL_LOGIN_FAIL_SISTEMFR) {
-        throw new LoginError("Dados não encontrados!", HttpStatusCodes.UNAUTHORIZED)
+        return {
+            success: false,
+            error: new LoginError("Dados não encontrados!", HttpStatusCodes.UNAUTHORIZED)
+        }
     }
 
     if (response.request.res.responseUrl !== URL_HOME_SISTEMFR) {
-        throw new LoginError("Login não realizado", HttpStatusCodes.FORBIDDEN)
+        return {
+            success: false, 
+            error: new LoginError("Login não realizado", HttpStatusCodes.FORBIDDEN)
+        }
+    }
+
+    return {
+        success: true,
+        data: { cookie }
     }
 }
 
-async function setCookieLoginForm() {
+async function setCookieLoginForm(): Promise<Result<Cookie>> {
     try {
-        const response = await axios.get(process.env.URL_FORM_LOGIN_SISTEMFR, {
-            withCredentials: true,
-            headers: {
-                'Connection': 'close'
-            }
-        })
+        const response = await getRequest(process.env.URL_FORM_LOGIN_SISTEMFR)
 
-        return response.headers['set-cookie'][0].split(';')[0]
+        return {
+            success: true,
+            data: { cookie: response.headers['set-cookie'][0].split(';')[0]}
+        }
     } catch (error) {
         console.error('Erro ao obter o cookie do formulário de login:', error)
-        throw error
+        return {
+            success: false,
+            error
+        }
     }
 }
 
-export async function getCookieLoginService(credentials?: credential) {
+export async function getCookieLoginService(credentials?: credential): Promise<Result<Cookie>> {
 
-    try {
-        const cookie = await setCookieLoginForm()
+    const resultCookie = await setCookieLoginForm()
 
-        await login(cookie, credentials)
+    if (resultCookie.success) {
+        const resultLogin = await login(resultCookie.data.cookie, credentials)
 
-        return cookie
-    } catch (error) {
-        console.log(error)
-        return null
+        return resultLogin
     }
+
+    return resultCookie
 }
