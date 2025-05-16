@@ -1,12 +1,11 @@
-import { Cliente } from "../../models/cliente/Cliente"
+import { AxiosResponse } from "axios"
 
+import { Cliente } from "../../models/cliente/Cliente"
 import { createCompromisso } from "./createCompromissoService"
 import { iCompromissoBody } from "../../models/compromisso/iCompromissoBody"
 import { seletores } from "../../models/seletores/iSeletores"
 import { removeAcentuacaoString } from "../../utils/textFormatting/textFormatting"
 import { getSelectsCompromisso } from "../seletores/seletoresService"
-import { AxiosResponse } from "axios"
-import { HttpStatusCodes } from "src/helpers/statusCode"
 
 type Compromisso = {
     tipoCompromisso: string
@@ -15,46 +14,28 @@ type Compromisso = {
     prazoFatal: string
 }
 
-
-function selectTipoCompromisso (descricaoTarefa: string, tiposCompromisso: seletores[]) {
-    const compromissoKey = removeAcentuacaoString(descricaoTarefa).split(" ")[0]
-
-    type CompromissosJudiciais = {
-        [key: string]: string;
-        default: string;
-        PERICIA: string;
-        AUDIENCIA: string;
-        ALVARA: string;
-        RPV: string;
-        PRECATORIO: string;
-    };
-
-    const compromissosJudiciais: CompromissosJudiciais = {
-            default: "INTIMACAO",
-            PERICIA: "PERICIA",
-            AUDIENCIA: "AUDIENCIA",
-            ALVARA: "ALVARA",
-            RPV: "RPV",
-            PRECATORIO: "PRECATORIO"
-        }
-            
-    let tarefaIdentificada
-
-    const compromissoJudicial = compromissosJudiciais[compromissoKey]
-    tarefaIdentificada = compromissoJudicial ? compromissoJudicial : compromissosJudiciais.default
-
-    for (const tipo of tiposCompromisso) {
-        if (removeAcentuacaoString(tipo.nome.toUpperCase()) === tarefaIdentificada) {
-            return tipo.id
-        }
-    }
+const compromissosJudiciais: Readonly<Record<string, string>> = {
+    default: "INTIMACAO",
+    PERICIA: "PERICIA",
+    AUDIENCIA: "AUDIENCIA",
+    ALVARA: "ALVARA",
+    RPV: "RPV",
+    PRECATORIO: "PRECATORIO"
 }
 
-function createBodyForCreateCompromisso({ compromisso, processo, tiposCompromisso }: { compromisso: Compromisso, processo: { origem: string }, tiposCompromisso: seletores[] }) {
 
-    const idTipoCompromisso = selectTipoCompromisso(compromisso.tipoCompromisso, tiposCompromisso)
+function getCompromissoTypeId (descricaoTarefa: string, tiposCompromisso: seletores[]) {
+    const key = removeAcentuacaoString(descricaoTarefa).split(" ")[0]
+    const tipoPadrao = compromissosJudiciais[key] || compromissosJudiciais.default
+            
+    return tiposCompromisso.find(tipo => removeAcentuacaoString(tipo.nome.toUpperCase()) === tipoPadrao)?.id
+}
 
-    const body: iCompromissoBody = {
+function createBodyForCreateCompromisso(compromisso: Compromisso, processo: { origem: string }, tiposCompromisso: seletores[]): iCompromissoBody {
+
+    const idTipoCompromisso = getCompromissoTypeId(compromisso.tipoCompromisso, tiposCompromisso)
+
+    return {
         org: '',
         superior: '',
         idResponsavelAvisado: '',
@@ -67,16 +48,6 @@ function createBodyForCreateCompromisso({ compromisso, processo, tiposCompromiss
         dataPrazoInterno: compromisso.prazoInterno,
         dataPrazoFatal: compromisso.prazoFatal
     }
-    
-    return body
-}
-
-function ValidateCreationCompromisso(response: AxiosResponse<any, any>) {
-    if (response.request.res.responseUrl.includes("http://fabioribeiro.eastus.cloudapp.azure.com/adv/tarefas/formulario")) {
-        return true
-    }
-
-    return false
 }
 
 export async function createCompromissoService(cliente: Cliente, cookie: string) {
@@ -95,36 +66,13 @@ export async function createCompromissoService(cliente: Cliente, cookie: string)
 
     const tiposCompromisso = await getSelectsCompromisso(cookie)
 
-    const body = createBodyForCreateCompromisso({ compromisso, processo, tiposCompromisso })
+    const body = createBodyForCreateCompromisso(compromisso, processo, tiposCompromisso)
 
     const result = await createCompromisso(body, cookie)
 
-    if (ValidateCreationCompromisso(result)) {
+    if (result) {
         return true
     }
 
     return false
 }
-
-/* 
-Criação de compromisso:
-
-Request URL:
-http://fabioribeiro.eastus.cloudapp.azure.com/adv/compromissos/formularioScript.asp
-
-Request Method:
-POST
-
-Form Data:
-org: 
-superior: 
-idResponsavelAvisado: 
-idPK: 
-idAgendamentoINSS: 
-idTipoCompromisso: 21
-numeroProcesso: 202311301030
-descricao: ATO ORDINATÓRIO
-dataPublicacao: 16/08/2024
-dataPrazoInterno: 03/09/2024
-dataPrazoFatal: 06/09/2024
-*/
