@@ -2,7 +2,7 @@ import { readExcelFile } from "../../repositories/xlsx/excelISFile"
 
 export interface iFileData {
     endereco: string,
-    fileName?: string
+    fileName: string
 }
 
 export function getObjectValidateIntimationsService({ endereco }: iFileData) {

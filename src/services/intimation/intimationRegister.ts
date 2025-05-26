@@ -1,14 +1,13 @@
 import { iWindows } from "../../models/windows/iWindows"
-import { getIntimations } from "../../controllers/controllers"
 import { createCliente } from "../clientes/createClienteService"
-import { createCompromissoService } from "../compromissos/compromissoService"
-import { createTaskService } from "../tarefas/taskService"
+import { createCompromissoService } from "../compromissos/index"
 import { updateViewRegistrationIntimations } from "../../utils/viewHelpers/viewHelpers"
 import { ISAnalysisDTO } from "../../models/cliente/Cliente"
-import { iFileData } from "../validateIntimations/validateIntimationsService"
+import { getObjectValidateIntimationsService, iFileData } from "../validateIntimations/validateIntimationsService"
+import { createTaskService } from "../tarefas"
 
 export async function handleIntimationsRegistrationService(windows: iWindows, cookie: string, file: iFileData) {
-    const { msg, value: intimations } = getIntimations(file)
+    const { msg, value: intimations } = getObjectValidateIntimationsService(file)
 
     if (!intimations) {
         throw new Error(msg)
@@ -17,10 +16,18 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
     const resultados = await Promise.all(intimations.map((intimation: ISAnalysisDTO) =>
         createCliente({ ...intimation }, cookie)
             .then(async cliente => {
-                await createCompromissoService(cliente, cookie)
-                return await createTaskService({ cliente, cookie })
+                const result = await createCompromissoService(cliente, cookie)
+
+                if (result.success) {
+                    cliente.compromisso.id = result.data.id
+                    return await createTaskService(cliente, cookie)
+                }
+
+                return result
             })
-            .then(resultadoCadastro => updateViewRegistrationIntimations(resultadoCadastro, windows))
+            .then(resultadoCadastro => {
+                return updateViewRegistrationIntimations(resultadoCadastro, windows)
+            })
     ))
 
     console.log(resultados)

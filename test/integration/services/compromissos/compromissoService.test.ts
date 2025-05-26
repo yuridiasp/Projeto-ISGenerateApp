@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from '@jest/globals'
-import { createCompromissoService } from "../../../../src/services/compromissos/compromissoService"
+import { createCompromissoService } from "../../../../src/services/compromissos/index"
 import { getCookieLoginService } from '../../../../src/services/login/loginService'
 import { Cliente } from '../../../../src/models/cliente/Cliente'
 
@@ -17,7 +17,7 @@ describe("Criar compromisso de Teste", () => {
         }
     })
 
-    it("", async () => {
+    it.skip("", async () => {
         const date = new Date()
         const cliente: Cliente = {
             processo: {

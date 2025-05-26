@@ -1,20 +1,20 @@
 import { iWindows } from "../../models/windows/iWindows"
-import { getIntimations, intimationValidateController } from "../../controllers/controllers"
 import { generateValidationReport } from "../../infrastructure/reportGenerator/reportGenerator"
 import { iCompromissoFromFile } from "../../models/compromisso/iCompromissoFromFile"
 import { iValidationReport } from "../../models/validation/iValidationReport"
 import { updateViewReportValidation, enableButtonCloseReport } from "../../utils/viewHelpers/viewHelpers"
-import { iFileData } from "../validateIntimations/validateIntimationsService"
+import { getObjectValidateIntimationsService, iFileData } from "../validateIntimations/validateIntimationsService"
 import { ValidationError } from "src/models/errors/validationError"
 import { Result } from "../../models/result/result"
+import { intimationValidateService } from "./intimationValidateService"
 
 type HandleIntimationsReportResult = { message: string; newFilePath: string }
 
-    
+//TODO: Refatorar essa função e distribuir responsabilidades
 export async function handleIntimationsReportService (windows: iWindows, cookie: string, file: iFileData): Promise<Result<HandleIntimationsReportResult>> {
     const resultado: Promise<iValidationReport>[] = []
     
-    const { msg, value: intimations } = getIntimations(file)
+    const { msg, value: intimations } = getObjectValidateIntimationsService(file)
     
     if (!intimations) {
         throw new Error(msg)
@@ -24,7 +24,7 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
 
     intimations.forEach((intimation: iCompromissoFromFile) => {
         
-        const response = intimationValidateController(intimation, cookie).then(result => {
+        const response = intimationValidateService(intimation, cookie).then(result => {
             updateViewReportValidation(result, windows)
             return result
         })
@@ -52,5 +52,4 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
         success: false,
         error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.')
     }
-
 }

@@ -3,7 +3,7 @@ import { describe, expect, it, beforeAll } from '@jest/globals'
 
 import tiposTarefasMock from "../../../utils/tiposTarefasMock"
 import colaboradoresMock from "../../../utils/colaboradoresMock"
-import { createBodyForCreateTask, createTaskService } from "../../../../src/services/tarefas/taskService"
+import { createBodyForCreateTask } from "../../../../src/repositories/tarefas/index"
 import { loginService } from "../../../../src/services/auth/authService"
 
 dotEnv.config()
