@@ -1,8 +1,29 @@
-import { describe, expect, it, beforeEach } from '@jest/globals'
+import { describe, expect, it, beforeEach, jest } from '@jest/globals'
 
-import { createBodyForCreateTask } from '../../../../../../src/repositories/tarefas/index'
+import { createBodyForCreateTask } from '../../../../../src/repositories/tarefas/index'
+import { calcularDataTarefa } from "../../../../../src/utils/prazos/prazos"
+import { getDescricao } from "../../../../../src/services/tarefas/utils/getDescricao"
+import { getResponsavelExecutor } from "../../../../../src/services/tarefas/get/getResponsavelExecutor"
+import { atualizaHoraFinal } from "../../../../../src/services/tarefas/utils/atualizaHoraFinal"
+import { getParametroData } from "../../../../../src/services/tarefas/utils/getParametroData"
+import { getTipoTarefa } from "../../../../../src/services/tarefas/utils/getTipoTarefa"
+
+jest.mock("../../../../../src/utils/prazos/prazos")
+jest.mock("../../../../../src/services/tarefas/utils/getDescricao")
+jest.mock("../../../../../src/services/tarefas/get/getResponsavelExecutor")
+jest.mock("../../../../../src/services/tarefas/utils/atualizaHoraFinal")
+jest.mock("../../../../../src/services/tarefas/utils/getParametroData")
+jest.mock("../../../../../src/services/tarefas/utils/getTipoTarefa")
+
+const mockedCalcularDataTarefa = jest.mocked(calcularDataTarefa)
+const mockedGetDescricao = jest.mocked(getDescricao)
+const mockedGetResponsavelExecutor = jest.mocked(getResponsavelExecutor)
+const mockedAtualizaHoraFinal = jest.mocked(atualizaHoraFinal)
+const mockedGetParametroData = jest.mocked(getParametroData)
+const mockedGetTipoTarefa = jest.mocked(getTipoTarefa)
 
 describe('Function createBodyForCreateTask: ', () => {
+    const fakeHour = '10:00'
     //202212600876 - Ação coletiva
     const colaboradoresMock = [
         {
@@ -1034,9 +1055,13 @@ describe('Function createBodyForCreateTask: ', () => {
     }
 
     beforeEach(() => {
+        jest.clearAllMocks()
         cliente.processo.idsCopias = ['']
     })
-    const getParametroData = ({ descricao: tarefa }) => {
+
+    mockedAtualizaHoraFinal.mockImplementation(hour => fakeHour)
+    
+    mockedGetParametroData.mockImplementation(({ descricao }) => {
         const parametros = {
             "AUDIÊNCIA DE INSTRUÇÃO": 2,
             "CONTATAR CLIENTE": 1,
@@ -1045,9 +1070,9 @@ describe('Function createBodyForCreateTask: ', () => {
             "ANÁLISE": 2
         }
 
-        return parametros[tarefa]
-    }
-    const calcularDataTarefa = ({ descricao: tarefa }) => {
+        return parametros[descricao]
+    })
+    mockedCalcularDataTarefa.mockImplementation((tarefa) => {
         const datasTarefas = {
             "AUDIÊNCIA DE INSTRUÇÃO": new Date('2024-11-01'),
             "CONTATAR CLIENTE": new Date('2024-10-02'),
@@ -1057,19 +1082,18 @@ describe('Function createBodyForCreateTask: ', () => {
         }
 
         return datasTarefas[tarefa]
-    }
-    const getDescricao = ({ descricao: tarefa }) => {
+    })
+    mockedGetDescricao.mockImplementation(({ descricao: tarefa }) => {
         const descricoes = {
             "AUDIÊNCIA DE INSTRUÇÃO": "202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA",
             "CONTATAR CLIENTE": "202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA",
             "SMS E WHATSAPP": "202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA",
             "LEMBRAR CLIENTE": "202212600876 - AUDIÊNCIA DE INSTRUÇÃO DE JOAO VASCONCELOS TAVARES (INVENTÁRIO), NO DIA 01/11/2024 ÀS 08:00, LOCAL: VIDEOCONFERÊNCIA",
-
             "ANÁLISE": "202212600876 - VERIFICAR NECESSIDADE DE TESTEMUNHAS"}
 
         return descricoes[tarefa]
-    }
-    const getTipoTarefa = ({ descricao: tarefa }) => {
+    })
+    mockedGetTipoTarefa.mockImplementation(({ descricao: tarefa }) => {
         const tiposTarefas = {
             "AUDIÊNCIA DE INSTRUÇÃO": "28",
             "CONTATAR CLIENTE": "15",
@@ -1079,8 +1103,8 @@ describe('Function createBodyForCreateTask: ', () => {
         }
 
         return tiposTarefas[tarefa]
-    }
-    const getResponsavelExecutor = ({ descricao: tarefa }) => {
+    })
+    mockedGetResponsavelExecutor.mockImplementation(({ descricao: tarefa }) => {
         const responsaveisExecutores = {
             "AUDIÊNCIA DE INSTRUÇÃO": {
             responsavel: "RODRIGO AGUIAR SANTOS",
@@ -1105,18 +1129,11 @@ describe('Function createBodyForCreateTask: ', () => {
         }
 
         return responsaveisExecutores[tarefa]
-    }
+    })
     
     it('Criar objeto body de todas as tarefas de um compromisso de audiência em processo coletivo', async () => {
         cliente.processo.idsCopias = ['18529', '27193', '26049', '12183', '26048', '28952']
 
-        const createBodyForCreateTaskMock = {
-            getParametroData,
-            calcularDataTarefa,
-            getDescricao,
-            getTipoTarefa,
-            getResponsavelExecutor
-        }
         const desiredBodyTask = [
             {
               idCO: '245862',
@@ -1186,20 +1203,13 @@ describe('Function createBodyForCreateTask: ', () => {
         cliente.processo.id = "31924"
         cliente.processo.acaoColetiva = "True"
 
-        const resultados = await createBodyForCreateTask({ cliente, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie: '', createBodyForCreateTaskMock })
+        const resultados = await createBodyForCreateTask({ cliente, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie: '' })
 
         resultados.forEach((resultado, index) => expect(resultado).toMatchObject(desiredBodyTask[index]))
     })
 
     it('Criar objeto body de todas as tarefas de um compromisso de audiência em processo individual', async () => {
 
-        const createBodyForCreateTaskMock = {
-            getParametroData,
-            calcularDataTarefa,
-            getDescricao,
-            getTipoTarefa,
-            getResponsavelExecutor
-        }
         const desiredBodyTask = [
             {
               idCO: '245862',
@@ -1264,7 +1274,7 @@ describe('Function createBodyForCreateTask: ', () => {
 
         cliente.processo.acaoColetiva = "False"
 
-        const resultados = await createBodyForCreateTask({ cliente, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie: '' , createBodyForCreateTaskMock })
+        const resultados = await createBodyForCreateTask({ cliente, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie: '' })
 
         resultados.forEach((resultado, index) => expect(resultado).toMatchObject(desiredBodyTask[index]))
     })

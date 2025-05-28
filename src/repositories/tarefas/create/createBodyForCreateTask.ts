@@ -1,9 +1,7 @@
 import { iCreateTarefa } from "../../../models/tarefa/iCreateTarefa";
-import { iTarefa } from "../../../models/tarefa/iTarefa";
 import { Cliente } from "../../../models/cliente/Cliente";
 import { iColaborador } from "../../../models/colaborador/iColaborador";
 import { seletores } from "../../../models/seletores/iSeletores";
-import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting";
 import { calcularDataTarefa } from "../../../utils/prazos/prazos";
 import { getDescricao } from "../../../services/tarefas/utils/getDescricao";
 import { getResponsavelExecutor } from "../../../services/tarefas/get/getResponsavelExecutor";
@@ -16,35 +14,23 @@ interface createBodyForCreateTaskDTO {
     colaboradores: iColaborador[]
     tiposTarefas: seletores[]
     cookie: string
-    createBodyForCreateTaskMock?: createBodyForCreateTaskMockDTO
 }
 
-interface createBodyForCreateTaskMockDTO {
-    getParametroData: (tarefa: iTarefa) => number,
-    calcularDataTarefa: (tarefa: iTarefa) => Date,
-    getDescricao: (tarefa: iTarefa) => string,
-    getTipoTarefa: (tarefa: iTarefa) => string,
-    getResponsavelExecutor: (tarefa: iTarefa) => ({
-        responsavel: string;
-        executor: string;
-    })
-}
+export async function createBodyForCreateTask({ cliente, colaboradores, tiposTarefas, cookie }: createBodyForCreateTaskDTO): Promise<iCreateTarefa[]> {
 
-export async function createBodyForCreateTask({ cliente, colaboradores, tiposTarefas, cookie, createBodyForCreateTaskMock }: createBodyForCreateTaskDTO): Promise<iCreateTarefa[]> {
-
-    const { tarefas } = cliente.compromisso
-
-    return await Promise.all(tarefas.map(async tarefa => {
-        const isAudiencia = removeAcentuacaoString(tarefa.descricao).search("AUDIENCIA") === 0
-        const parametro = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getParametroData(tarefa) : getParametroData(tarefa, cliente)
-        const dataTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.calcularDataTarefa(tarefa) : calcularDataTarefa(parametro, cliente)
-        const descricaoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getDescricao(tarefa) : getDescricao(tarefa, cliente)
-        const idTipoTarefa = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getTipoTarefa(tarefa) : getTipoTarefa(tarefa, tiposTarefas)
+    const { tarefas } = cliente.compromisso;
     
-        const { responsavel, executor } = createBodyForCreateTaskMock ? createBodyForCreateTaskMock.getResponsavelExecutor(tarefa) : await getResponsavelExecutor(tarefa, cliente, cookie)
+    return await Promise.all(tarefas.map(async tarefa => {
+        const isAudiencia = /AUDI[ÊE]NCIA/.test(tarefa.descricao)
+        const parametro = getParametroData(tarefa)
+        const dataTarefa = calcularDataTarefa(parametro, cliente)
+        const descricaoTarefa = getDescricao(tarefa, cliente)
+        const idTipoTarefa = getTipoTarefa(tarefa, tiposTarefas)
+    
+        const { responsavel, executor } = await getResponsavelExecutor(tarefa, cliente, cookie)
         
-        const executorTask = colaboradores.find(colaborador => colaborador.nome.toUpperCase().trim() === executor.toUpperCase().trim() )
-        const responsavelTask = colaboradores.find(colaborador => colaborador.nome.toUpperCase().trim() === responsavel.toUpperCase().trim() )
+        const executorTask = colaboradores.find(colaborador => colaborador.nome.toUpperCase().trim() === executor.toUpperCase().trim())
+        const responsavelTask = colaboradores.find(colaborador => colaborador.nome.toUpperCase().trim() === responsavel.toUpperCase().trim())
 
         const dataParaFinalizacao = dataTarefa.toLocaleDateString()
 

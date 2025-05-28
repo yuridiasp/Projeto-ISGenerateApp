@@ -29,14 +29,14 @@ export function contarDias(dataInterno: Date, parametro: number, cliente: Client
     let contaTodos = 0,
         contaUteis = 0,
         domingos = 0,
-        date = mockContarDias ? mockContarDias.date : hojeMock || new Date()
+        date = mockContarDias?.date ?? (hojeMock ?? new Date())
 
     if (date.toDateString() == dataInterno.toDateString())
         return { uteis: 0, todosDias: 0}
 
     while (date < dataInterno) {
         date.setDate(date.getDate() + 1)
-        const { isHoliday } = mockContarDias ? mockContarDias.isFeriado(date) : isFeriado(date, parametro, cliente)
+        const { isHoliday } = mockContarDias?.isFeriado(date) ?? isFeriado(date, parametro, cliente)
         const weekDay = date.getDay()
         const sundayIndex = 0
         const saturdayIndex = 6
@@ -69,8 +69,8 @@ export function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente, 
         contTres = "PERICIA",
         contQuatro = ["AUDIENCIA DE CONCILIACAO", "AUDIENCIA CONCILIATORIA", "AUDIENCIA DE INTERROGATORIO"],
         contCinco = ["AUDIENCIA DE INSTRUCAO", "AUDIENCIA INAUGURAL", "AUDIENCIA INICIAL", "AUDIENCIA DE INSTRUCAO E JULGAMENTO", "AUDIENCIA UNA"],
-        tipoCompromissoNormalizado = mockNormalizedString ? mockNormalizedString.tipoCompromissoNormalizado : removeAcentuacaoString(tipoCompromisso),
-        tarefaAtualNormalizada = mockNormalizedString ? mockNormalizedString.tarefaAtualNormalizada : removeAcentuacaoString(tarefas[0].descricao),
+        tipoCompromissoNormalizado = mockNormalizedString?.tipoCompromissoNormalizado ?? removeAcentuacaoString(tipoCompromisso),
+        tarefaAtualNormalizada = mockNormalizedString?.tarefaAtualNormalizada ?? removeAcentuacaoString(tarefas[0].descricao),
         isDFOrGO = estado === 'GO' || estado === 'DF'
 
     if (((contCinco.includes(tipoCompromisso) && dias > 11) || (contQuatro.includes(tipoCompromissoNormalizado) && dias > 10) || (tipoCompromissoNormalizado.search(contTres) === 0) && dias > 10)) {
