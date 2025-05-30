@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach, jest } from '@jest/globals'
 
 import { createBodyForCreateTask } from '../../../../../src/repositories/tarefas/index'
-import { calcularDataTarefa } from "../../../../../src/utils/prazos/prazos"
+import { calcularDataTarefa } from "../../../../../src/utils/prazos/calcularDataTarefa"
 import { getDescricao } from "../../../../../src/services/tarefas/utils/getDescricao"
 import { getResponsavelExecutor } from "../../../../../src/services/tarefas/get/getResponsavelExecutor"
 import { atualizaHoraFinal } from "../../../../../src/services/tarefas/utils/atualizaHoraFinal"
@@ -10,7 +10,7 @@ import { getTipoTarefa } from "../../../../../src/services/tarefas/utils/getTipo
 import { tiposTarefasMock } from '../../../mocks/tarefas/tiposTarefasMock'
 import { colaboradoresMock } from '../../../mocks/colaboradores/colaboradoresMock'
 
-jest.mock("../../../../../src/utils/prazos/prazos")
+jest.mock("../../../../../src/utils/prazos/calcularDataTarefa")
 jest.mock("../../../../../src/services/tarefas/utils/getDescricao")
 jest.mock("../../../../../src/services/tarefas/get/getResponsavelExecutor")
 jest.mock("../../../../../src/services/tarefas/utils/atualizaHoraFinal")

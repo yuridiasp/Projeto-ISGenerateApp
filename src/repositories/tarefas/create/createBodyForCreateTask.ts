@@ -2,7 +2,7 @@ import { iCreateTarefa } from "../../../models/tarefa/iCreateTarefa";
 import { Cliente } from "../../../models/cliente/Cliente";
 import { iColaborador } from "../../../models/colaborador/iColaborador";
 import { seletores } from "../../../models/seletores/iSeletores";
-import { calcularDataTarefa } from "../../../utils/prazos/prazos";
+import { calcularDataTarefa } from "../../../utils/prazos/calcularDataTarefa";
 import { getDescricao } from "../../../services/tarefas/utils/getDescricao";
 import { getResponsavelExecutor } from "../../../services/tarefas/get/getResponsavelExecutor";
 import { atualizaHoraFinal } from "../../../services/tarefas/utils/atualizaHoraFinal";
@@ -18,12 +18,10 @@ interface createBodyForCreateTaskDTO {
 
 export async function createBodyForCreateTask({ cliente, colaboradores, tiposTarefas, cookie }: createBodyForCreateTaskDTO): Promise<iCreateTarefa[]> {
 
-    const { tarefas } = cliente.compromisso;
-    
-    return await Promise.all(tarefas.map(async tarefa => {
+    return await Promise.all(cliente.compromisso.tarefas.map(async (tarefa, indexTarefa) => {
         const isAudiencia = /AUDI[ÊE]NCIA/.test(tarefa.descricao)
         const parametro = getParametroData(tarefa)
-        const dataTarefa = calcularDataTarefa(parametro, cliente)
+        const dataTarefa = calcularDataTarefa(parametro, cliente, indexTarefa)
         const descricaoTarefa = getDescricao(tarefa, cliente)
         const idTipoTarefa = getTipoTarefa(tarefa, tiposTarefas)
     
@@ -61,5 +59,4 @@ export async function createBodyForCreateTask({ cliente, colaboradores, tiposTar
         
         return body
     }))
-
 }
