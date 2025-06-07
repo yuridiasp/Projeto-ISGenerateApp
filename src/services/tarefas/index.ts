@@ -3,7 +3,7 @@ export * from './get/getResponsavelExecutor';
 export * from './get/getTarefasColaboradores';
 export * from './valida/validaResponsavelTj';
 export * from './valida/validaResponsavelFederal';
-export * from './valida/validaTipoCompromisso';
+export * from '../compromissos/valida/validaTipoCompromisso';
 export * from './valida/validaEsferaProcesso';
 export * from './utils/atualizaHoraFinal';
 export * from './utils/existeOrigem';

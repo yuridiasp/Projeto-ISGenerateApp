@@ -1,11 +1,9 @@
 import { Cliente } from "../../../models/cliente/Cliente"
 import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting"
 
-export type removeAcentuacaoStringMock = (string: string) => string
-
-export function validaTipoCompromisso(descriptionCompromisso: string, cliente: Cliente, removeAcentuacaoStringMock?: removeAcentuacaoStringMock) {
+export function validaTipoCompromisso(descriptionCompromisso: string, cliente: Cliente) {
     const { cidade, estado } = cliente.processo
-    const descriptionCompromissoNormalizado = removeAcentuacaoStringMock(descriptionCompromisso) || removeAcentuacaoString(descriptionCompromisso)
+    const descriptionCompromissoNormalizado = removeAcentuacaoString(descriptionCompromisso)
     const pauta = ["PAUTA", "RETIRADO DE PAUTA"]
     const emendar = ["DADOS PERICIA SOCIAL", "DADOS COMPLEMENTARES", "EMENDA", "EMENDA A INICIAL", "EMENDAR A INICIAL", "EMENDAR"]
     const pedidoVistas = ["PEDIDO DE VISTAS", "PEDIDO DE VISTA"]

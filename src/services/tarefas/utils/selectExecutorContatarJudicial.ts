@@ -1,13 +1,12 @@
 import { Cliente } from "../../../models/cliente/Cliente"
 import { iColaborador } from "../../../models/colaborador/iColaborador"
-import { removeAcentuacaoStringMock } from "../valida/validaTipoCompromisso"
 import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting"
 
-export function selectExecutorContatarJudicial (colaboradores: iColaborador[], cliente: Cliente, removeAcentuacaoStringMock?: removeAcentuacaoStringMock) {
+export function selectExecutorContatarJudicial (colaboradores: iColaborador[], cliente: Cliente) {
     let responsavel = 'JULIANO OLIVEIRA DE SOUZA'
 
     const responsavelInterior = colaboradores.reduce((previous, currrent) => {
-        const isReponsavelInterior = removeAcentuacaoStringMock ? currrent.interiores.includes(removeAcentuacaoStringMock(cliente.localAtendido)) : currrent.interiores.includes(removeAcentuacaoString(cliente.localAtendido))
+        const isReponsavelInterior = currrent.interiores.includes(removeAcentuacaoString(cliente.localAtendido))
         if (isReponsavelInterior) {
             return currrent
         }

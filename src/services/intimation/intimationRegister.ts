@@ -5,15 +5,27 @@ import { updateViewRegistrationIntimations } from "../../utils/viewHelpers/viewH
 import { ISAnalysisDTO } from "../../models/cliente/Cliente"
 import { getObjectValidateIntimationsService, iFileData } from "../validateIntimations/validateIntimationsService"
 import { createTaskService } from "../tarefas"
+import { EmptyFileError } from "../../models/errors/emptyFileError"
+import { Result } from "../../models/result/result"
 
-export async function handleIntimationsRegistrationService(windows: iWindows, cookie: string, file: iFileData) {
-    const { msg, value: intimations } = getObjectValidateIntimationsService(file)
+export async function handleIntimationsRegistrationService(windows: iWindows, cookie: string, file: iFileData): Promise<Result<{}>> {
+    const result = getObjectValidateIntimationsService(file)
 
-    if (!intimations) {
-        throw new Error(msg)
+    if (!result.success) {
+        return {
+            success: false,
+            error: result.error
+        }
     }
 
-    const resultados = await Promise.all(intimations.map((intimation: ISAnalysisDTO) =>
+    if(!result.data.file.length) {
+        return {
+            success: false,
+            error: new EmptyFileError()
+        }
+    }
+
+    const resultados = await Promise.all(result.data.file.map((intimation: ISAnalysisDTO) =>
         createCliente({ ...intimation }, cookie)
             .then(async cliente => {
                 const result = await createCompromissoService(cliente, cookie)
@@ -26,11 +38,11 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
                 return result
             })
             .then(resultadoCadastro => {
-                return updateViewRegistrationIntimations(resultadoCadastro, windows)
+                updateViewRegistrationIntimations(resultadoCadastro, windows)
+
+                return resultadoCadastro
             })
     ))
 
-    console.log(resultados)
-
-    return 'Sucesso!'
+    return { success: true, data: resultados }
 }
