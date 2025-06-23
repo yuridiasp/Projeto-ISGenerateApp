@@ -2,7 +2,7 @@ import jsdom from "jsdom"
 const { JSDOM } = jsdom
 import dotEnv from 'dotenv'
 
-import { getCadastroProcesso } from '../processos/getCadatroProcessoService'
+import { getCadastroProcesso } from '../processos/get/getCadatroProcessoService'
 import { loggedPostRequest } from '../../utils/request/postRequest'
 import { iValidationReport } from "src/models/validation/iValidationReport"
 import { iCompromissoFromFile } from "src/models/compromisso/iCompromissoFromFile"
@@ -52,8 +52,13 @@ export async function intimationValidateService({ processo, case_number, descrip
         if (!isRegistered)
             reason = 'publication'
     } else {
-        const responseProcess = await getCadastroProcesso(processValue, cookie)
-        reason = responseProcess.reason
+        const resultRegisterProcess = await getCadastroProcesso(processValue, cookie)
+        if (resultRegisterProcess.success === false) {
+            //TODO: Construir caso de falha na busca do cadastro do processo
+            return
+        }
+
+        reason = resultRegisterProcess.data.reason
     }
     
     return { processo: processValue, description, publicacao: dataCadastro, isRegistered, reason }
