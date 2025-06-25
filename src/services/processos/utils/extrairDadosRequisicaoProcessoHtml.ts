@@ -1,8 +1,7 @@
 import { AxiosResponse } from "axios"
 import { JSDOM } from "jsdom"
 
-import { DataProcesso } from "../get/getProcessoService"
-import { extractValueFromSelect } from "../index"
+import { DataProcesso, extractValueFromSelect } from "@services/processos/index"
 
 export function extrairDadosRequisicaoProcessoHtml(response: AxiosResponse<any, any>): DataProcesso {
 

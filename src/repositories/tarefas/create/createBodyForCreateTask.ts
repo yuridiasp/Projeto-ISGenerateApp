@@ -1,13 +1,13 @@
-import { iCreateTarefa } from "../../../models/tarefa/iCreateTarefa";
-import { Cliente } from "../../../models/cliente/Cliente";
-import { iColaborador } from "../../../models/colaborador/iColaborador";
-import { seletores } from "../../../models/seletores/iSeletores";
-import { calcularDataTarefa } from "../../../utils/prazos/calcularDataTarefa";
-import { getDescricao } from "../../../services/tarefas/utils/getDescricao";
-import { getResponsavelExecutor } from "../../../services/tarefas/get/getResponsavelExecutor";
-import { atualizaHoraFinal } from "../../../services/tarefas/utils/atualizaHoraFinal";
-import { getParametroData } from "../../../services/tarefas/utils/getParametroData";
-import { getTipoTarefa } from "../../../services/tarefas/utils/getTipoTarefa";
+import { iCreateTarefa } from "@models/tarefa/iCreateTarefa";
+import { Cliente } from "@models/cliente/Cliente";
+import { iColaborador } from "@models/colaborador/iColaborador";
+import { seletores } from "@models/seletores/iSeletores";
+import { calcularDataTarefa } from "@utils/prazos/calcularDataTarefa";
+import { getDescricao } from "@services/tarefas/utils/getDescricao";
+import { getResponsavelExecutor } from "@services/tarefas/get/getResponsavelExecutor";
+import { atualizaHoraFinal } from "@services/tarefas/utils/atualizaHoraFinal";
+import { getParametroData } from "@services/tarefas/utils/getParametroData";
+import { getTipoTarefa } from "@services/tarefas/utils/getTipoTarefa";
 
 interface createBodyForCreateTaskDTO {
     cliente: Cliente

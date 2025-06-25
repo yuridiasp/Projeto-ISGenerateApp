@@ -1,4 +1,4 @@
-import { AppError } from "./appError"
+import { AppError } from "@models/errors/appError"
 
 export class LoginError extends AppError {
     readonly statusCode: number

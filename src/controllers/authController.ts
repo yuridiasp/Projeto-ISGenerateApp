@@ -1,5 +1,5 @@
-import { ValidationError } from 'src/models/errors/validationError'
-import { loginService, retrieveCredentialsService } from '../services/auth/authService'
+import { ValidationError } from '@models/errors/validationError'
+import { loginService, retrieveCredentialsService } from '@services/auth/authService'
 
 export async function loginController(username: string, password: string) {
     if (!username || !password) {

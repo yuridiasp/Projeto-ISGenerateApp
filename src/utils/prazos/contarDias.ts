@@ -1,5 +1,5 @@
-import { Cliente } from "../../models/cliente/Cliente"
-import { isFeriado } from "../feriados/isFeriados"
+import { Cliente } from "@models/cliente/Cliente"
+import { isFeriado } from "@utils/feriados/isFeriados"
 
 type contagemDiasResult = { uteis: number, todosDias: number, semanas: number }
 

@@ -1,7 +1,7 @@
-const { createApp } = require("./app")
-import { createMainWindowController } from "./controllers/controllers"
-import { setHandlers } from "./channels/ipcHandlers"
-import { iWindows } from "./models/windows/iWindows"
+import { createApp } from "./app"
+import { createMainWindowController } from "@controllers/controllers"
+import { setHandlers } from "@channels/ipcHandlers"
+import { iWindows } from "@models/windows/iWindows"
 
 const windows: iWindows = {
     mainWindow: null,

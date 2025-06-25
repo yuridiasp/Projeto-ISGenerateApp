@@ -1,42 +1,12 @@
 import path from 'path'
 import fs from 'fs'
 import jsdom from "jsdom"
-import { writeExcelFileRepository } from '../../repositories/xlsx/excelISFile'
-
-function isPrev (is: string) {
-    const termos = [
-        ': INSS',
-        'ADO - INSS',
-        'ANTE - INSS',
-        ': I N S S',
-        'ADO - I N S S',
-        'ANTE - I N S S',
-        ': INSTITUTO NACIONAL DE SEGURO SOCIAL',
-        'ADO - INSTITUTO NACIONAL DE SEGURO SOCIAL',
-        'ANTE - INSTITUTO NACIONAL DE SEGURO SOCIAL',
-        ': INSTITUTO NACIONAL DO SEGURO SOCIAL',
-        'ADO - INSTITUTO NACIONAL DO SEGURO SOCIAL',
-        'ANTE - INSTITUTO NACIONAL DO SEGURO SOCIAL',
-        ': INSTITUTO NACIONAL DE SEGURIDADE SOCIAL',
-        'ADO - INSTITUTO NACIONAL DE SEGURIDADE SOCIAL',
-        'ANTE - INSTITUTO NACIONAL DE SEGURIDADE SOCIAL',
-        ': I.N.D.S.S',
-        'IDO - I.N.D.S.S',
-        'ADO - I.N.D.S.S',
-        'ANTE - I.N.D.S.S',
-        ': INSTITUTO NACIONAL DE SEGURIDADE - INSS',
-    ]
-
-    return termos.some(termo => is.includes(termo))
-}
-
-function isTRT (is: string) {
-    return (is.includes('TRIBUNAL REGIONAL DO TRABALHO'))
-}
+import { writeExcelFileRepository } from '@repositories/xlsx/excelISFile'
+import { isJF, isPrev, isTRT } from '@services/fileHandler/index'
 
 function initAndSetIs(lista: NodeListOf<Element>) {
 
-    let prev = [], civ = [], trt = []
+    const prev = [], civ = [], trt = [], jf = []
 
     type IS = {
         availability_date: string,
@@ -96,6 +66,8 @@ function initAndSetIs(lista: NodeListOf<Element>) {
 
             if (isTRT(html)) {
                 trt.push(objIS)
+            } else if (isJF(html)) {
+                jf.push(objIS)
             } else {
                 if (isPrev(html)) {
                     prev.push(objIS)
@@ -106,7 +78,7 @@ function initAndSetIs(lista: NodeListOf<Element>) {
         }
     }
 
-    return { prev, trt, civ }
+    return { prev, trt, civ, jf }
 }
 
 export async function splitISToExcel (endereco: string, fileName: string) {
@@ -119,7 +91,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
     console.log("Convertido binarios em documento html...")
     const lista = doc.window.document.querySelectorAll("body > div > p")
     const date = doc.window.document.querySelector("body > div > p:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2)").innerHTML.replace('Data Publicação:\n<br><strong>','').replace('</strong>','').replace(/\//g,'')
-    const { prev, trt, civ } = initAndSetIs(lista)
+    const { prev, trt, civ, jf } = initAndSetIs(lista)
     console.log('Inicializado variaveis...')
 
     if (prev.length) {
@@ -127,12 +99,12 @@ export async function splitISToExcel (endereco: string, fileName: string) {
 
         console.log(`Iniciando criacao do documento xlsx ${prevFileName}`)
 
-        const { result } = writeExcelFileRepository({ data: prev, filePath: { endereco, fileName: `${prevFileName}.xlsx` }, sheetName: prevFileName })
+        const resultPrev = writeExcelFileRepository({ data: prev, filePath: { endereco, fileName: `${prevFileName}.xlsx` }, sheetName: prevFileName })
         
-        if (result) {
+        if (resultPrev.success === true) {
             console.log(`File ${prevFileName}.xlsx created successfully`)
         } else {
-            console.log(`File ${prevFileName}.xlsx created failed`)
+            console.log(`File ${prevFileName}.xlsx created failed` + resultPrev.error.toString())
         }
     }
 
@@ -141,12 +113,12 @@ export async function splitISToExcel (endereco: string, fileName: string) {
         
         console.log(`Iniciando criacao do documento xlsx ${civFileName}`)
 
-        const { result } = writeExcelFileRepository({ data: civ, filePath: { endereco, fileName: `${civFileName}.xlsx` }, sheetName: civFileName })
+        const resultCiv = writeExcelFileRepository({ data: civ, filePath: { endereco, fileName: `${civFileName}.xlsx` }, sheetName: civFileName })
         
-        if (result) {
+        if (resultCiv.success === true) {
             console.log(`File ${civFileName}.xlsx created successfully`)
         } else {
-            console.log(`File ${civFileName}.xlsx created failed`)
+            console.log(`File ${civFileName}.xlsx created failed` + resultCiv.error.toString())
         }
     }
 
@@ -155,12 +127,26 @@ export async function splitISToExcel (endereco: string, fileName: string) {
         
         console.log(`Iniciando criacao do documento xlsx ${trtFileName}`)
 
-        const { result } = writeExcelFileRepository({ data: trt, filePath: { endereco, fileName: `${trtFileName}.xlsx` }, sheetName: trtFileName })
+        const resultTrt = writeExcelFileRepository({ data: trt, filePath: { endereco, fileName: `${trtFileName}.xlsx` }, sheetName: trtFileName })
         
-        if (result) {
+        if (resultTrt.success === true) {
             console.log(`File ${trtFileName}.xlsx created successfully`)
         } else {
-            console.log(`File ${trtFileName}.xlsx created failed`)
+            console.log(`File ${trtFileName}.xlsx created failed` + resultTrt.error.toString())
+        }
+    }
+
+    if (jf.length) {
+        const jfFileName = `JFSE ${date}`
+        
+        console.log(`Iniciando criacao do documento xlsx ${jfFileName}`)
+
+        const resultJF = writeExcelFileRepository({ data: jf, filePath: { endereco, fileName: `${jfFileName}.xlsx` }, sheetName: jfFileName })
+        
+        if (resultJF.success === true) {
+            console.log(`File ${jfFileName}.xlsx created successfully`)
+        } else {
+            console.log(`File ${jfFileName}.xlsx created failed` + resultJF.error.toString())
         }
     }
 

@@ -1,7 +1,7 @@
 require("dotenv").config()
 
-import { iTarefaBusca } from "../../../models/tarefa/iTarefaBusca"
-import { loggedPostRequest } from "../../../utils/request/postRequest"
+import { iTarefaBusca } from "@models/tarefa/iTarefaBusca"
+import { loggedPostRequest } from "@utils/request/postRequest"
 
 export async function getTarefa({
     bsAdvTarefas = 's',

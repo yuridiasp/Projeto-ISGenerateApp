@@ -2,6 +2,8 @@ import XLSX from 'xlsx'
 
 import { createNewFilePath } from '../../utils/directory/directory'
 import { iExcelFileDTO } from '../../models/file/iExcelFileDTO'
+import { Result } from '../../models/result/result'
+import { ValidationError } from '../../models/errors/validationError'
 
 type ResultWriteEFile = {
     newFilePath?: string,
@@ -20,7 +22,7 @@ export function readExcelFile(endereco: string) {
     return data
 }
 
-export function writeExcelFileRepository({ data, filePath: { endereco, fileName  }, sheetName, prefix = ''}: iExcelFileDTO): ResultWriteEFile {
+export function writeExcelFileRepository({ data, filePath: { endereco, fileName  }, sheetName, prefix = ''}: iExcelFileDTO): Result<ResultWriteEFile> {
     
     if (data.length) {
         const newFilePath = createNewFilePath(endereco, prefix + fileName)
@@ -33,12 +35,16 @@ export function writeExcelFileRepository({ data, filePath: { endereco, fileName 
         XLSX.writeFile(workbook, newFilePath)
 
         return {
-            newFilePath,
-            result: true
+            success: true,
+            data: {
+                newFilePath,
+                result: true
+            }
         }
     }
 
     return {
-        result: false
+        success: false,
+        error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.')
     }
 }

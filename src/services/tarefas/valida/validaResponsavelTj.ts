@@ -1,5 +1,5 @@
-import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting"
-import { Cliente } from "../../../models/cliente/Cliente"
+import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { Cliente } from "@models/cliente/Cliente"
 
 export interface validaResponsavelDTO {
     tipoCompromissoNormalizado: string

@@ -1,5 +1,5 @@
-import { seletores } from "../../../models/seletores/iSeletores"
-import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting"
+import { seletores } from "@models/seletores/iSeletores"
+import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
 const compromissosJudiciais: Readonly<Record<string, string>> = {
     default: "INTIMACAO",

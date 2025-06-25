@@ -1,6 +1,6 @@
-import { seletores } from "../../../models/seletores/iSeletores"
-import { iTarefa } from "../../../models/tarefa/iTarefa"
-import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting"
+import { seletores } from "@models/seletores/iSeletores"
+import { iTarefa } from "@models/tarefa/iTarefa"
+import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
 interface getTipoTarefaMockDTO {
     tipoIntimacaoToUpperNormalized: string

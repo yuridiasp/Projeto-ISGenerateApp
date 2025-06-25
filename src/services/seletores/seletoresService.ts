@@ -1,9 +1,9 @@
+import { AxiosResponse } from "axios"
 import { JSDOM } from "jsdom"
 require("dotenv").config()
 
-import { loggedGetRequest } from "../../utils/request/getRequest"
-import { AxiosResponse } from "axios"
-import { seletores } from "src/models/seletores/iSeletores"
+import { loggedGetRequest } from "@utils/request/getRequest"
+import { seletores } from "@models/seletores/iSeletores"
 
 function getTiposSelect(dom: JSDOM, id: string): seletores[] {
     const select: HTMLSelectElement  = dom.window.document.querySelector(id)

@@ -1,4 +1,4 @@
-import { Cliente } from "../../../models/cliente/Cliente"
+import { Cliente } from "@models/cliente/Cliente"
 
 export function existeOrigem(cliente: Cliente) {
     if (cliente.processo.dependente)

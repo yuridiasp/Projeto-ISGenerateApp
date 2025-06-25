@@ -1,5 +1,5 @@
-import { Cliente } from "../../../models/cliente/Cliente"
-import { iColaborador } from "../../../models/colaborador/iColaborador"
+import { Cliente } from "@models/cliente/Cliente"
+import { iColaborador } from "@models/colaborador/iColaborador"
 
 export function filterColaboradoresJudicial (cliente: Cliente, isMocked?: boolean) {
     const colaboradores = []

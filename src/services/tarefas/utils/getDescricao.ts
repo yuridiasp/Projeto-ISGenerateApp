@@ -1,8 +1,8 @@
-import { Cliente } from "../../../models/cliente/Cliente"
-import { iTarefa } from "../../../models/tarefa/iTarefa"
-import { getEndereço } from "../../../utils/locais/audiencias"
-import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting"
-import { existeOrigem } from "./existeOrigem"
+import { Cliente } from "@models/cliente/Cliente"
+import { iTarefa } from "@models/tarefa/iTarefa"
+import { getEndereço } from "@utils/locais/audiencias"
+import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { existeOrigem } from "@services/tarefas/index"
 
 export interface getDescricaoMockDTO {
     fistWordInTarefa: string,

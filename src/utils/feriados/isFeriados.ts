@@ -1,5 +1,5 @@
-import { Cliente } from "../../models/cliente/Cliente"
-import { calculaFeriados } from "./calculaFeriados"
+import { Cliente } from "@models/cliente/Cliente"
+import { calculaFeriados } from "@utils/feriados/calculaFeriados"
 
 export type isFeriadoDTO = { isHoliday: boolean, holiday: string , isNacional: boolean | undefined } | { isHoliday: boolean }
 

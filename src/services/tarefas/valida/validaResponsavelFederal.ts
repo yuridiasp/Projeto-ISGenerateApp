@@ -1,6 +1,6 @@
-import { Cliente } from "../../../models/cliente/Cliente"
-import { validaResponsavelDTO } from "./validaResponsavelTj"
-import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting"
+import { Cliente } from "@models/cliente/Cliente"
+import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { validaResponsavelDTO } from "@services/tarefas/index"
 
 export function validaResponsavelFederal (tarefa: string, cliente: Cliente, processLength: number, validaResponsavelMock?: validaResponsavelDTO) {
     const PROCESS_DIGIT_INDEX = 6

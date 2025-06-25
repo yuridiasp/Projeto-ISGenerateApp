@@ -1,8 +1,8 @@
 import dotEnv from 'dotenv'
 
-import { iCreateTarefa } from "../../../models/tarefa/iCreateTarefa"
-import { loggedPostRequest } from "../../../utils/request/postRequest"
-import { isTarefaSuccessfullyCreated } from '../../../services/tarefas/utils/isTarefaSuccessfullyCreated'
+import { iCreateTarefa } from "@models/tarefa/iCreateTarefa"
+import { loggedPostRequest } from "@utils/request/postRequest"
+import { isTarefaSuccessfullyCreated } from '@services/tarefas/utils/isTarefaSuccessfullyCreated'
 
 dotEnv.config()
 

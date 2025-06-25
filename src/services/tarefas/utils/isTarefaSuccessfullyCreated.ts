@@ -1,7 +1,8 @@
 import { AxiosResponse } from "axios"
-import { Result } from "../../../models/result/result"
-import { getTarefaCreatedId } from "./getTarefaCreatedId"
-import { successfulCreationRequestValidation } from "../../../utils/successfulCreationRequestValidation"
+
+import { Result } from "@models/result/result"
+import { successfulCreationRequestValidation } from "@utils/successfulCreationRequestValidation"
+import { getTarefaCreatedId } from "@services/tarefas/index"
 
 export type idTarefa = { id: string }
 

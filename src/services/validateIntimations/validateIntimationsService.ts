@@ -1,7 +1,7 @@
-import { FileError } from "../../models/errors/fileError"
-import { Result } from "../../models/result/result"
-import { readExcelFile } from "../../repositories/xlsx/excelISFile"
-import { ValidationError } from "../../models/errors/validationError"
+import { FileError } from "@models/errors/fileError"
+import { Result } from "@models/result/result"
+import { readExcelFile } from "@repositories/xlsx/excelISFile"
+import { ValidationError } from "@models/errors/validationError"
 
 export interface iFileData {
     endereco: string,

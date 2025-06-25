@@ -1,5 +1,5 @@
 import { iWindows } from "../../models/windows/iWindows"
-import { createCliente } from "../clientes/createClienteService"
+import { createClienteService } from "../clientes/index"
 import { createCompromissoService } from "../compromissos/index"
 import { updateViewRegistrationIntimations } from "../../utils/viewHelpers/viewHelpers"
 import { ISAnalysisDTO } from "../../models/cliente/Cliente"
@@ -30,7 +30,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
     //TODO: Prencher estrutura de tarefa
 
     const resultados = await Promise.all(result.data.file.map((intimation: ISAnalysisDTO) =>
-        createCliente({ ...intimation }, cookie)
+        createClienteService({ ...intimation }, cookie)
             .then(async cliente => {
                 const result = await createCompromissoService(cliente, cookie)
 

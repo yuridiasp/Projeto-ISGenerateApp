@@ -1,6 +1,6 @@
-import { Cliente } from "../../../models/cliente/Cliente"
-import { iColaborador } from "../../../models/colaborador/iColaborador"
-import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting"
+import { Cliente } from "@models/cliente/Cliente"
+import { iColaborador } from "@models/colaborador/iColaborador"
+import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
 export function selectExecutorContatarJudicial (colaboradores: iColaborador[], cliente: Cliente) {
     let responsavel = 'JULIANO OLIVEIRA DE SOUZA'

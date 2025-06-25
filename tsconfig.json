@@ -7,10 +7,22 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "outDir": "dist",
     "moduleResolution": "node",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "@channels/*": ["channels/*"],
+      "@controllers/*": ["controllers/*"],
+      "@helpers/*": ["helpers/*"],
+      "@infrastructure/*": ["infrastructure/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@models/*": ["models/*"],
+      "@renderer/*": ["renderer/"],
+      "@repositories/*": ["repositories/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"]
+    }
   },
   "exclude": [
     "node_modules",

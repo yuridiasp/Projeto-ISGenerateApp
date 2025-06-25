@@ -1,7 +1,7 @@
 import { Menu } from 'electron'
 
-import { iWindows } from 'src/models/windows/iWindows'
-import { createSobreWindowController } from '../../controllers/controllers'
+import { iWindows } from '@models/windows/iWindows'
+import { createSobreWindowController } from '@controllers/controllers'
 
 function configMenu (app: { name: string }, windows: iWindows): void {
     const templateMenu: Electron.MenuItemConstructorOptions[] = [
@@ -21,7 +21,7 @@ function configMenu (app: { name: string }, windows: iWindows): void {
     ]
 
     const menu = Menu.buildFromTemplate(templateMenu)
-    Menu.setApplicationMenu(menu)
+    //Menu.setApplicationMenu(menu)
 }
 
 export default configMenu

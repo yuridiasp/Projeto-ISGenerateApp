@@ -1,7 +1,7 @@
 
-import { getCadastroProcessoService, requestDataProcesso, extractIdProcessoFromUrl } from "../index"
-import { iProcesso } from "../../../models/processo/iProcesso"
-import { Result } from "../../../models/result/result"
+import { getCadastroProcessoService, requestDataProcesso, extractIdProcessoFromUrl } from "@services/processos/index"
+import { iProcesso } from "@models/processo/iProcesso"
+import { Result } from "@models/result/result"
 
 export type DataProcesso = {
     idCliente: string;

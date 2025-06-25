@@ -1,6 +1,6 @@
-import { iCompromisso } from "../compromisso/iCompromisso"
-import { iProcesso } from "../processo/iProcesso"
-import { iDataCliente } from "./iDataCliente"
+import { iCompromisso } from "@models/compromisso/iCompromisso"
+import { iProcesso } from "@models/processo/iProcesso"
+import { iDataCliente } from "@models/cliente/iDataCliente"
 
 export interface ISAnalysisDTO {
     publication_date: string;

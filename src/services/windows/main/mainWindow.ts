@@ -1,5 +1,5 @@
-import { createWindow } from "../../../infrastructure/window/createWindow"
-import { iWindows } from "../../../models/windows/iWindows"
+import { createWindow } from "@infrastructure/window/createWindow"
+import { iWindows } from "@models/windows/iWindows"
 
 export function createMainWindowService (windows: iWindows) {
     const path = require('path')

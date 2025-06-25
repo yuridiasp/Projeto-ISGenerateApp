@@ -1,7 +1,7 @@
-import { Cliente } from "../../models/cliente/Cliente"
-import { Holiday } from "../../models/feriado/Holiday"
-import { datas } from "./datasFixasHelper"
-import { parametros } from "./parametros"
+import { Cliente } from "@models/cliente/Cliente"
+import { Holiday } from "@models/feriado/Holiday"
+import { datas } from "@utils/feriados/datasFixasHelper"
+import { parametros } from "@utils/feriados/parametros"
 
 function dataFactory (date: Holiday, resultados: { [key: string]: { feriado: string, isNacional: boolean }[] }, ano: number, increment: boolean = null) {
     const { data: [mes, dia], feriado, isNacional } = date

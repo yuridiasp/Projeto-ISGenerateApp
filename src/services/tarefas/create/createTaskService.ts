@@ -1,7 +1,6 @@
-import { getSelectsTask } from "../../../services/seletores/seletoresService"
-import { createBodyForCreateTask } from "../../../repositories/tarefas/create/createBodyForCreateTask"
-import { createTarefaRepository } from "../../../repositories/tarefas/create/createTarefaRepository"
-import { Cliente } from "../../../models/cliente/Cliente"
+import { Cliente } from "@models/cliente/Cliente"
+import { getSelectsTask } from "@services/seletores/seletoresService"
+import { createBodyForCreateTask, createTarefaRepository } from "@repositories/tarefas/index"
 
 export async function createTaskService(cliente: Cliente, cookie: string) {
 

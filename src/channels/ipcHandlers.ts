@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron'
 
-import { iWindows } from "src/models/windows/iWindows"
-import { splitISController, githubController, getVersionsController, closeSobreWindowController, intimationsReportController, intimationsRegisterController, openFileDialogForFile } from '../controllers/controllers'
+import { iWindows } from "@models/windows/iWindows"
+import { splitISController, githubController, getVersionsController, closeSobreWindowController, intimationsReportController, intimationsRegisterController, openFileDialogForFile } from '@controllers/controllers'
 
 export async function setHandlers (windows: iWindows) {
     ipcMain.handle('intimation-validate', (event, args) => intimationsReportController(event, args, windows))

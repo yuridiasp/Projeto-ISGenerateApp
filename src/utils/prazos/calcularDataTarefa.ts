@@ -1,8 +1,8 @@
-import { Cliente } from "../../models/cliente/Cliente"
-import { getDatePrazoFatal } from "./getDatePrazoFatal"
-import { contarDias } from "./contarDias"
-import { calculaIntervaloTarefasJudicial } from "./calculaIntervaloTarefasJudicial"
-import { dataContato } from "./dataContato"
+import { Cliente } from "@models/cliente/Cliente"
+import { getDatePrazoFatal } from "@utils/prazos/getDatePrazoFatal"
+import { contarDias } from "@utils/prazos/contarDias"
+import { calculaIntervaloTarefasJudicial } from "@utils/prazos/calculaIntervaloTarefasJudicial"
+import { dataContato } from "@utils/prazos/dataContato"
 
 export function calcularDataTarefa(parametro: number, cliente: Cliente, indexTarefa: number) {
     const datePrazoFatal = getDatePrazoFatal(cliente.compromisso.prazoFatal)

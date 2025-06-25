@@ -1,11 +1,11 @@
-import { iWindows } from "../models/windows/iWindows"
-import { getCookieLoginService } from "../services/login/loginService"
-import { iFileData } from "../services/validateIntimations/validateIntimationsService"
+import { iWindows } from "@models/windows/iWindows"
+import { getCookieLoginService } from "@services/login/loginService"
+import { iFileData } from "@services/validateIntimations/validateIntimationsService"
 
 export async function executeWithLogin(
     event: Electron.IpcMainInvokeEvent, 
-    windows: iWindows,
-    action: (windows: iWindows, cookie: string, file: iFileData) => Promise<any>,
+    window: iWindows,
+    action: (window: iWindows, cookie: string, file: iFileData) => Promise<any>,
     file?: iFileData,
 ) {
     console.log('Realizando login...')
@@ -14,7 +14,7 @@ export async function executeWithLogin(
 
     if (result.success) {
         console.log('Login realizado!')
-        const response = await action(windows, result.data.cookie, file)
+        const response = await action(window, result.data.cookie, file)
         return response
     }
 

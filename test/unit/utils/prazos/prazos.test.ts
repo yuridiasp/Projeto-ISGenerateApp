@@ -1,4 +1,5 @@
 import { describe, expect, beforeEach, it } from '@jest/globals';
+
 import { contarDias } from '../../../../src/utils/prazos/contarDias';
 import { calculaIntervaloTarefasJudicial } from '../../../../src/utils/prazos/calculaIntervaloTarefasJudicial';
 import { dataContato } from '../../../../src/utils/prazos/dataContato';
@@ -90,7 +91,12 @@ describe('Unit Tests: Testar módulo de prazos', () => {
   })
 
   it('function contarDias: Contar dias úteis e totais entre dois intervalos de datas', () => {
-      const resultado = contarDias(dataFinal, parametroMock, clienteFake)
+      const resultado = contarDias(dataFinal, parametroMock, {
+        cidade: clienteFake.processo.cidade,
+        estado: clienteFake.processo.estado,
+        natureza: clienteFake.processo.natureza,
+        origem: clienteFake.processo.origem
+      })
       
       expect(resultado.uteis).toBe(diasUteis)
       expect(resultado.todosDias).toBe(todosDias)
@@ -104,8 +110,9 @@ describe('Unit Tests: Testar módulo de prazos', () => {
   })
 
   it('function dataContato: A partir da data do intervalo, calcular a data da execução da tarefa', () => {
-      const resultado = dataContato(intervalo, dataFinal, parametroMock, clienteFake)
+    const { cidade, estado, natureza, origem } = clienteFake.processo
+    const resultado = dataContato(intervalo, dataFinal, parametroMock, { cidade, estado, natureza, origem })
 
-      expect(resultado.toLocaleDateString()).toBe(dataContatoExpected.toLocaleDateString())
+    expect(resultado.toLocaleDateString()).toBe(dataContatoExpected.toLocaleDateString())
   })
 })

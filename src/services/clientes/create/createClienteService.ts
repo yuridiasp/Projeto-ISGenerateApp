@@ -1,9 +1,9 @@
-import { validaTipoCompromisso } from "../../utils/compromissos/validarTipoCompromisso"
-import { getProcessoService } from "../processos/index"
-import { getClienteByID } from "./getClienteService"
-import { Cliente, ISAnalysisDTO } from "../../models/cliente/Cliente"
+import { validaTipoCompromisso } from "@utils/compromissos/validarTipoCompromisso"
+import { getProcessoService } from "@services/processos/index"
+import { getClienteByID } from "@services/clientes/get/getClienteService"
+import { Cliente, ISAnalysisDTO } from "@models/cliente/Cliente"
 
-export async function createCliente(ISAnalysis: ISAnalysisDTO, cookie: string) {
+export async function createClienteService(ISAnalysis: ISAnalysisDTO, cookie: string) {
     const result = await getProcessoService({ processo: ISAnalysis.case_number, cookie })
 
     if(result.success === false) {

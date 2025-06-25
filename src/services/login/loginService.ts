@@ -1,10 +1,10 @@
 require('dotenv').config()
 
-import { LoginError } from '../../models/errors/LoginError'
-import { HttpStatusCodes } from '../../helpers/statusCode'
-import { loggedPostRequest } from '../../utils/request/postRequest'
-import { Result } from '../../models/result/result'
-import { getRequest } from '../../utils/request/getRequest'
+import { LoginError } from '@models/errors/LoginError'
+import { HttpStatusCodes } from '@helpers/statusCode'
+import { loggedPostRequest } from '@utils/request/postRequest'
+import { Result } from '@models/result/result'
+import { getRequest } from '@utils/request/getRequest'
 
 export interface credential {
     login: string,

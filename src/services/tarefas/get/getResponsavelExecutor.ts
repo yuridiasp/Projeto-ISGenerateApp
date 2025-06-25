@@ -1,10 +1,7 @@
-import { removeAcentuacaoString } from "../../../utils/textFormatting/textFormatting"
-import { validaEsferaProcesso } from "../valida/validaEsferaProcesso"
-import { validaExecutorContatar } from "../valida/validaExecutorContatar"
-import { validaResponsavelTj } from "../valida/validaResponsavelTj"
-import { iTarefa } from "../../../models/tarefa/iTarefa"
-import { Cliente } from "../../../models/cliente/Cliente"
-import { validaResponsavelFederal } from "../valida/validaResponsavelFederal"
+import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { iTarefa } from "@models/tarefa/iTarefa"
+import { Cliente } from "@models/cliente/Cliente"
+import { validaEsferaProcesso, validaExecutorContatar, validaResponsavelTj, validaResponsavelFederal } from "@services/tarefas/index"
 
 export async function getResponsavelExecutor(tarefa: iTarefa, cliente: Cliente, cookie: string) {
 

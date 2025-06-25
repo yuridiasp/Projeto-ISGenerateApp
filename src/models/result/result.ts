@@ -1,4 +1,4 @@
-import { AppError } from "../errors/appError";
+import { AppError } from "@models/errors/appError";
 
 export type Result<T> =
   | { success: true; data?: T }

@@ -1,6 +1,6 @@
-import { loggedGetRequest } from "../../../utils/request/getRequest"
-import { extrairDadosRequisicaoProcessoHtml } from "./extrairDadosRequisicaoProcessoHtml"
-import { getIdsProcessoColetivo } from "../index"
+import { loggedGetRequest } from "@utils/request/getRequest"
+import { extrairDadosRequisicaoProcessoHtml } from "@services/processos/index"
+import { getIdsProcessoColetivo } from "@services/processos/index"
 
 export async function requestDataProcesso(id: string, cookie: string) {
     const { URL_GET_PROCESSO_SISTEMFR } = process.env

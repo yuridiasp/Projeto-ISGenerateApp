@@ -17,6 +17,12 @@
     --loader-bg2: #c4c4c4;
     --text-main-menu-btn: tomato;
     --bg-main-menu-btn: midnightblue;
+    --bg-confirm-btn: #54c454;
+    --border-confirm-btn: #176117;
+    --confirm-color-btn: #176117;
+    --bg-cancel-btn: #d6657c;
+    --border-cancel-btn: #790b21;
+    --cancel-color-btn: #790b21;
 }
 
 * {
@@ -41,6 +47,7 @@ label {
 }
 
 label {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -53,6 +60,13 @@ label {
     margin: 1em;
     font-weight: bold;
     gap: 3vw;
+}
+
+label > img {
+    opacity: 0.8;
+    right: 0;
+    position: absolute;
+    height: 100%;
 }
 
 label:hover, .btn:hover {
@@ -93,15 +107,15 @@ label:active, .btn:active {
 }
 
 .confirm {
-    background: rgb(84, 196, 84);
-    border: 0.1em solid rgb(23, 97, 23);
-    color: rgb(23, 97, 23);
+    background: var(--bg-confirm-btn);
+    border: 0.1em solid var(--border-confirm-btn);
+    color: var(--confirm-color-btn);
 }
 
 .cancel {
-    background: rgb(214, 101, 124);
-    border: 0.1em solid rgb(121, 11, 33);
-    color: rgb(121, 11, 33);
+    background: var(--bg-cancel-btn);
+    border: 0.1em solid var(--border-cancel-btn);
+    color: var(--cancel-color-btn);
 }
 
 #logo {

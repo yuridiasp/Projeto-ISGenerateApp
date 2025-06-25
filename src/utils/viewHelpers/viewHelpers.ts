@@ -1,8 +1,8 @@
-import { iValidationReport } from "../../models/validation/iValidationReport"
-import { iWindows } from "../../models/windows/iWindows"
-import { idCompromisso } from "../../services/compromissos"
-import { Result } from "../../models/result/result"
-import { idTarefa } from "../../services/tarefas/utils/isTarefaSuccessfullyCreated"
+import { iValidationReport } from "@models/validation/iValidationReport"
+import { iWindows } from "@models/windows/iWindows"
+import { idCompromisso } from "@services/compromissos"
+import { Result } from "@models/result/result"
+import { idTarefa } from "@services/tarefas/utils/isTarefaSuccessfullyCreated"
 
 export function enableButtonCloseReport(windows: iWindows) {
     windows.mainWindow.webContents.send('enable-button-close-report')

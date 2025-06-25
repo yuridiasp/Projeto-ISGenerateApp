@@ -1,7 +1,6 @@
-import { Cliente } from "../../../models/cliente/Cliente"
-import { iTarefa } from "../../../models/tarefa/iTarefa"
-import { requererTarefasContatar } from "../get/getTarefasColaboradores"
-import { selectExecutorContatarJudicial } from "../utils/selectExecutorContatarJudicial"
+import { Cliente } from "@models/cliente/Cliente"
+import { iTarefa } from "@models/tarefa/iTarefa"
+import { requererTarefasContatar, selectExecutorContatarJudicial } from "@services/tarefas/index"
 
 export async function validaExecutorContatar (tarefa: iTarefa, cliente: Cliente, cookie: string) {
 

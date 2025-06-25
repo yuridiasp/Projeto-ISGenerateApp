@@ -1,10 +1,9 @@
 import { JSDOM } from "jsdom"
 
-import { iColaborador } from "../../../models/colaborador/iColaborador"
-import { filterColaboradoresJudicial } from "../utils/filterColaboradoresJudicial"
-import { getTarefa } from "./getTaskService"
-import { iTarefa } from "../../../models/tarefa/iTarefa"
-import { Cliente } from "../../../models/cliente/Cliente"
+import { iColaborador } from "@models/colaborador/iColaborador"
+import { iTarefa } from "@models/tarefa/iTarefa"
+import { Cliente } from "@models/cliente/Cliente"
+import { filterColaboradoresJudicial, getTarefa } from "@services/tarefas/index"
 
 interface getTarefasColaboradoresDTO {
     dom: JSDOM

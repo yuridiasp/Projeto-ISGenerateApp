@@ -1,7 +1,7 @@
-import { Result } from '../../models/result/result';
-import { storeCredentials, retrieveCredentials } from '../../repositories/auth/authRepository';
-import { encrypt, decrypt } from '../../utils/crypto/cryptoUtils';
-import { Cookie, getCookieLoginService } from '../login/loginService';
+import { Result } from '@models/result/result';
+import { storeCredentials, retrieveCredentials } from '@repositories/auth/authRepository';
+import { encrypt, decrypt } from '@utils/crypto/cryptoUtils';
+import { Cookie, getCookieLoginService } from '@services/login/loginService';
 
 export async function loginService(username: string | undefined, password: string | undefined): Promise<Result<Cookie>> {
     

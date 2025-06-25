@@ -1,4 +1,4 @@
-import { iTarefa } from "../tarefa/iTarefa"
+import { iTarefa } from "@models/tarefa/iTarefa"
 
 export interface iCompromisso {
     id: string

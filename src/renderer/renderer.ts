@@ -39,7 +39,7 @@ interface MyAPI {
   // Estenda a interface Window para incluir a API
   declare global {
     interface Window {
-      api: MyAPI;
+      API: MyAPI;
     }
   }
   
@@ -126,7 +126,7 @@ function hiddeLoader() {
 closeReportButton.addEventListener('click', resetReport)
 
 splitISInput.addEventListener('click', async () => { 
-    const { canceled, filePaths } = await window.api.openFileDialogForFile()
+    const { canceled, filePaths } = await window.API.openFileDialogForFile()
     
     if (!canceled) {
         argsSplit = createObjectArgs(filePaths)
@@ -138,7 +138,7 @@ splitISInput.addEventListener('click', async () => {
 btnConfirmSplit.addEventListener('click', async () => {
     showLoader()
     if (Object.keys(argsSplit).length) {
-        let result = await window.api.splitFileIs(argsSplit)
+        let result = await window.API.splitFileIs(argsSplit)
 
         const { msg, value } = result
         if (value) {
@@ -160,7 +160,7 @@ btnCancelSplit.addEventListener('click', () => {
 })
 
 registrationISInput.addEventListener('click', async () => {
-    const { canceled, filePaths } = await window.api.openFileDialogForFile()
+    const { canceled, filePaths } = await window.API.openFileDialogForFile()
 
     if (!canceled) {
         argsRegister = createObjectArgs(filePaths)
@@ -173,7 +173,7 @@ registrationISInput.addEventListener('click', async () => {
 btnConfirmRegistrationIS.addEventListener('click', async () => {
     showLoader()
     if (Object.keys(argsRegister).length) {
-        const result = await window.api.intimationRegister(argsRegister)
+        const result = await window.API.intimationRegister(argsRegister)
 
         if (result) {
             console.log('Sucesso')
@@ -194,7 +194,7 @@ btnCancelRegistrationIS.addEventListener('click', () => {
 })
 
 validateIntimationsInput.addEventListener('click', async () => {
-    const { canceled, filePaths } = await window.api.openFileDialogForFile()
+    const { canceled, filePaths } = await window.API.openFileDialogForFile()
 
     if (!canceled) {
         argsValidate = createObjectArgs(filePaths)
@@ -207,7 +207,7 @@ btnConfirmValidateIntimations.addEventListener('click', async () => {
     hiddeContent()
     showLoader()
     if (Object.keys(argsValidate).length) {        
-        let result = await window.api.intimationValidate(argsValidate)
+        let result = await window.API.intimationValidate(argsValidate)
         
         if (result) {
             console.log('Sucesso')
@@ -225,7 +225,7 @@ btnCancelValidateIntimations.addEventListener('click', () => {
     buttonsDivValidateIntimations.classList.remove('aparecer')
 })
 
-window.api.updateReportStatus((report: iValidationReport) => {
+window.API.updateReportStatus((report: iValidationReport) => {
     showReportContainer()
     hiddeContent()
     setReportFileName(argsValidate.fileName)
@@ -234,6 +234,6 @@ window.api.updateReportStatus((report: iValidationReport) => {
     //showReportCloseButtonReport()
 })
 
-window.api.enableButtonCloseReport(() => {
+window.API.enableButtonCloseReport(() => {
     closeReportButton.disabled = false
 })

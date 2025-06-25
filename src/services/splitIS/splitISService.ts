@@ -1,5 +1,5 @@
-import { splitISToExcel } from "../fileHandler/fileHandlerExcelService"
-import { iFileData } from "../validateIntimations/validateIntimationsService"
+import { splitISToExcel } from "@services/fileHandler/fileHandlerExcelService"
+import { iFileData } from "@services/validateIntimations/validateIntimationsService"
 
 export async function getObjectISService ({ endereco, fileName }: iFileData) {
     let obj

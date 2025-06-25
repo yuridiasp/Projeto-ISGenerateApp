@@ -1,5 +1,5 @@
-import { Cliente } from "../../models/cliente/Cliente"
-import { isFeriado } from "../feriados/isFeriados"
+import { Cliente } from "@models/cliente/Cliente"
+import { isFeriado } from "@utils/feriados/isFeriados"
 
 export function dataContato(intervalo: number, internalDeadline: Date, param: number, dataProcess: Pick<Cliente["processo"], "cidade" | "origem" | "natureza" | "estado">) {
     let today = new Date(),

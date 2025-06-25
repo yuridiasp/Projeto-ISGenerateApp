@@ -1,12 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-import { iValidationReport } from "./models/validation/iValidationReport"
+import { iValidationReport } from "@models/validation/iValidationReport"
 
 type resultSplitIS = { msg: string, value: boolean }
 type callbackUpdateReportStatus = (value: iValidationReport) => void
 type callbackEnableButtonCloseReport = () => void
 
-contextBridge.exposeInMainWorld('api', {
+contextBridge.exposeInMainWorld('API', {
     openFileDialogForFile: async () => await ipcRenderer.invoke('open-file-dialog-for-file'),
     splitFileIs: async (args: resultSplitIS) => await ipcRenderer.invoke('split-is', args),
     getVersions: async () => await ipcRenderer.invoke('get-versions'),
