@@ -1,4 +1,4 @@
-import { iValidationReport } from "../models/validation/iValidationReport"
+import { iValidationReport } from "@models/validation/iValidationReport"
 
 const splitISInput: HTMLInputElement = document.querySelector('#splitIS')
 const buttonsDivSplit = document.querySelector('#splitBtns')
