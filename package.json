@@ -4,9 +4,10 @@
   "description": "Aplicação desenvolvida para automação de separação das intimações provenientes de IS, gerando arquivos individuais de IS's cívil, trabalhista e previdenciária.",
   "main": "dist/src/main.js",
   "scripts": {
+    "clean": "rimraf dist",
     "test": "npm run build && jest",
     "test:watch": "npm run build && jest --watchAll --detectOpenHandles",
-    "build": "tsc",
+    "build": "npm run clean && babel src --extensions \".ts,.tsx,.js\" --out-dir dist/src --source-maps inline",
     "start": "npm run build && electron .",
     "package": "npm run build && electron-forge package",
     "make": "npm run build && electron-forge make"
@@ -25,6 +26,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
+    "@babel/cli": "^7.28.3",
     "@babel/core": "^7.25.7",
     "@babel/preset-env": "^7.25.7",
     "@babel/preset-typescript": "^7.25.7",

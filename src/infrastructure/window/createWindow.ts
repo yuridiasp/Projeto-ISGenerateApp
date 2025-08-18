@@ -12,7 +12,7 @@ export function createWindow (width: number = 400, height: number = 600,  webPre
         },
         ...props
     })
-    
+    console.log(__dirname, pageHtmlFolderPath)
     win.loadFile(path.resolve(pageHtmlFolderPath, 'index.html'))
     
     return win
