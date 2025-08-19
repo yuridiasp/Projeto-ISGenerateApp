@@ -32,11 +32,11 @@ export async function getTarefasColaboradores(colaborador: iColaborador, data: D
     return colaborador
 }
 
-export async function requererTarefasContatar(tarefa: iTarefa, cliente: Cliente, cookie: string) {
+export async function requererTarefasContatar(dataParaFinalizacao: Date, cliente: Cliente, cookie: string) {
 
     const colaboradores = filterColaboradoresJudicial(cliente)
 
     return colaboradores.map(async colaborador => {
-        return await getTarefasColaboradores(colaborador, tarefa.dataParaFinalizacao, cookie)
+        return await getTarefasColaboradores(colaborador, dataParaFinalizacao, cookie)
     })
 }

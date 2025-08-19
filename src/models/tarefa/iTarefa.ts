@@ -4,4 +4,6 @@ export interface iTarefa {
     dataParaFinalizacao: Date
     responsavel: string
     executor: string
+    horarioInicial?: string
+    horarioFinal?: string
 }

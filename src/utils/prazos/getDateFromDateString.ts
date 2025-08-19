@@ -1,4 +1,4 @@
-export function getDatePrazoFatal (prazoFatal: string) {
+export function getDateFromDateString (prazoFatal: string) {
     const [ dia, mes, ano ] = prazoFatal.split('/')
     
     return new Date(Number(ano), Number(mes)-1, Number(dia))

@@ -1,11 +1,14 @@
-import { iWindows } from "../../models/windows/iWindows"
+import { iWindows } from "@models/windows/iWindows"
 import { createClienteService } from "../clientes/index"
 import { createCompromissoService } from "../compromissos/index"
-import { updateViewRegistrationIntimations } from "../../utils/viewHelpers/viewHelpers"
-import { ISAnalysisDTO } from "../../models/cliente/Cliente"
+import { updateViewRegistrationIntimations } from "@utils/viewHelpers/viewHelpers"
+import { ISAnalysisDTO } from "@models/cliente/Cliente"
 import { getObjectValidateIntimationsService, iFileData } from "../validateIntimations/validateIntimationsService"
 import { createTaskService } from "../tarefas"
-import { EmptyFileError } from "../../models/errors/emptyFileError"
+import { EmptyFileError } from "@models/errors/emptyFileError"
+import { getSelectsTask } from "@services/seletores/seletoresService"
+import { taskFactory } from "@services/tarefas/create/taskFactory"
+import { getListaTarefasCompromissoJudicial } from "@services/tarefas/get/getListaTarefasCompromissoJudicial"
 
 export async function handleIntimationsRegistrationService(windows: iWindows, cookie: string, file: iFileData) {
     const result = getObjectValidateIntimationsService(file)
@@ -24,10 +27,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
         }
     }
 
-    //TODO: Preencher estrutura de compromisso
-    //TODO: Preencher estrutura de cliente
-    //TODO: Preencher estrutura de processo
-    //TODO: Prencher estrutura de tarefa
+    const { tiposTarefas } = await getSelectsTask(cookie)
 
     const resultados = await Promise.all(result.data.file.map((intimation: ISAnalysisDTO) =>
         createClienteService({ ...intimation }, cookie)
@@ -42,6 +42,10 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
                 }
 
                 cliente.compromisso.id = result.data.id
+
+                const listaTarefasCompromisso = getListaTarefasCompromissoJudicial(cliente)
+
+                cliente.compromisso.tarefas = await taskFactory(cliente, listaTarefasCompromisso, cookie, tiposTarefas)
 
                 return await createTaskService(cliente, cookie)
             })

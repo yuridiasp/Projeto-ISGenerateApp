@@ -6,9 +6,9 @@ interface getTipoTarefaMockDTO {
     tipoIntimacaoToUpperNormalized: string
 }
 
-export function getTipoTarefa(tarefa: iTarefa, tiposTarefas: seletores[], getTipoTarefaMock?: getTipoTarefaMockDTO) {
+export function getTipoTarefa(tarefa: string, tiposTarefas: seletores[], getTipoTarefaMock?: getTipoTarefaMockDTO) {
     
-    const tipoIntimacaoToUpperNormalized = getTipoTarefaMock ? getTipoTarefaMock.tipoIntimacaoToUpperNormalized : removeAcentuacaoString(tarefa.descricao.toUpperCase()).split("-")[0].trim()
+    const tipoIntimacaoToUpperNormalized = getTipoTarefaMock ? getTipoTarefaMock.tipoIntimacaoToUpperNormalized : removeAcentuacaoString(tarefa.toUpperCase()).split("-")[0].trim()
     let achou = false,
         inputManifestacao = null,
         shortInput = null

@@ -12,11 +12,11 @@ export interface getDescricaoMockDTO {
     tipoCompromissoNormalizado: string
 }
 
-export function getDescricao (tarefa: iTarefa, cliente: Cliente, getDescricaoMock?: getDescricaoMockDTO) {
-    const fistWordInTarefa = getDescricaoMock?.fistWordInTarefa ?? removeAcentuacaoString(tarefa.descricao.split(" ")[0]),
+export function getDescricao (tarefa: string, cliente: Cliente, getDescricaoMock?: getDescricaoMockDTO) {
+    const fistWordInTarefa = getDescricaoMock?.fistWordInTarefa ?? removeAcentuacaoString(tarefa.split(" ")[0]),
         localText = getDescricaoMock?.localText ?? getEndereço(cliente.compromisso.local),
         numero = getDescricaoMock?.numero ?? existeOrigem(cliente),
-        tipoTarefaNormalizado = getDescricaoMock?.tipoTarefaNormalizado ?? removeAcentuacaoString(tarefa.descricao),
+        tipoTarefaNormalizado = getDescricaoMock?.tipoTarefaNormalizado ?? removeAcentuacaoString(tarefa),
         tipoCompromissoNormalizado = getDescricaoMock?.tipoCompromissoNormalizado ?? removeAcentuacaoString(cliente.compromisso.tipoCompromisso)
     
     if (cliente.compromisso.descricao && fistWordInTarefa !== "ANALISE" && tipoTarefaNormalizado !== "ATO ORDINATORIO" && cliente.compromisso.tipoCompromisso !== "EMENDAR"  && !tipoCompromissoNormalizado.includes('DECISAO ANTECIPACAO PERICIA')) {
@@ -41,7 +41,7 @@ export function getDescricao (tarefa: iTarefa, cliente: Cliente, getDescricaoMoc
 
             return `${numero} - VERIFICAR NECESSIDADE DE TESTEMUNHAS`
 
-        } else if ((cliente.compromisso.tipoCompromisso === "EMENDAR") && (tarefa.descricao === "CONTATAR CLIENTE")) {
+        } else if ((cliente.compromisso.tipoCompromisso === "EMENDAR") && (tarefa === "CONTATAR CLIENTE")) {
 
             return `${numero} - `
 
