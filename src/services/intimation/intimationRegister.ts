@@ -45,11 +45,14 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
 
                 const listaTarefasCompromisso = getListaTarefasCompromissoJudicial(cliente)
 
+                cliente.compromisso.quantidadeTarefas = listaTarefasCompromisso.length
+
                 cliente.compromisso.tarefas = await taskFactory(cliente, listaTarefasCompromisso, cookie, tiposTarefas)
 
                 return await createTaskService(cliente, cookie)
             })
             .then(resultadoCadastro => {
+                
                 updateViewRegistrationIntimations(resultadoCadastro, windows)
 
                 return resultadoCadastro

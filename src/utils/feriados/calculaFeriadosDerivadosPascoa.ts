@@ -1,4 +1,4 @@
-function calculaFeriadosDerivadosPascoa(pascoa: Date) {
+export function calculaFeriadosDerivadosPascoa(pascoa: Date) {
     const pascoaTimestamp = pascoa.getTime()
     
     const feriadosDerivados = [

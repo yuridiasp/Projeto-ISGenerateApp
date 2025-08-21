@@ -1,5 +1,5 @@
 export function getCompromissoCreatedId(url: string) {
-
+    
     const regex = /idCO=(\d+)/
 
     const result = regex.exec(url)

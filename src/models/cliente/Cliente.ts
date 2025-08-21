@@ -42,22 +42,22 @@ export class Cliente {
         this.situacao = dataCliente.situacao,
         this.compromisso = {
             id: null,
-            prazoInterno: ISAnalysis.internal_deadline,
-            prazoFatal: ISAnalysis.fatal_deadline,
+            prazoInterno: typeof ISAnalysis.internal_deadline === 'number' ? this.excelDateToJsDate(ISAnalysis.internal_deadline).toLocaleDateString() : ISAnalysis.internal_deadline,
+            prazoFatal: typeof ISAnalysis.fatal_deadline === 'number' ? this.excelDateToJsDate(ISAnalysis.fatal_deadline).toLocaleDateString() : ISAnalysis.fatal_deadline,
             tarefas: null,
             quantidadeTarefas: null,
             tipoCompromisso: ISAnalysis.description,
             descricao: null,
             semanas: null,
-            publicacao: ISAnalysis.publication_date,
+            publicacao: typeof ISAnalysis.publication_date === 'number' ? this.excelDateToJsDate(ISAnalysis.publication_date).toLocaleDateString() : ISAnalysis.publication_date,
             peritoOrReu: ISAnalysis.expert_or_defendant,
             local: ISAnalysis.local_adress,
-            horario: ISAnalysis.time
+            horario: typeof ISAnalysis.time === 'number' ? this.excelDecimalToTime(ISAnalysis.time) : ISAnalysis.time
         }
         this.processo = {
             id: dataProcesso.id,
-            origem: ISAnalysis.case_number,
-            dependente: ISAnalysis.related_case_number,
+            origem: ISAnalysis.case_number?.replaceAll("'",""),
+            dependente: ISAnalysis.related_case_number?.replaceAll("'",""),
             reu: dataProcesso.reu,
             responsavel: dataProcesso.responsavel,
             natureza: dataProcesso.natureza,
@@ -66,5 +66,31 @@ export class Cliente {
             estado: dataProcesso.estado,
             vara: dataProcesso.vara
         }
+    }
+
+    excelDateToJsDate(excelDate: string) {
+        // Subtrai 25569 (diferença entre 1900-01-01 e 1970-01-01) e converte para milissegundos
+        const jsDate = new Date((Number(excelDate) - 25569) * 86400 * 1000)
+        
+        // Adiciona um dia (24 horas em milissegundos) para corrigir o erro do Excel
+        jsDate.setDate(jsDate.getDate() + 1)
+        
+        return jsDate
+    }
+
+    excelDecimalToTime(excelDecimal: string) {
+        // Extrai a parte inteira (dias) e a parte decimal (fração do dia)
+        const hoursDecimal = (Number(excelDecimal) - Math.floor(Number(excelDecimal))) * 24
+        
+        // Extrai as horas (parte inteira)
+        const hours = Math.floor(hoursDecimal)
+        
+        // Extrai os minutos (parte decimal de hoursDecimal)
+        const minutes = Math.round((hoursDecimal - hours) * 60)
+        
+        // Formata como "HH:mm"
+        const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+        
+        return formattedTime
     }
 }

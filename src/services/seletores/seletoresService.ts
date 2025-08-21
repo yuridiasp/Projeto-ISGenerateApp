@@ -17,7 +17,8 @@ export async function getSelectsTask(cookie: string) {
     const idSelectTiposTarefas = "#bsAdvTarefasTipo"
     const { URL_GET_TAREFAS_SISTEMFR } = process.env
     const response: AxiosResponse<any, any> = await loggedGetRequest({ url: URL_GET_TAREFAS_SISTEMFR, cookie })
-    const result = await response.data.text()
+    
+    const result = await response.data
 
     const dom = new JSDOM(result)
     
@@ -36,6 +37,6 @@ export async function getSelectsCompromisso(cookie: string) {
     const dom = new JSDOM(result)
 
     const tipoCompromissos = getTiposSelect(dom, idSelectTiposCompromissos)
-
+    
     return tipoCompromissos
 }

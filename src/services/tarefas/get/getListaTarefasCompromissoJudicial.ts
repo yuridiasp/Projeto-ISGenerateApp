@@ -24,7 +24,7 @@ export function getListaTarefasCompromissoJudicial(cliente: Cliente) {
         contTres = "PERICIA",
         contQuatro = ["AUDIENCIA DE CONCILIACAO", "AUDIENCIA CONCILIATORIA", "AUDIENCIA DE INTERROGATORIO"],
         contCinco = ["AUDIENCIA INAUGURAL", "AUDIENCIA INICIAL","AUDIENCIA DE INSTRUCAO", "AUDIENCIA DE INSTRUCAO E JULGAMENTO", "AUDIENCIA UNA"]
-
+    
     const dataInterno = getDateFromDateString(cliente.compromisso.prazoInterno)
 
     const { semanas } = contarDias(dataInterno, parametros.tarefaAdvogado, cliente.processo)

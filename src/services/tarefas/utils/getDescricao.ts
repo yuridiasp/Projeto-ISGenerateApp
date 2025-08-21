@@ -12,7 +12,7 @@ export interface getDescricaoMockDTO {
     tipoCompromissoNormalizado: string
 }
 
-export function getDescricao (tarefa: string, cliente: Cliente, getDescricaoMock?: getDescricaoMockDTO) {
+export function getDescricao (tarefa: string, cliente: Cliente, tarefas: string[], getDescricaoMock?: getDescricaoMockDTO) {
     const fistWordInTarefa = getDescricaoMock?.fistWordInTarefa ?? removeAcentuacaoString(tarefa.split(" ")[0]),
         localText = getDescricaoMock?.localText ?? getEndereço(cliente.compromisso.local),
         numero = getDescricaoMock?.numero ?? existeOrigem(cliente),
@@ -23,12 +23,12 @@ export function getDescricao (tarefa: string, cliente: Cliente, getDescricaoMock
 
         return cliente.compromisso.descricao
 
-    } else if (tipoCompromissoNormalizado.search('PERICIA') === 0 && cliente.compromisso.quantidadeTarefas === cliente.compromisso.tarefas.length) {
+    } else if (tipoCompromissoNormalizado.search('PERICIA') === 0 && cliente.compromisso.quantidadeTarefas === tarefas.length) {
         return `${numero} - ${cliente.compromisso.tipoCompromisso} DE ${cliente.nome} (${cliente.cpf}), NO DIA ${cliente.compromisso.prazoInterno} ÀS ${cliente.compromisso.horario}, PERITO: ${cliente.compromisso.peritoOrReu}, LOCAL: ${localText}`
 
     } else {
 
-        if (fistWordInTarefa == "AUDIENCIA" && cliente.compromisso.quantidadeTarefas === cliente.compromisso.tarefas.length) {
+        if (fistWordInTarefa == "AUDIENCIA" && cliente.compromisso.quantidadeTarefas === tarefas.length) {
 
             return `${numero} - ${cliente.compromisso.tipoCompromisso} DE ${cliente.nome} (${cliente.cpf}) X ${cliente.compromisso.peritoOrReu}, NO DIA ${cliente.compromisso.prazoInterno} ÀS ${cliente.compromisso.horario}, LOCAL: ${localText}`
 

@@ -19,7 +19,7 @@ export async function getProcessoService({ processo, cookie }: { processo: strin
     }
 
     const id = extractIdProcessoFromUrl(result.data.url)
-
+    
     return {
         success: true,
         data: await requestDataProcesso(id, cookie)

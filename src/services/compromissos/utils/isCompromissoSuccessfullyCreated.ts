@@ -7,6 +7,6 @@ export type idCompromisso = { id: string }
 
 export function isCompromissoSuccessfullyCreated(response: AxiosResponse<any, any>): Result<idCompromisso> {
     const validUrl = "http://fabioribeiro.eastus.cloudapp.azure.com/adv/tarefas/formulario"
-
+    
     return successfulCreationRequestValidation(response, validUrl, getCompromissoCreatedId)
 }

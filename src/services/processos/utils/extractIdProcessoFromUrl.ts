@@ -1,3 +1,3 @@
 export function extractIdProcessoFromUrl(url: string) {
-    return url.split("idPR=")[1]
+    return url.split("idPK=")[1]
 }

@@ -6,7 +6,7 @@ import { Result } from "@models/result/result"
 
 export function successfulCreationRequestValidation(response: AxiosResponse<any, any>, validURL: string, getIdFunction: (url: string) => string): Result<{id: string}> {
     const url = response.request.res.responseUrl
-
+    console.log(url)
     if (url.includes(validURL)) {
         return {
             success: true,

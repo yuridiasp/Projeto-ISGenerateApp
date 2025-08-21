@@ -41,7 +41,8 @@ function initAndSetIs(lista: NodeListOf<Element>) {
             const html = table.innerHTML
             const tds = table.querySelectorAll("td")
             const textoLimpo = tds[7].textContent.replace(/\s+/g, ' ').trim()
-            const processFound = textoLimpo.match(/\b(\d{12}|\d{7}-\d{2}\.\d{4}\.\d{1,2}\.\d{2}\.\d{4})\b/g)
+            const isTJSE = textoLimpo.includes("TMP.NPRO")
+            const processFound = isTJSE ? textoLimpo.match(/\d{12}/g) : textoLimpo.match(/\b(\d{7}-\d{2}\.\d{4}\.\d{1,2}\.\d{2}\.\d{4})\b/g)
             const processo = processFound.length ? processFound[0] : '-'
             const objIS: IS = {
                 availability_date: tds[0].querySelector("strong").textContent,

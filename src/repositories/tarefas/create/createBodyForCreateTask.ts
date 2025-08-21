@@ -10,9 +10,9 @@ interface createBodyForCreateTaskDTO {
     cookie: string
 }
 
-export function createBodyForCreateTask({ cliente }: createBodyForCreateTaskDTO): iCreateTarefa[] {
+export function createBodyForCreateTask({ cliente, colaboradores }: createBodyForCreateTaskDTO): iCreateTarefa[] {
 
-    return cliente.compromisso.tarefas.map((tarefa) => {
+    return cliente.compromisso.tarefas.map((tarefa, index) => {
         const isAudiencia = /AUDI[ÊE]NCIA/.test(tarefa.descricao)
 
         const body: iCreateTarefa = {
@@ -22,8 +22,8 @@ export function createBodyForCreateTask({ cliente }: createBodyForCreateTaskDTO)
             idTipoTarefa: tarefa.tipoId,
             dataParaFinalizacao: tarefa.dataParaFinalizacao.toLocaleDateString(),
             descricao: tarefa.descricao,
-            idResponsavel: tarefa.responsavel,
-            idExecutor: tarefa.executor,
+            idResponsavel: colaboradores.find(colaborador => tarefa.responsavel === colaborador.nome).id,
+            idExecutor: colaboradores.find(colaborador => tarefa.executor === colaborador.nome).id,
             acaoColetiva: "False"
         }
 
@@ -32,10 +32,10 @@ export function createBodyForCreateTask({ cliente }: createBodyForCreateTaskDTO)
             body.acaoColetiva = cliente.processo.acaoColetiva
         }
 
-        if (isAudiencia) {
+        if (isAudiencia && index === 0) {
             body.dataParaFinalizacaoAgendada = tarefa.dataParaFinalizacao.toLocaleDateString()
             body.onde = cliente.compromisso.local
-            body.horarioInicial = tarefa.horarioFinal
+            body.horarioInicial = tarefa.horarioInicial
             body.horarioFinal = tarefa.horarioFinal
             body.agendada = "s"
         }

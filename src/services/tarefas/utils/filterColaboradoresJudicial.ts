@@ -1,7 +1,6 @@
-import { Cliente } from "@models/cliente/Cliente"
 import { iColaborador } from "@models/colaborador/iColaborador"
 
-export function filterColaboradoresJudicial (cliente: Cliente, isMocked?: boolean) {
+export function filterColaboradoresJudicial (estadoCliente: string, localAtendido: string, parceiro: string, vara: string, isMocked?: boolean) {
     const colaboradores = []
 
     //Última atualização: 24/05/2024
@@ -84,13 +83,12 @@ export function filterColaboradoresJudicial (cliente: Cliente, isMocked?: boolea
                 tarefas: 0
             },
         ]
-
-    if (cliente.processo.estado === 'GO' || cliente.processo.estado === 'DF') {
+    if (estadoCliente === 'GO' || estadoCliente === 'DF') {
         colaboradores.push(...brasilia)
-    } else if (((cliente.cidade == "ESTANCIA" && cliente.localAtendido == "ESTANCIA")) || ((parceiros.includes(cliente.parceiro)) && varaEstancia.includes(cliente.processo.vara))) {
+    } else if ((localAtendido == "ESTANCIA") || ((parceiros.includes(parceiro)) && varaEstancia.includes(vara))) {
         colaboradores.push(...estancia)
     } else {
-        if (varaEstancia.includes(cliente.processo.vara)) {
+        if (varaEstancia.includes(vara)) {
             if (!isMocked)
                 alert("Verificar executor manualmente!")
             colaboradores.push(...aracaju)

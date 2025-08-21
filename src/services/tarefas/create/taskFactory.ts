@@ -19,19 +19,21 @@ export async function taskFactory (cliente: Cliente, tarefas: string[], cookie: 
 
         const horarioInicial = cliente.compromisso.horario,
             horarioFinal = atualizaHoraFinal(cliente.compromisso.horario),
-            dataParaFinalizacao = calcularDataTarefa(parametro, cliente, indexTarefa)
+            dataParaFinalizacao = calcularDataTarefa(parametro, cliente, tarefas, indexTarefa)
 
         const { responsavel, executor } = await getResponsavelExecutor(tarefa, cliente, cookie, dataParaFinalizacao)
 
         const objectTask: iTarefa = {
             dataParaFinalizacao,
-            descricao: getDescricao(tarefa, cliente),
+            descricao: getDescricao(tarefa, cliente, tarefas),
             executor,
             responsavel,
             tipoId: getTipoTarefa(tarefa, tiposTarefas),
             horarioInicial,
             horarioFinal
         }
+
+        if (indexTarefa === 0) cliente.compromisso.descricao = objectTask.descricao
 
         return objectTask
     }))

@@ -2,6 +2,7 @@
 import { Cliente } from "@models/cliente/Cliente"
 import { calculaPascoa } from "@utils/feriados/calculaPascoa"
 import { getFeriadosFixos } from "@utils/feriados/getFeriadosFixos"
+import { calculaFeriadosDerivadosPascoa } from "./calculaFeriadosDerivadosPascoa"
 
 export function calculaFeriados(parametro: number,  dataProcess: Pick<Cliente["processo"], "cidade" | "origem" | "natureza" | "estado">, year?: number) {
     const date = new Date(),

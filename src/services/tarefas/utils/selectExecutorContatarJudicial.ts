@@ -1,12 +1,11 @@
-import { Cliente } from "@models/cliente/Cliente"
 import { iColaborador } from "@models/colaborador/iColaborador"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
-export function selectExecutorContatarJudicial (colaboradores: iColaborador[], cliente: Cliente) {
+export function selectExecutorContatarJudicial (colaboradores: iColaborador[], localAtendido: string, estadoProcesso: string) {
     let responsavel = 'JULIANO OLIVEIRA DE SOUZA'
 
     const responsavelInterior = colaboradores.reduce((previous, currrent) => {
-        const isReponsavelInterior = currrent.interiores.includes(removeAcentuacaoString(cliente.localAtendido))
+        const isReponsavelInterior = currrent.interiores.includes(removeAcentuacaoString(localAtendido))
         if (isReponsavelInterior) {
             return currrent
         }
@@ -26,7 +25,7 @@ export function selectExecutorContatarJudicial (colaboradores: iColaborador[], c
 
     if (executor.nome.includes("SANDOVAL"))
         responsavel =  'SANDOVAL FILHO CORREIA LIMA FILHO'
-    else if (cliente.processo.estado === 'GO' || cliente.processo.estado === 'DF') {
+    else if (estadoProcesso === 'GO' || estadoProcesso === 'DF') {
         responsavel = 'HENYR GOIS DOS SANTOS'
     }
 

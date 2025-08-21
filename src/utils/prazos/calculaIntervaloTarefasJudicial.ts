@@ -1,10 +1,10 @@
 import { Cliente } from "@models/cliente/Cliente"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
-export function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente, indexTarefa: number) {
-    const { tipoCompromisso, tarefas, semanas, quantidadeTarefas } = cliente.compromisso,
+export function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente, tarefas: string[], indexTarefa: number) {
+    const { tipoCompromisso, semanas, quantidadeTarefas } = cliente.compromisso,
         { estado } = cliente.processo
-    
+    console.log(cliente.compromisso)
     const hasTwoTasks = {
             outros: ["EMENDAR","DADOS PERICIA SOCIAL","DADOS COMPLEMENTARES"],
             calculo: ["MANIFESTACAO SOBRE CALCULOS", "MANIFESTACAO SOBRE CALCULO", 'PLANILHA'],
@@ -16,7 +16,7 @@ export function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente, 
         hasFiveTasks = ["AUDIENCIA DE INSTRUCAO", "AUDIENCIA INAUGURAL", "AUDIENCIA INICIAL", "AUDIENCIA DE INSTRUCAO E JULGAMENTO", "AUDIENCIA UNA"]
     
     const tipoCompromissoNormalizado = removeAcentuacaoString(tipoCompromisso)
-    const tarefaAtualNormalizada = removeAcentuacaoString(tarefas[indexTarefa].descricao)
+    const tarefaAtualNormalizada = removeAcentuacaoString(tarefas[indexTarefa])
     const isDFOrGO = estado === 'GO' || estado === 'DF'
 
     if (((hasFiveTasks.includes(tipoCompromisso) && dias > 11) || (hasFourTasks.includes(tipoCompromissoNormalizado) && dias > 10) || (tipoCompromissoNormalizado.search(hasThreeTasks) === 0) && dias > 10)) {
