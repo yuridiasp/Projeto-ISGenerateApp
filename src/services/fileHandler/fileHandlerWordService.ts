@@ -1,10 +1,7 @@
-import path from 'path'
-import fs from 'fs'
-import jsdom from "jsdom"
 import HTMLtoDOCX from 'html-to-docx'
 
-import { isPrev, isTRT } from '@services/fileHandler/index'
-import { writeWordFileRepository } from '@repositories/word/wordISFile'
+import { isJF, isPrev, isTRT } from '@services/fileHandler/index'
+import { getDocFromWord, writeWordFileRepository } from '@repositories/word/wordISFile'
 
 function initAndSetIs(lista: NodeListOf<Element>) {
 
@@ -95,21 +92,22 @@ function initAndSetIs(lista: NodeListOf<Element>) {
     const htmlF = `</div>
     </body></html>`
 
-    let prev: string[] = [], civ: string[] = [], trt: string[] = []
-    let prevResult: string, civResult: string, trtResult: string
+    const prev: string[] = [], civ: string[] = [], trt: string[] = [], jf = []
+    let prevResult: string, civResult: string, trtResult: string, jfResult: string
 
     for (let index = 1; index < lista.length; index++) {
         const table = lista[index].querySelector("table")
         
         table.innerHTML = table.innerHTML.replace(/<br>/g,'')
 
-        table.querySelector("tbody > tr:nth-child(1) > td:nth-child(4)").removeAttribute('colspan')
-
+        table.querySelectorAll("tbody tr td")[3].removeAttribute('colspan')
         
         if (table) {
             const html = table.innerHTML
             if (isTRT(html)) {
                 trt.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
+            } else if(isJF(html)) {
+                jf.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
             } else {
                 if (isPrev(html)) {
                     prev.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
@@ -138,21 +136,22 @@ function initAndSetIs(lista: NodeListOf<Element>) {
         trtResult = trt.join('')
     }
 
-    return { prevResult, trtResult, civResult }
+    if (jf.length) {
+        jf.unshift(htmlI)
+        jf.push(htmlF)
+        jfResult = jf.join('')
+    }
+
+    return { prevResult, trtResult, civResult, jfResult }
 }
 
 export async function splitISToWord (endereco: string, fileName: string) {
-    console.log('Processo de extracao iniciado...')
-    const caminho = path.resolve(endereco.replace(new RegExp("\\" + fileName, "g"),""))
-    console.log(`Caminho: ${caminho}`)
-    const data = fs.readFileSync(endereco, {encoding:'latin1', flag:'r'})
-    console.log(`Realizado leitura do arquivo ${fileName} no caminho ${endereco}...`)
-    const doc = new jsdom.JSDOM(data)
-    console.log("Convertido binarios em documento html...")
+    const doc = await getDocFromWord(endereco, fileName)
+
     const lista = doc.window.document.querySelectorAll("body > div > p")
     let concluido = false
     const date = doc.window.document.querySelector("body > div > p:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2)").innerHTML.replace('Data Publicação:\n<br><strong>','').replace('</strong>','').replace(/\//g,'')
-    let { prevResult, trtResult, civResult } = initAndSetIs(lista)
+    let { prevResult, trtResult, civResult, jfResult } = initAndSetIs(lista)
     
     const result = []
     console.log('Inicializado variaveis...')
@@ -161,21 +160,27 @@ export async function splitISToWord (endereco: string, fileName: string) {
         margin: {top: 250, right: 250, bottom: 250, left: 250},
         table: {row: {cantSplit: false}},
         pageNumber: true,
-        decodeUnicode: true
+        decodeUnicode: true,
+        lang: 'pt-BR'
     }
 
     if (prevResult.length) {
-        let obj = {fileName: `PREV ${date}`, fileBuffer: HTMLtoDOCX(prevResult, null, documentOptions)}
+        let obj = {fileName: `PREV${date}`, fileBuffer: HTMLtoDOCX(prevResult, null, documentOptions)}
         result.push(obj)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (civResult.length) {
-        let obj = {fileName: `CIV ${date}`, fileBuffer: HTMLtoDOCX(civResult, null, documentOptions)}
+        let obj = {fileName: `CIV${date}`, fileBuffer: HTMLtoDOCX(civResult, null, documentOptions)}
         result.push(obj)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (trtResult.length) {
-        let obj = {fileName: `TRT ${date}`, fileBuffer: HTMLtoDOCX(trtResult, null, documentOptions)}
+        let obj = {fileName: `TRT${date}`, fileBuffer: HTMLtoDOCX(trtResult, null, documentOptions)}
+        result.push(obj)
+        console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
+    }
+    if (jfResult.length) {
+        let obj = {fileName: `JFSE${date}`, fileBuffer: HTMLtoDOCX(jfResult, null, documentOptions)}
         result.push(obj)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
@@ -185,7 +190,7 @@ export async function splitISToWord (endereco: string, fileName: string) {
         fileBuffer: await fileBuffer
     })))
 
-    writeWordFileRepository(wordFileObject, endereco)
+    await writeWordFileRepository(wordFileObject, endereco, fileName)
 
     return concluido
 }

@@ -14,7 +14,7 @@ type HandleIntimationsReportResult = { message: string; newFilePath: string }
 export async function handleIntimationsReportService (windows: iWindows, cookie: string, file: iFileData): Promise<Result<HandleIntimationsReportResult>> {
     const resultado: Promise<iValidationReport>[] = []
     
-    const resultFile = getObjectValidateIntimationsService(file)
+    const resultFile = await getObjectValidateIntimationsService(file)
     
     if (resultFile.success === false) {
         return {

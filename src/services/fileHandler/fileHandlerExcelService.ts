@@ -34,7 +34,7 @@ function initAndSetIs(lista: NodeListOf<Element>) {
         
         table.innerHTML = table.innerHTML.replace(/<br>/g,'')
 
-        table.querySelector("tbody > tr:nth-child(1) > td:nth-child(4)").removeAttribute('colspan')
+        table.querySelector("tbody > tr:nth-child(1) > td:nth-child(4)")?.removeAttribute('colspan')
 
         
         if (table) {
@@ -87,7 +87,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
     const caminho = path.resolve(endereco.replace(new RegExp("\\" + fileName, "g"),""))
     console.log(`Caminho: ${caminho}`)
     const data = fs.readFileSync(endereco, {encoding:'latin1', flag:'r'})
-    console.log(`Realizado leitura do arquivo ${fileName} no caminho ${path}...`)
+    console.log(`Realizado leitura do arquivo ${fileName} no caminho ${caminho}...`)
     const doc = new jsdom.JSDOM(data)
     console.log("Convertido binarios em documento html...")
     const lista = doc.window.document.querySelectorAll("body > div > p")

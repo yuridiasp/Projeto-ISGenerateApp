@@ -23,9 +23,16 @@
             <form id="formSplit" action="">
                 <label class="dividir" for="splitIS"><i class="fa fa-expand" aria-hidden="true"></i>DIVIDIR ARQUIVO IS</label>
                 <input type="button" name="splitIS" id="splitIS" style="display: none;">
-                <div id="splitBtns" class="buttons">
-                    <input id="btnConfirmSplit" class="btn confirm" type="button" value="CONFIRMAR">
-                    <input id="btnCancelSplit" class="btn cancel" type="reset" value="CANCELAR">
+                <div id="splitBtnsOptions" class="buttons">
+                    <button id="btnConfirmSplitOptionsXlsx" class="xlsx btn-sup" type="button">
+                        <i class="fa fa-file-excel-o" aria-hidden="true"></i> EXCEL
+                    </button>
+                    <button id="btnConfirmSplitOptionsDocx" class="docx btn-sup" type="button">
+                        <i class="fa fa-file-word-o" aria-hidden="true"></i> WORD
+                    </button>
+                    <button id="btnCancelSplitOptions" class="cancel btn-sup" type="reset">
+                        CANCELAR
+                    </button>
                 </div>
             </form>
         </div>

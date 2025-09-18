@@ -6,4 +6,5 @@ export interface iValidationReport {
     publication_date?: string,
     isRegistered: boolean;
     reason: string;
+    paragraph?: string
 }

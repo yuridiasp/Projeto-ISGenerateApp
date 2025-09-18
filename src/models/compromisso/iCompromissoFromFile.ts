@@ -4,5 +4,6 @@ export interface iCompromissoFromFile {
     description?: string,
     publicacao?: string,
     publication_date?: string,
-    expediente?: string
+    expediente?: string,
+    paragraph?: string
 }

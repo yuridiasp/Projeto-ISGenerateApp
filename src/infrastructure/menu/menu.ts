@@ -21,7 +21,7 @@ function configMenu (app: { name: string }, windows: iWindows): void {
     ]
 
     const menu = Menu.buildFromTemplate(templateMenu)
-    //Menu.setApplicationMenu(menu)
+    Menu.setApplicationMenu(menu)
 }
 
 export default configMenu

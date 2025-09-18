@@ -1,9 +1,7 @@
 import { iValidationReport } from "@models/validation/iValidationReport"
 
 const splitISInput: HTMLInputElement = document.querySelector('#splitIS')
-const buttonsDivSplit = document.querySelector('#splitBtns')
-const btnConfirmSplit: HTMLButtonElement = document.querySelector('#btnConfirmSplit')
-const btnCancelSplit: HTMLButtonElement = document.querySelector('#btnCancelSplit')
+const buttonsDivSplit = document.querySelector('#splitBtnsOptions')
 const registrationISInput: HTMLInputElement = document.querySelector('#registrationIS')
 const buttonsDivRegistrationIS: HTMLButtonElement = document.querySelector('#registrationISBtns')
 const btnConfirmRegistrationIS: HTMLButtonElement = document.querySelector('#btnConfirmregistrationIS')
@@ -17,6 +15,9 @@ const content = document.querySelector('.content')
 const reportContainer = document.querySelector("#report-container")
 const reportContent = document.querySelector("#report-content")
 const closeReportButton: HTMLButtonElement = document.querySelector('#closeReport')
+const btnConfirmSplitOptionsXlsx = document.querySelector("#btnConfirmSplitOptionsXlsx")
+const btnConfirmSplitOptionsDocx = document.querySelector("#btnConfirmSplitOptionsDocx")
+const btnCancelSplitOptions: HTMLButtonElement = document.querySelector("#btnCancelSplitOptions")
 
 type fileData = {
     fileName: string,
@@ -66,19 +67,68 @@ function setReportFilePath(filePath: string) {
     filePathTitle.innerHTML = filePath
 }
 
-function insertReportValidation({ processo, case_number, publicacao, publication_date, isRegistered, reason = '' }: iValidationReport) {
+function insertReportValidation({ processo, case_number, publicacao, publication_date, isRegistered, reason = '', paragraph }: iValidationReport) {
     const processValue = processo || case_number
     const publicationValue = publicacao || publication_date
     const resultClass = isRegistered ? 'success' : 'error'
     const resultIcon = isRegistered ? 'check' : 'times'
 
-    reportContent.innerHTML += `
-        <div class="content-validation-result ${resultClass} ${reason}">
-            <i class="fa fa-${resultIcon}" aria-hidden="true"></i>
-            <span id="process-report">${processValue.replace("'", "")}</span>
-            <span id="publication-report">${publicationValue}</span>
-        </div>
-    `
+    const toogleEye = (i: HTMLElement, p: HTMLElement) => {
+        if (i.classList.contains("fa-eye-slash")) {
+            i.classList.remove("fa-eye-slash")
+            i.classList.add("fa-eye")
+
+            p.style.display = "none"
+        } else {
+            i.classList.add("fa-eye-slash")
+            i.classList.remove("fa-eye")
+            
+            p.style.display = "block"
+        }
+    }
+
+    const container = document.createElement("div")
+    reportContent.append(container)
+    
+    const content = document.createElement("div")
+    content.classList.add("content-validation-result")
+    content.classList.add(resultClass)
+    content.classList.add(reason)
+    container.append(content)
+    
+    const iContent = document.createElement("i")
+    iContent.classList.add("fa", `fa-${resultIcon}`)
+    iContent.ariaHidden = "true"
+    content.append(iContent)
+    
+    const spanCaseNumber = document.createElement("span")
+    spanCaseNumber.innerHTML = processValue.replace("'", "")
+    spanCaseNumber.classList.add("process-report")
+    content.append(spanCaseNumber)
+
+    const spanPublicationDate = document.createElement("span")
+    spanPublicationDate.innerHTML = publicationValue
+    spanPublicationDate.classList.add("publication-report")
+    content.append(spanPublicationDate)
+    
+    if(!isRegistered) {
+        const button = document.createElement("button")
+        button.classList.add("show-information")
+        content.append(button)
+        
+        const iButton = document.createElement("i")
+        iButton.classList.add("fa", "fa-eye")
+        iButton.ariaHidden = "true"
+        button.append(iButton)
+        
+        const p = document.createElement("p")
+        p.classList.add("p-info-is")
+        p.style.display = "none"
+        p.innerHTML = paragraph
+        reportContent.append(p)
+
+        button.addEventListener("click", () => toogleEye(iButton, p))
+    }
 }
 
 function resetReport() {
@@ -125,7 +175,7 @@ function hiddeLoader() {
 
 closeReportButton.addEventListener('click', resetReport)
 
-splitISInput.addEventListener('click', async () => { 
+splitISInput.addEventListener('click', async () => {
     const { canceled, filePaths } = await window.API.openFileDialogForFile()
     
     if (!canceled) {
@@ -135,10 +185,10 @@ splitISInput.addEventListener('click', async () => {
     }
 })
 
-btnConfirmSplit.addEventListener('click', async () => {
+btnConfirmSplitOptionsXlsx.addEventListener('click', async () => {
     showLoader()
     if (Object.keys(argsSplit).length) {
-        let result = await window.API.splitFileIs(argsSplit)
+        let result = await window.API.splitFileIs({ ...argsSplit, isXlsx: true })
 
         const { msg, value } = result
         if (value) {
@@ -152,10 +202,30 @@ btnConfirmSplit.addEventListener('click', async () => {
         alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
     }
     hiddeLoader()
-    btnCancelSplit.click()
+    btnCancelSplitOptions.click()
 })
 
-btnCancelSplit.addEventListener('click', () => {
+btnConfirmSplitOptionsDocx.addEventListener('click', async () => {
+    showLoader()
+    if (Object.keys(argsSplit).length) {
+        let result = await window.API.splitFileIs({ ...argsSplit, isXlsx: false })
+
+        const { msg, value } = result
+        if (value) {
+            console.log('Sucesso')
+        } else {
+            console.log('Erro')
+        }
+        alert(msg)
+    }
+    else {
+        alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
+    }
+    hiddeLoader()
+    btnCancelSplitOptions.click()
+})
+
+btnCancelSplitOptions.addEventListener('click', () => {
     buttonsDivSplit.classList.remove('aparecer')
 })
 
@@ -207,14 +277,14 @@ btnConfirmValidateIntimations.addEventListener('click', async () => {
     hiddeContent()
     showLoader()
     if (Object.keys(argsValidate).length) {        
-        let result = await window.API.intimationValidate(argsValidate)
+        const { data, success } = await window.API.intimationValidate(argsValidate)
         
-        if (result) {
+        if (success) {
             console.log('Sucesso')
         } else {
             console.log('Erro')
         }
-        alert(result)
+        alert(data.message)
     }
     else {
         alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a validação.')

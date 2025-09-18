@@ -4,6 +4,7 @@
     --report-content-background: #1D1E2F;
     --report-error-line: #E55770;
     --report-error-background: #3A2739;
+    --report-error-background-info: #2c1e2b;
     --report-error-color-text-reason: #F49AA9;
     --report-error-color-text: #E55770;
     --report-success-line: #21A668;
@@ -23,6 +24,10 @@
     --bg-cancel-btn: #d6657c;
     --border-cancel-btn: #790b21;
     --cancel-color-btn: #790b21;
+    --excel-background-btn: #32C581;
+    --excel-color-btn: #185D36;
+    --word-background-btn: #40A4EE;
+    --word-color-btn: #103E90;
 }
 
 * {
@@ -42,11 +47,6 @@ body {
 }
 
 label {
-    font-size: 5vw;
-    cursor: default;
-}
-
-label {
     position: relative;
     display: flex;
     justify-content: center;
@@ -57,9 +57,11 @@ label {
     color: var(--text-main-menu-btn);
     width: 80vw;
     height: 20vh;
-    margin: 1em;
     font-weight: bold;
     gap: 3vw;
+    font-size: 5vw;
+    cursor: default;
+    margin: 10px 0 10px 0;
 }
 
 label > img {
@@ -94,6 +96,40 @@ label:hover, .btn:hover {
     to {
         transform: scale(1);
     }
+}
+
+#formSplit {
+    display: flex;
+    flex-direction: column;
+}
+
+#splitBtnsOptions {
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.btn-sup {
+    flex: 1;
+    border-radius: 0.5em;
+    height: 10vh;
+}
+
+.title-split {
+    font-size: 0.8em;
+    padding: 10px;
+}
+
+#btnConfirmSplitOptionsDocx {
+    color: var(--word-color-btn);
+    background: var(--word-background-btn);
+    border: 0.1em solid var(--word-color-btn);
+}
+
+#btnConfirmSplitOptionsXlsx {
+    color: var(--excel-color-btn);
+    background: var(--excel-background-btn);
+    border: 0.1em solid var(--excel-color-btn);
 }
 
 .btn {
@@ -204,8 +240,8 @@ label:active, .btn:active {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    gap: 0.5rem;
     font-size: 0.8rem;
+    gap: 0.5rem;
     padding: 0.5rem;
 }
 
@@ -221,19 +257,33 @@ label:active, .btn:active {
     border-left: solid var(--report-error-line);
 }
 
-.content-validation-result.error.process #process-report{
+.content-validation-result.error.process span.process-report{
     color: var(--report-error-color-text-reason);
 }
 
-.content-validation-result.error.process #publication-report{
+.content-validation-result.error.process span.publication-report{
     color: var(--report-error-color-text);
 }
 
-.content-validation-result.error.publication #process-report{
+.content-validation-result.error.publication span.process-report{
     color: var(--report-error-color-text);
 }
 
-.content-validation-result.error.publication #publication-report{
+.content-validation-result.error.publication span.publication-report{
+    color: var(--report-error-color-text-reason);
+}
+
+.show-information {
+    background: var(--report-error-background-info);
+    color: var(--report-error-color-text-reason);
+    border-radius: 50%;
+}
+
+.p-info-is {
+    background: var(--report-error-background-info);
+    text-align: center;
+    font-size: 0.8rem;
+    padding: 0.5rem;
     color: var(--report-error-color-text-reason);
 }
 
@@ -245,11 +295,11 @@ label:active, .btn:active {
     border-radius: 0.5rem;
 }
 
-#closeReport:hover {
+#closeReport:hover, .btn-sup:hover {
     filter: brightness(1.2);
 }
 
-#closeReport:active {
+#closeReport:active, .btn-sup:active {
     filter: brightness(0.8);
 }
 

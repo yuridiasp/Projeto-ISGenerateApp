@@ -10,7 +10,7 @@ import { iCompromissoFromFile } from "@models/compromisso/iCompromissoFromFile"
 dotEnv.config()
 
 //TODO: Refatorar essa função
-export async function intimationValidateService({ processo, case_number, description, publicacao, publication_date, expediente }: iCompromissoFromFile, cookie: string): Promise<iValidationReport> {
+export async function intimationValidateService({ processo, case_number, description, publicacao, publication_date, expediente, paragraph }: iCompromissoFromFile, cookie: string): Promise<iValidationReport> {
     //console.log(processo, case_number, description, publicacao, publication_date, expediente)
     let isRegistered = false, reason = null
     const processValue = processo || case_number
@@ -53,6 +53,6 @@ export async function intimationValidateService({ processo, case_number, descrip
         reason = resultRegisterProcess.data.reason
     }
     
-    return { processo: processValue, description, publicacao: dataCadastro, isRegistered, reason }
+    return { processo: processValue, description, publicacao: dataCadastro, isRegistered, reason, paragraph }
 
 }
