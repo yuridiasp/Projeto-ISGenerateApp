@@ -1,4 +1,5 @@
 // forge.config.ts
+import path from 'path'
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import type { ForgeConfig } from '@electron-forge/shared-types';
@@ -12,7 +13,7 @@ const config: ForgeConfig = {
           owner: 'yuridiasp',
           name: 'Projeto-ISGenerateApp',
         },
-        draft: true,
+        draft: false,
         prerelease: false,
         generateReleaseNotes: true,
         authToken: process.env.GITHUB_TOKEN
@@ -21,6 +22,7 @@ const config: ForgeConfig = {
   ],
   packagerConfig: {
     asar: true,
+    extraResource: [path.resolve(__dirname, ".env")],
   },
   rebuildConfig: {},
   makers: [

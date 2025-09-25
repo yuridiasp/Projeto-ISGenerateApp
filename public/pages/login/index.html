@@ -16,7 +16,7 @@
     <main>
         <h1>Bem Vindo!</h1>
         <p>Faça seu login</p>
-        <form action="">
+        <form id="login-form" action="">
             <fieldset class="inputFields">
                 <div class="input-group-addon">
                     <i class="fa fa-user"></i>
@@ -30,13 +30,31 @@
                 <input type="password" name="senha" placeholder="* Senha" required>
             </fieldset>
             <fieldset>
-                <label class="saveCredentialsLabel" for="saveCredentials">
+                <!-- <label class="saveCredentialsLabel" for="saveCredentials">
                     <input type="checkbox" name="saveCredentials" id="saveCredentials" value="true">
                     <p>Salvar credenciais de login</p>
-                </label>
+                </label> -->
                 <button type="submit">Entrar</button>
             </fieldset>
         </form>
     </main>
+    <div class="login-loader hidde">
+        <span class="loader">
+            <span class="icon-line line-tip"></span>
+            <span class="icon-line line-long"></span>
+            <span class="shadow"></span>
+        </span>
+        <p id="msg-login">Realizando login...</p>
+        <p id="msg-success">Login Realizado!</p>
+        <div id="msg-error">
+            <p>Erro no login!</p>
+            <div class="error-text-content">
+                <p><span id="error-code">EXAMPLE</span> (<span id="error-number-code">0000</span>):</p>
+                <p id="error-message">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Perferendis dolorem, reprehenderit minima unde quod error facere, labore tenetur modi eum dolorum eligendi a illo! Ipsam libero debitis omnis possimus labore.</p>
+            </div>
+            <button id="retry-login">Tentar novamente</button>
+        </div>
+    </div>
+    <script src="./js/login-script.js"></script>
 </body>
 </html>

@@ -5,6 +5,7 @@ import { HttpStatusCodes } from '@helpers/statusCode'
 import { loggedPostRequest } from '@utils/request/postRequest'
 import { Result } from '@models/result/result'
 import { getRequest } from '@utils/request/getRequest'
+import { iWindows } from '@models/windows/iWindows'
 
 export interface credential {
     login: string,
@@ -15,15 +16,10 @@ export type Cookie = {
     cookie: string
 }
 
-export async function login(cookie: string, credentials: credential): Promise<Result<Cookie>> {
-    const { URL_LOGIN_SISTEMFR, LOGIN, SENHA, URL_HOME_SISTEMFR, URL_LOGIN_FAIL_SISTEMFR } = process.env
+export async function login(cookie: string, credentials: credential = { login: process.env.LOGIN, senha: process.env.SENHA }): Promise<Result<Cookie>> {
+    const { URL_LOGIN_SISTEMFR, URL_HOME_SISTEMFR, URL_LOGIN_FAIL_SISTEMFR } = process.env
 
-    const credentialsYuri = {
-        login: LOGIN,
-        senha: SENHA
-    }
-
-    const response = await loggedPostRequest({ url: URL_LOGIN_SISTEMFR, body: credentialsYuri, cookie })
+    const response = await loggedPostRequest({ url: URL_LOGIN_SISTEMFR, body: credentials, cookie })
     
     if (response.request.res.responseUrl === URL_LOGIN_FAIL_SISTEMFR) {
         return {
@@ -62,12 +58,15 @@ async function setCookieLoginForm(): Promise<Result<Cookie>> {
     }
 }
 
-export async function getCookieLoginService(credentials?: credential): Promise<Result<Cookie>> {
+export async function getCookieLoginService(windows: iWindows, credentials?: credential): Promise<Result<Cookie>> {
 
     const resultCookie = await setCookieLoginForm()
 
-    if (resultCookie.success) {
+    if (resultCookie.success === true) {
         const resultLogin = await login(resultCookie.data.cookie, credentials)
+
+        if (resultLogin.success === false)
+            return resultLogin
 
         return resultLogin
     }

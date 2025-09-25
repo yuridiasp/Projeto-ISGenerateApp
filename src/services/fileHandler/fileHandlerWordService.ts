@@ -95,48 +95,48 @@ function initAndSetIs(lista: NodeListOf<Element>) {
     const prev: string[] = [], civ: string[] = [], trt: string[] = [], jf = []
     let prevResult: string, civResult: string, trtResult: string, jfResult: string
 
-    for (let index = 1; index < lista.length; index++) {
+    for (let index = 1; index < lista?.length; index++) {
         const table = lista[index].querySelector("table")
         
-        table.innerHTML = table.innerHTML.replace(/<br>/g,'')
+        table.innerHTML = table?.innerHTML.replace(/<br>/g,'')
 
         table.querySelectorAll("tbody tr td")[3].removeAttribute('colspan')
         
         if (table) {
-            const html = table.innerHTML
+            const html = table?.innerHTML
             if (isTRT(html)) {
-                trt.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
+                trt.push(`<table>${table?.innerHTML}</table><p></p><p></p>`)
             } else if(isJF(html)) {
-                jf.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
+                jf.push(`<table>${table?.innerHTML}</table><p></p><p></p>`)
             } else {
                 if (isPrev(html)) {
-                    prev.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
+                    prev.push(`<table>${table?.innerHTML}</table><p></p><p></p>`)
                 } else {
-                    civ.push(`<table>${table.innerHTML}</table><p></p><p></p>`)
+                    civ.push(`<table>${table?.innerHTML}</table><p></p><p></p>`)
                 }
             }
         }
     }
 
-    if (prev.length) {
+    if (prev?.length) {
         prev.unshift(htmlI)
         prev.push(htmlF)
         prevResult = prev.join('')
     }
 
-    if (civ.length) {
+    if (civ?.length) {
         civ.unshift(htmlI)
         civ.push(htmlF)
         civResult = civ.join('')
     }
 
-    if (trt.length) {
+    if (trt?.length) {
         trt.unshift(htmlI)
         trt.push(htmlF)
         trtResult = trt.join('')
     }
 
-    if (jf.length) {
+    if (jf?.length) {
         jf.unshift(htmlI)
         jf.push(htmlF)
         jfResult = jf.join('')
@@ -147,10 +147,10 @@ function initAndSetIs(lista: NodeListOf<Element>) {
 
 export async function splitISToWord (endereco: string, fileName: string) {
     const doc = await getDocFromWord(endereco, fileName)
-
+    
     const lista = doc.window.document.querySelectorAll("body > div > p")
     let concluido = false
-    const date = doc.window.document.querySelector("body > div > p:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2)").innerHTML.replace('Data Publicação:\n<br><strong>','').replace('</strong>','').replace(/\//g,'')
+    const date = doc.window.document.querySelector("body > div > p:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2)")?.innerHTML.replace('Data Publicação:\n<br><strong>','').replace('</strong>','').replace(/\//g,'')
     let { prevResult, trtResult, civResult, jfResult } = initAndSetIs(lista)
     
     const result = []
@@ -164,22 +164,22 @@ export async function splitISToWord (endereco: string, fileName: string) {
         lang: 'pt-BR'
     }
 
-    if (prevResult.length) {
+    if (prevResult?.length) {
         let obj = {fileName: `PREV${date}`, fileBuffer: HTMLtoDOCX(prevResult, null, documentOptions)}
         result.push(obj)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
-    if (civResult.length) {
+    if (civResult?.length) {
         let obj = {fileName: `CIV${date}`, fileBuffer: HTMLtoDOCX(civResult, null, documentOptions)}
         result.push(obj)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
-    if (trtResult.length) {
+    if (trtResult?.length) {
         let obj = {fileName: `TRT${date}`, fileBuffer: HTMLtoDOCX(trtResult, null, documentOptions)}
         result.push(obj)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
-    if (jfResult.length) {
+    if (jfResult?.length) {
         let obj = {fileName: `JFSE${date}`, fileBuffer: HTMLtoDOCX(jfResult, null, documentOptions)}
         result.push(obj)
         console.log(`Iniciando criacao do documento docx ${obj.fileName}`)

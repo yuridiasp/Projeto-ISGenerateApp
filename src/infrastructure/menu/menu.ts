@@ -15,6 +15,10 @@ function configMenu (app: { name: string }, windows: iWindows): void {
             ]
         },
         {
+            label: "DevTools",
+            role: "toggleDevTools"
+        },
+        {
             label: 'Sobre',
             click: () => createSobreWindowController(windows)
         }

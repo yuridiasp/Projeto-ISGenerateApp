@@ -11,7 +11,7 @@ import { taskFactory } from "@services/tarefas/create/taskFactory"
 import { getListaTarefasCompromissoJudicial } from "@services/tarefas/get/getListaTarefasCompromissoJudicial"
 
 export async function handleIntimationsRegistrationService(windows: iWindows, cookie: string, file: iFileData) {
-    const result = getObjectValidateIntimationsService(file)
+    const result = await getObjectValidateIntimationsService(file)
     
     if (result.success === false) {
         return {

@@ -90,15 +90,17 @@ export async function readWordFile(endereco: string, fileName: string) {
     const doc = await getDocFromWord(endereco, fileName)
     
     const regexCaseNumber = /\d{12,20}(?=\s(\-|\–)\s)/
+    const regexCaseNumberOrigin = /\d{12,20}(?=\s\(ORIGEM)/
     const regexDescription = /\s[-–]\s([\w\W]+?)\s[-–]\s\(/
     const regexCasePublicationDate = /^(\d\d\/\d\d\/\d\d\d\d)/
 
     doc.window.document.querySelectorAll("p").forEach(paragraph => {
-        if (regexCaseNumber.test(paragraph.textContent)) {
-            const caseNumber = paragraph.textContent.match(regexCaseNumber)
+        const hasOriginCaseNumber = regexCaseNumberOrigin.test(paragraph.textContent)
+        if (regexCaseNumber.test(paragraph.textContent) || hasOriginCaseNumber) {
+            const caseNumber = hasOriginCaseNumber ? paragraph.textContent.match(/\(ORIGEM (\d{12,20})/) : paragraph.textContent.match(regexCaseNumber)
             const description = paragraph.textContent.match(regexDescription)
             if(caseNumber)
-                object.case_number = caseNumber[0]
+                object.case_number = hasOriginCaseNumber ? caseNumber[1] : caseNumber[0]
             if(description)
                 object.description = description[1]
 

@@ -3,6 +3,7 @@ import { Result } from "@models/result/result"
 import { readExcelFile } from "@repositories/xlsx/excelISFile"
 import { ValidationError } from "@models/errors/validationError"
 import { readWordFile } from "@repositories/word/wordISFile"
+import { iCompromissoFromFile } from "@models/compromisso/iCompromissoFromFile"
 
 export interface iFileData {
     endereco: string,
@@ -19,14 +20,15 @@ export async function getObjectValidateIntimationsService({ endereco, fileName }
     if (endereco) {
         try {
             if (regexToExcekFile.test(endereco)) {
-                return { success: true, data: { file: readExcelFile(endereco) } }
+                const resulstXLSX = readExcelFile(endereco)
+                return { success: true, data: { file: resulstXLSX  } }
             } else if (regexToWordFile.test(endereco))
                 return { success: true, data: { file: await readWordFile(endereco, fileName) as unknown as unknown[] } }
             return { success: false, error: new ValidationError('Tipo de arquivo inválido.') }
         } catch (error) {
             return { success: false, error: new FileError(error) }
         }
-    } 
+    }
     
     return { success: false, error: new ValidationError('Nome ou caminho do arquivo não informado.') }
 }

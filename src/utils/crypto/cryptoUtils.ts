@@ -1,14 +1,20 @@
 import crypto from 'crypto'
-import dotEnv from 'dotenv'
 
-dotEnv.config()
+export function getKey(key: string): string {
+  const raw = process.env[key];
+  if (!raw) {
+    // Não deixe estourar dentro de Buffer.from
+    throw new Error(`${key} ausente. Verifique o .env em produção.`);
+  }
+  return raw
+}
 
-const algorithm = process.env.ALGORITHM
-const secretKey = Buffer.from(process.env.SECRETKEY, 'hex')
-const ivnum = Number(process.env.IVNUM)
-const iv = crypto.randomBytes(ivnum)
 
 export function encrypt(text: string) {
+    const ivnum = Number(getKey(process.env.IVNUM))
+    const iv = crypto.randomBytes(ivnum)
+    const algorithm = getKey(process.env.ALGORITHM)
+    const secretKey = Buffer.from(getKey(process.env.SECRETKEY), 'hex')
     const cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey), iv)
     let encrypted = cipher.update(text);
     encrypted = Buffer.concat([encrypted, cipher.final()]);
@@ -16,6 +22,8 @@ export function encrypt(text: string) {
 }
 
 export function decrypt(text: string) {
+    const secretKey = Buffer.from(getKey(process.env.SECRETKEY), 'hex')
+    const algorithm = getKey(process.env.ALGORITHM)
     const parts = text.split(':')
     const iv = Buffer.from(parts.shift()!, 'hex')
     const encryptedText = Buffer.from(parts.join(':'), 'hex')

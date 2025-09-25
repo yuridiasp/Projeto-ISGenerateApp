@@ -1,7 +1,8 @@
 import { ValidationError } from '@models/errors/validationError'
+import { iWindows } from '@models/windows/iWindows'
 import { loginService, retrieveCredentialsService } from '@services/auth/authService'
 
-export async function loginController(username: string, password: string) {
+export async function loginController(windows: iWindows,username: string, password: string) {
     if (!username || !password) {
         return {
             success: false,
@@ -9,7 +10,7 @@ export async function loginController(username: string, password: string) {
         }
     }
 
-    const result = await loginService(username, password)
+    const result = await loginService(windows, username, password)
 
     return result
 }

@@ -4,18 +4,28 @@ import { closeSobreWindowService, createSobreWindowService } from '@services/win
 import { createMainWindowService } from '@services/windows/main/mainWindow'
 import { getObjectISService } from '@services/splitIS/splitISService'
 import { getDadosService, openPageGithubService } from '@services/appData/appData'
-import { getCookieLoginService } from '@services/login/loginService'
+import { credential, getCookieLoginService } from '@services/login/loginService'
 import { iFileData } from '@services/validateIntimations/validateIntimationsService'
 import { handleIntimationsReportService } from '@services/intimation/intimationReporter'
 import { handleIntimationsRegistrationService } from '@services/intimation/intimationRegister'
 import { executeWithLogin } from '@middlewares/executeWithLogin'
+import { closeLoginWindowService, createLoginWindowService } from '@services/windows/login/loginWindow'
+import { sendCredenctialsService } from '@services/auth/authService'
 
 export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
     return openFileDialog(windows)
 }
 
+export async function loginController(windows: iWindows, credentials: credential) {
+    return await getCookieLoginService(windows, credentials)
+}
+
 export function createSobreWindowController (windows: iWindows) {
     createSobreWindowService(windows)
+}
+
+export function createLoginWindowController (windows: iWindows) {
+    createLoginWindowService(windows)
 }
 
 export function createMainWindowController(windows: iWindows) {
@@ -34,18 +44,21 @@ export function closeSobreWindowController (windows: iWindows) {
     closeSobreWindowService(windows)
 }
 
-export async function getCookieLoginController() {
-    return await getCookieLoginService()
+export function closeLoginWindowController (windows: iWindows) {
+    closeLoginWindowService(windows)
 }
 
 export async function splitISController (event: Electron.IpcMainInvokeEvent, file: iFileData) {
     return getObjectISService(file)
 }
-
-export async function intimationsRegisterController(event: Electron.IpcMainInvokeEvent, file: iFileData, windows: iWindows) {
-    return executeWithLogin(event, windows, handleIntimationsRegistrationService, file)
+export async function sendCredenctialsController (credentials: credential, windows: iWindows) {
+    return sendCredenctialsService(credentials, windows)
 }
 
-export async function intimationsReportController(event: Electron.IpcMainInvokeEvent, file: iFileData, windows: iWindows) {
-    return executeWithLogin(event, windows, handleIntimationsReportService, file)
+export async function intimationsRegisterController(event: Electron.IpcMainInvokeEvent, file: iFileData, credentials: credential, windows: iWindows) {
+    return executeWithLogin(event, windows, handleIntimationsRegistrationService, credentials, file)
+}
+
+export async function intimationsReportController(event: Electron.IpcMainInvokeEvent, file: iFileData, credentials: credential, windows: iWindows) {
+    return executeWithLogin(event, windows, handleIntimationsReportService, credentials, file)
 }

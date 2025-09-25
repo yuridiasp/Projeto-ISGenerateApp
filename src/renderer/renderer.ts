@@ -1,4 +1,5 @@
 import { iValidationReport } from "@models/validation/iValidationReport"
+import { credential } from "@services/login/loginService"
 
 const splitISInput: HTMLInputElement = document.querySelector('#splitIS')
 const buttonsDivSplit = document.querySelector('#splitBtnsOptions')
@@ -19,31 +20,65 @@ const btnConfirmSplitOptionsXlsx = document.querySelector("#btnConfirmSplitOptio
 const btnConfirmSplitOptionsDocx = document.querySelector("#btnConfirmSplitOptionsDocx")
 const btnCancelSplitOptions: HTMLButtonElement = document.querySelector("#btnCancelSplitOptions")
 
-type fileData = {
+export type fileData = {
     fileName: string,
     endereco: string,
-    tipo: string
+    tipo: string,
+    isXlsx?: boolean
 }
 
-let argsSplit: fileData, argsValidate: fileData, argsRegister: fileData
+let argsSplit: fileData, argsValidate: fileData, argsRegister: fileData, credentials: credential, operation: string = null
 
 // Defina uma interface para a API
-interface MyAPI {
+interface iAPI {
     openFileDialogForFile(): PromiseLike<{ filePaths: string; canceled: string }>
-    intimationRegister: (args: any) => Promise<any>;
-    intimationValidate: (args: any) => Promise<any>;
-    splitFileIs: (args: any) => Promise<any>;
+    intimationRegister: (args: fileData, credentials: credential) => Promise<any>;
+    intimationValidate: (args: fileData, credentials: credential) => Promise<any>;
+    splitFileIs: (args: fileData) => Promise<any>;
     updateReportStatus: (report: any) => Promise<any>;
     enableButtonCloseReport: (args: any) => Promise<any>;
-  }
+    abrirJanelaLogin: () => void;
+    receiveCredentials: (receiveCredentials: any) => Promise<any>;
+}
   
   // Estenda a interface Window para incluir a API
   declare global {
     interface Window {
-      API: MyAPI;
+      API: iAPI;
     }
   }
-  
+
+async function validateIntimations() {
+    hiddeContent()
+    showLoader()
+    if (Object.keys(argsValidate).length) {  
+        
+        if(!credentials) {
+            operation = 'validateIntimations'
+            window.API.abrirJanelaLogin()
+        } else {
+            const { data, success } = await window.API.intimationValidate(argsValidate, credentials)
+            
+            if (success) {
+                console.log('Sucesso')
+            } else {
+                console.log('Erro')
+            }
+            alert(data.message)
+        }
+    }
+    else {
+        alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a validação.')
+    }
+}
+
+function resumeOperation () {
+    const operations = {
+        validateIntimations: validateIntimations
+    }
+
+    operations[operation as keyof typeof operations]()
+}
 
 function createObjectArgs(filePaths: string) {
     const pathArray = filePaths[0].split("\\")
@@ -243,7 +278,7 @@ registrationISInput.addEventListener('click', async () => {
 btnConfirmRegistrationIS.addEventListener('click', async () => {
     showLoader()
     if (Object.keys(argsRegister).length) {
-        const result = await window.API.intimationRegister(argsRegister)
+        const result = await window.API.intimationRegister(argsRegister, credentials)
 
         if (result) {
             console.log('Sucesso')
@@ -273,23 +308,7 @@ validateIntimationsInput.addEventListener('click', async () => {
     }
 })
 
-btnConfirmValidateIntimations.addEventListener('click', async () => {
-    hiddeContent()
-    showLoader()
-    if (Object.keys(argsValidate).length) {        
-        const { data, success } = await window.API.intimationValidate(argsValidate)
-        
-        if (success) {
-            console.log('Sucesso')
-        } else {
-            console.log('Erro')
-        }
-        alert(data.message)
-    }
-    else {
-        alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a validação.')
-    }
-})
+btnConfirmValidateIntimations.addEventListener('click', validateIntimations)
 
 btnCancelValidateIntimations.addEventListener('click', () => {
     buttonsDivValidateIntimations.classList.remove('aparecer')
@@ -306,4 +325,10 @@ window.API.updateReportStatus((report: iValidationReport) => {
 
 window.API.enableButtonCloseReport(() => {
     closeReportButton.disabled = false
+})
+
+window.API.receiveCredentials((receivedCredentials: string) => {
+    credentials = JSON.parse(receivedCredentials)
+    console.log(credentials)
+    resumeOperation()
 })

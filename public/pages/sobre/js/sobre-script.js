@@ -7,8 +7,8 @@ const nodeJsSpan = document.querySelector('#nodeJs')
 const fecharSobreBtn = document.querySelector('#fecharSobre')
 
 async function setHtmlText() {
-    const { nomeapp, autor, nodejs, version, electronjs, github } = await window.api.getVersions()
-    debugger
+    const { nomeapp, autor, nodejs, version, electronjs, github } = await window.API.getVersions()
+    
     nomeAppSpan.forEach(e => {
         e.innerText = nomeapp
     })
@@ -20,11 +20,11 @@ async function setHtmlText() {
 }
 
 fecharSobreBtn.addEventListener('click', () => {
-    window.api.fecharJanelaSobre()
+    window.API.fecharJanelaSobre()
 })
 
 autorSpan.addEventListener('click', () => {
-    window.api.openGithub()
+    window.API.openGithub()
 })
 
 window.onload = setHtmlText
