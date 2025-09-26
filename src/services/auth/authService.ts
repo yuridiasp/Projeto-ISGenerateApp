@@ -4,9 +4,9 @@ import { encrypt, decrypt } from '@utils/crypto/cryptoUtils';
 import { Cookie, credential, getCookieLoginService } from '@services/login/loginService';
 import { iWindows } from '@models/windows/iWindows';
 
-export async function loginService(windows: iWindows, username: string | undefined, password: string | undefined): Promise<Result<Cookie>> {
+export async function loginService(username: string | undefined, password: string | undefined): Promise<Result<Cookie>> {
     
-    const result = await getCookieLoginService(windows, { login: username, senha: password })
+    const result = await getCookieLoginService({ login: username, senha: password })
 
     if (result.success) {
         const encryptedPassword = encrypt(password)

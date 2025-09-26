@@ -5,7 +5,6 @@ import { HttpStatusCodes } from '@helpers/statusCode'
 import { loggedPostRequest } from '@utils/request/postRequest'
 import { Result } from '@models/result/result'
 import { getRequest } from '@utils/request/getRequest'
-import { iWindows } from '@models/windows/iWindows'
 
 export interface credential {
     login: string,
@@ -24,7 +23,7 @@ export async function login(cookie: string, credentials: credential = { login: p
     if (response.request.res.responseUrl === URL_LOGIN_FAIL_SISTEMFR) {
         return {
             success: false,
-            error: new LoginError("Dados não encontrados!", HttpStatusCodes.UNAUTHORIZED)
+            error: new LoginError("Login e/ou senha inválidos!", HttpStatusCodes.UNAUTHORIZED)
         }
     }
 
@@ -58,7 +57,7 @@ async function setCookieLoginForm(): Promise<Result<Cookie>> {
     }
 }
 
-export async function getCookieLoginService(windows: iWindows, credentials?: credential): Promise<Result<Cookie>> {
+export async function getCookieLoginService(credentials?: credential): Promise<Result<Cookie>> {
 
     const resultCookie = await setCookieLoginForm()
 

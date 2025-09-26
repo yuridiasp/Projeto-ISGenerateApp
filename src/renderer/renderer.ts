@@ -1,5 +1,6 @@
 import { iValidationReport } from "@models/validation/iValidationReport"
 import { credential } from "@services/login/loginService"
+import { iFileData } from "@services/validateIntimations/validateIntimationsService"
 
 const splitISInput: HTMLInputElement = document.querySelector('#splitIS')
 const buttonsDivSplit = document.querySelector('#splitBtnsOptions')
@@ -20,33 +21,76 @@ const btnConfirmSplitOptionsXlsx = document.querySelector("#btnConfirmSplitOptio
 const btnConfirmSplitOptionsDocx = document.querySelector("#btnConfirmSplitOptionsDocx")
 const btnCancelSplitOptions: HTMLButtonElement = document.querySelector("#btnCancelSplitOptions")
 
-export type fileData = {
-    fileName: string,
-    endereco: string,
-    tipo: string,
-    isXlsx?: boolean
+const operations = {
+    "validateIntimations": validateIntimations,
+    "intimationRegister": intimationRegister,
 }
 
-let argsSplit: fileData, argsValidate: fileData, argsRegister: fileData, credentials: credential, operation: string = null
+let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, credentials: credential, operation: keyof typeof operations
 
 // Defina uma interface para a API
 interface iAPI {
     openFileDialogForFile(): PromiseLike<{ filePaths: string; canceled: string }>
-    intimationRegister: (args: fileData, credentials: credential) => Promise<any>;
-    intimationValidate: (args: fileData, credentials: credential) => Promise<any>;
-    splitFileIs: (args: fileData) => Promise<any>;
+    intimationRegister: (args: iFileData, credentials: credential) => Promise<any>;
+    intimationValidate: (args: iFileData, credentials: credential) => Promise<any>;
+    splitFileIs: (args: iFileData) => Promise<any>;
     updateReportStatus: (report: any) => Promise<any>;
     enableButtonCloseReport: (args: any) => Promise<any>;
     abrirJanelaLogin: () => void;
     receiveCredentials: (receiveCredentials: any) => Promise<any>;
 }
   
-  // Estenda a interface Window para incluir a API
-  declare global {
+// Estenda a interface Window para incluir a API
+declare global {
     interface Window {
-      API: iAPI;
+        API: iAPI;
     }
-  }
+}
+
+async function intimationRegister () {
+    showLoader()
+    if (Object.keys(argsRegister).length) {
+        if(!credentials) {
+            operation = "intimationRegister"
+            window.API.abrirJanelaLogin()
+        } else {
+            const { data, success, error } = await window.API.intimationRegister(argsRegister, credentials)
+
+            if (success) {
+                console.log('Sucesso')
+                alert(data)
+            } else {
+                console.log('Erro')
+                alert(error.message)
+            }
+        }
+    }
+    else {
+        alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
+    }
+    hiddeLoader()
+    btnCancelRegistrationIS.click()
+}
+
+async function splitIS (typeDoc: { isXlsx: boolean }) {
+    showLoader()
+    if (Object.keys(argsSplit).length) {
+        const result = await window.API.splitFileIs({ ...argsSplit, ...typeDoc })
+
+        const { msg, value } = result
+        if (value) {
+            console.log('Sucesso')
+        } else {
+            console.log('Erro')
+        }
+        alert(msg)
+    }
+    else {
+        alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
+    }
+    hiddeLoader()
+    btnCancelSplitOptions.click()
+}
 
 async function validateIntimations() {
     hiddeContent()
@@ -57,14 +101,17 @@ async function validateIntimations() {
             operation = 'validateIntimations'
             window.API.abrirJanelaLogin()
         } else {
-            const { data, success } = await window.API.intimationValidate(argsValidate, credentials)
+            const { data, success, error } = await window.API.intimationValidate(argsValidate, credentials)
             
             if (success) {
                 console.log('Sucesso')
+                alert(data.message)
             } else {
-                console.log('Erro')
+                alert(error.message)
+                console.log('Erro', error)
             }
-            alert(data.message)
+
+            
         }
     }
     else {
@@ -73,20 +120,15 @@ async function validateIntimations() {
 }
 
 function resumeOperation () {
-    const operations = {
-        validateIntimations: validateIntimations
-    }
-
-    operations[operation as keyof typeof operations]()
+    return operations[operation]()
 }
 
-function createObjectArgs(filePaths: string) {
+function createObjectArgs(filePaths: string): iFileData {
     const pathArray = filePaths[0].split("\\")
     const nome = pathArray.pop()
     return {
         fileName: nome,
-        endereco: filePaths[0],
-        tipo: nome.split(".")[0]
+        filePath: filePaths[0],
     }
 }
 
@@ -220,45 +262,9 @@ splitISInput.addEventListener('click', async () => {
     }
 })
 
-btnConfirmSplitOptionsXlsx.addEventListener('click', async () => {
-    showLoader()
-    if (Object.keys(argsSplit).length) {
-        let result = await window.API.splitFileIs({ ...argsSplit, isXlsx: true })
+btnConfirmSplitOptionsXlsx.addEventListener('click', () => splitIS({ isXlsx: true }))
 
-        const { msg, value } = result
-        if (value) {
-            console.log('Sucesso')
-        } else {
-            console.log('Erro')
-        }
-        alert(msg)
-    }
-    else {
-        alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
-    }
-    hiddeLoader()
-    btnCancelSplitOptions.click()
-})
-
-btnConfirmSplitOptionsDocx.addEventListener('click', async () => {
-    showLoader()
-    if (Object.keys(argsSplit).length) {
-        let result = await window.API.splitFileIs({ ...argsSplit, isXlsx: false })
-
-        const { msg, value } = result
-        if (value) {
-            console.log('Sucesso')
-        } else {
-            console.log('Erro')
-        }
-        alert(msg)
-    }
-    else {
-        alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
-    }
-    hiddeLoader()
-    btnCancelSplitOptions.click()
-})
+btnConfirmSplitOptionsDocx.addEventListener('click', () => splitIS({ isXlsx: false }))
 
 btnCancelSplitOptions.addEventListener('click', () => {
     buttonsDivSplit.classList.remove('aparecer')
@@ -275,24 +281,7 @@ registrationISInput.addEventListener('click', async () => {
 
 })
 
-btnConfirmRegistrationIS.addEventListener('click', async () => {
-    showLoader()
-    if (Object.keys(argsRegister).length) {
-        const result = await window.API.intimationRegister(argsRegister, credentials)
-
-        if (result) {
-            console.log('Sucesso')
-        } else {
-            console.log('Erro')
-        }
-        alert(result)
-    }
-    else {
-        alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
-    }
-    hiddeLoader()
-    btnCancelRegistrationIS.click()
-})
+btnConfirmRegistrationIS.addEventListener('click', intimationRegister)
 
 btnCancelRegistrationIS.addEventListener('click', () => {
     buttonsDivRegistrationIS.classList.remove('aparecer')
@@ -318,7 +307,7 @@ window.API.updateReportStatus((report: iValidationReport) => {
     showReportContainer()
     hiddeContent()
     setReportFileName(argsValidate.fileName)
-    setReportFilePath(argsValidate.endereco)
+    setReportFilePath(argsValidate.filePath)
     insertReportValidation(report)
     //showReportCloseButtonReport()
 })
@@ -329,6 +318,5 @@ window.API.enableButtonCloseReport(() => {
 
 window.API.receiveCredentials((receivedCredentials: string) => {
     credentials = JSON.parse(receivedCredentials)
-    console.log(credentials)
     resumeOperation()
 })

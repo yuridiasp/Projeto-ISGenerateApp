@@ -41,10 +41,10 @@ function toValidSheetName(name: string) {
   return name.replace(/[:\\/?*\[\]]/g, " ").slice(0, 31) || "Planilha1";
 }
 
-export function writeExcelFileRepository({ data, filePath: { endereco, fileName  }, sheetName, prefix = ''}: iExcelFileDTO): Result<ResultWriteEFile> {
+export function writeExcelFileRepository({ data, filePath: { filePath, fileName  }, sheetName, prefix = ''}: iExcelFileDTO): Result<ResultWriteEFile> {
     
     if (data.length) {
-        const newFilePath = buildXlsxPath(endereco, fileName, prefix);
+        const newFilePath = buildXlsxPath(filePath, fileName, prefix);
         const safeSheetName = toValidSheetName(sheetName);
 
         const worksheet = XLSX.utils.json_to_sheet(data)

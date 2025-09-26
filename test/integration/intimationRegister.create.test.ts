@@ -1,10 +1,11 @@
 import dotEnv from 'dotenv'
 import { describe, expect, it, beforeAll } from '@jest/globals'
 
-import tiposTarefasMock from "../../../utils/tiposTarefasMock"
-import colaboradoresMock from "../../../utils/colaboradoresMock"
-import { createBodyForCreateTask } from "../../../../src/repositories/tarefas/index"
-import { loginService } from "../../../../src/services/auth/authService"
+import tiposTarefasMock from "../utils/tiposTarefasMock"
+import colaboradoresMock from "../utils/colaboradoresMock"
+import { createBodyForCreateTask } from "../../src/repositories/tarefas/index"
+import { login } from './utils/login'
+
 
 dotEnv.config()
 
@@ -12,14 +13,7 @@ describe('Criar tarefas de compromissos', () => {
 
     let cookie: string
 
-    beforeAll(async () => {
-        const { LOGIN, SENHA } = process.env
-        const result = await loginService(LOGIN, SENHA)
-
-        if(result.success) {
-            cookie = result.data.cookie
-        }
-    })
+    beforeAll(async () => { cookie = await login()})
 
     /* it("Criando tarefa avulsa", async () => {
         const response = await createTaskService({ cliente, cookie })
@@ -177,7 +171,7 @@ describe('Criar tarefas de compromissos', () => {
             }
         ]
 
-        const resultados = await createBodyForCreateTask({ cliente: clienteMock, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie })
+        const resultados = createBodyForCreateTask({ cliente: clienteMock, colaboradores: colaboradoresMock, tiposTarefas: tiposTarefasMock, cookie })
 
         resultados.forEach((resultado, index) => expect(resultado).toMatchObject(desiredBodyTask[index]))
     })

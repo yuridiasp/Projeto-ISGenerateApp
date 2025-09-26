@@ -1,13 +1,13 @@
 import { describe, expect, it, jest, beforeEach } from "@jest/globals"
 
 import { getSelectsTask } from "../../../../../src/services/seletores/seletoresService"
-import { createBodyForCreateTask } from "../../../../../src/repositories/tarefas/create/createBodyForCreateTask"
+import { createBodyForCreateTask } from "../../../../../src/repositories/tarefas/index"
 import { createTarefaRepository } from "../../../../../src/repositories/tarefas/create/createTarefaRepository"
-import { createTaskService } from '../../../../../src/services/tarefas/index'
+import { createTaskService } from '../../../../../src/services/tarefas/create/createTaskService'
 import { Cliente } from "../../../../../src/models/cliente/Cliente"
 import { seletores } from "../../../../../src/models/seletores/iSeletores"
 import { iCreateTarefa } from "../../../../../src/models/tarefa/iCreateTarefa"
-import { idTarefa } from "../../../../../src/services/tarefas/utils/isTarefaSuccessfullyCreated"
+import { objectID } from "../../../../../src/utils/request/successfulCreationRequestValidation"
 import { Result } from "../../../../../src/models/result/result"
 
 jest.mock("../../../../../src/services/seletores/seletoresService")
@@ -68,6 +68,12 @@ describe("Function createTaskService", () => {
             cidade: "",
             estado: "",
             vara: ""
+        },
+        excelDateToJsDate: function (excelDate: string): Date {
+            throw new Error("Function not implemented.")
+        },
+        excelDecimalToTime: function (excelDecimal: string): string {
+            throw new Error("Function not implemented.")
         }
     }
 
@@ -76,13 +82,13 @@ describe("Function createTaskService", () => {
     })
 
     it("Sucesso na criação da tarefa", async () => {
-        const fakePositiveResult: Result<idTarefa> = {
+        const fakePositiveResult: Result<objectID> = {
             success: true,
             data: { id: 'idFake' }
         }
 
         mockedGetSelectsTask.mockResolvedValue(seletoresFake)
-        mockedCreateBodyForCreateTask.mockResolvedValue(bodysFake)
+        mockedCreateBodyForCreateTask.mockResolvedValue(bodysFake as unknown as never)
         mockedCreateTarefaRepository.mockResolvedValue(fakePositiveResult)
 
         const resultado = await createTaskService(clienteFake, cookieFake)

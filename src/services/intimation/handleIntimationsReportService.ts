@@ -8,7 +8,7 @@ import { ValidationError } from "@models/errors/validationError"
 import { Result } from "@models/result/result"
 import { intimationValidateService } from "@services/intimation/intimationValidateService"
 
-type HandleIntimationsReportResult = { message: string; newFilePath: string }
+export type HandleIntimationsReportResult = { message: string; newFilePath: string }
 
 //TODO: Refatorar essa função e distribuir responsabilidades
 export async function handleIntimationsReportService (windows: iWindows, cookie: string, file: iFileData): Promise<Result<HandleIntimationsReportResult>> {
@@ -26,7 +26,7 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
     resultFile.data.file.forEach((intimation: iCompromissoFromFile) => {
         
         const response = intimationValidateService(intimation, cookie).then(result => {
-            updateViewReportValidation(result, windows)
+            updateViewReportValidation(result, windows.mainWindow)
             return result
         })
 
@@ -34,24 +34,24 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
     })
 
     const validations = await Promise.all(resultado).then(intimationsValidated => intimationsValidated.filter((intimation: { isRegistered: boolean }) => !intimation.isRegistered))
-    enableButtonCloseReport(windows)
+    enableButtonCloseReport(windows.mainWindow)
 
     const resultReport = generateValidationReport({ data: validations, file: file, prefix: 'RELATORIO-REGISTRO-INTIMACAO-' })
 
 
-    if (resultReport.success === false) {
+    if (resultReport.success === true) {
+        const pluralOrSingularForIntimacao = validations.length > 1 ? 'intimações' : 'intimação'
+        
+        const message =  `Encontrado ${validations.length} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${resultReport.data.newFilePath}`
+
         return {
-            success: false,
-            error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.')
+            success: true,
+            data: { message, newFilePath: resultReport.data.newFilePath }
         }
     }
 
-    const pluralOrSingularForIntimacao = validations.length > 1 ? 'intimações' : 'intimação'
-        
-    const message =  `Encontrado ${validations.length} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${resultReport.data.newFilePath}`
-
     return {
-        success: true,
-        data: { message, newFilePath: resultReport.data.newFilePath }
+        success: false,
+        error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.')
     }
 }

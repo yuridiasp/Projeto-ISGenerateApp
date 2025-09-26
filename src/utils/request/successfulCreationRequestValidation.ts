@@ -1,10 +1,12 @@
 import { AxiosResponse } from "axios"
 
 import { isSessionExpired } from "@utils/auth/checkSessionExpiration"
-import { SessionExpiredError } from "@models/errors/sessionExpiredError"
 import { Result } from "@models/result/result"
+import { UnknownError } from "@models/errors/unknownError"
 
-export function successfulCreationRequestValidation(response: AxiosResponse<any, any>, validURL: string, getIdFunction: (url: string) => string): Result<{id: string}> {
+export type objectID = { id: string }
+
+export function successfulCreationRequestValidation(response: AxiosResponse<any, any>, validURL: string, getIdFunction: (url: string) => string): Result<objectID> {
     const url = response.request.res.responseUrl
     console.log(url)
     if (url.includes(validURL)) {
@@ -25,6 +27,6 @@ export function successfulCreationRequestValidation(response: AxiosResponse<any,
 
     return {
         success: false,
-        error: new SessionExpiredError()
+        error: new UnknownError()
     }
 }

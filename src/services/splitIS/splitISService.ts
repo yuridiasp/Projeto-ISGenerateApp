@@ -2,15 +2,15 @@ import { splitISToExcel } from "@services/fileHandler/fileHandlerExcelService"
 import { splitISToWord } from "@services/fileHandler/fileHandlerWordService"
 import { iFileData } from "@services/validateIntimations/validateIntimationsService"
 
-export async function getObjectISService ({ endereco, fileName, isXlsx }: iFileData) {
+export async function getObjectISService ({ filePath, fileName, isXlsx }: iFileData) {
     let obj
     
-    if (endereco && fileName) {
+    if (filePath && fileName) {
         try {
             if (isXlsx)
-                obj = { msg: 'Arquivos gerados com sucesso! Acesse a pasta do arquivo original.',value: await splitISToExcel(endereco, fileName) }
+                obj = { msg: 'Arquivos gerados com sucesso! Acesse a pasta do arquivo original.',value: await splitISToExcel(filePath, fileName) }
             else
-                obj = { msg: 'Arquivos gerados com sucesso! Acesse a pasta do arquivo original.',value: await splitISToWord(endereco, fileName) }
+                obj = { msg: 'Arquivos gerados com sucesso! Acesse a pasta do arquivo original.',value: await splitISToWord(filePath, fileName) }
         } catch (error) {
             console.error(error)
             obj = { msg: 'Erro! ' + error, value: false }

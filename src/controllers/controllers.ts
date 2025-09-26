@@ -6,8 +6,8 @@ import { getObjectISService } from '@services/splitIS/splitISService'
 import { getDadosService, openPageGithubService } from '@services/appData/appData'
 import { credential, getCookieLoginService } from '@services/login/loginService'
 import { iFileData } from '@services/validateIntimations/validateIntimationsService'
-import { handleIntimationsReportService } from '@services/intimation/intimationReporter'
-import { handleIntimationsRegistrationService } from '@services/intimation/intimationRegister'
+import { handleIntimationsReportService } from '@services/intimation/handleIntimationsReportService'
+import { handleIntimationsRegistrationService } from '@services/intimation/handleIntimationsRegistrationService'
 import { executeWithLogin } from '@middlewares/executeWithLogin'
 import { closeLoginWindowService, createLoginWindowService } from '@services/windows/login/loginWindow'
 import { sendCredenctialsService } from '@services/auth/authService'
@@ -16,8 +16,8 @@ export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, window
     return openFileDialog(windows)
 }
 
-export async function loginController(windows: iWindows, credentials: credential) {
-    return await getCookieLoginService(windows, credentials)
+export async function loginController(credentials: credential) {
+    return await getCookieLoginService(credentials)
 }
 
 export function createSobreWindowController (windows: iWindows) {
@@ -56,9 +56,9 @@ export async function sendCredenctialsController (credentials: credential, windo
 }
 
 export async function intimationsRegisterController(event: Electron.IpcMainInvokeEvent, file: iFileData, credentials: credential, windows: iWindows) {
-    return executeWithLogin(event, windows, handleIntimationsRegistrationService, credentials, file)
+    return executeWithLogin(windows, handleIntimationsRegistrationService, credentials, file)
 }
 
 export async function intimationsReportController(event: Electron.IpcMainInvokeEvent, file: iFileData, credentials: credential, windows: iWindows) {
-    return executeWithLogin(event, windows, handleIntimationsReportService, credentials, file)
+    return executeWithLogin(windows, handleIntimationsReportService, credentials, file)
 }

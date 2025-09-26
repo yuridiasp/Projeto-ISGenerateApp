@@ -27,5 +27,5 @@ export async function setHandlers (windows: iWindows) {
     ipcMain.on('fechar-janela-login', () => closeLoginWindowController(windows))
     ipcMain.on('send-credencials-to-renderer', (event, credencials: credential) => sendCredenctialsController(credencials, windows))
     ipcMain.handle('open-file-dialog-for-file', (event) => openFileDialogForFile(event, windows))
-    ipcMain.handle('login-korbil', (event, credential: credential) => loginController(windows, credential))
+    ipcMain.handle('login-korbil', (event, credential: credential) => loginController(credential))
 }
