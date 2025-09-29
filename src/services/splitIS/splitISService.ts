@@ -2,7 +2,7 @@ import { splitISToExcel } from "@services/fileHandler/fileHandlerExcelService"
 import { splitISToWord } from "@services/fileHandler/fileHandlerWordService"
 import { iFileData } from "@services/validateIntimations/validateIntimationsService"
 
-export async function getObjectISService ({ filePath, fileName, isXlsx }: iFileData) {
+export async function splitISService ({ filePath, fileName, isXlsx }: iFileData) {
     let obj
     
     if (filePath && fileName) {

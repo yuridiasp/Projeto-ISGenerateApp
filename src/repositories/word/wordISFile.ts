@@ -6,7 +6,7 @@ import iconv from "iconv-lite";
 
 import { Result } from '@models/result/result';
 import { ValidationError } from '@models/errors/validationError';
-import { iCompromissoFromFile } from '@models/compromisso/iCompromissoFromFile';
+import { ISAnalysisDTO } from '@models/cliente/Cliente';
 
 type DocKind = "docx" | "html" | "unknown";
 
@@ -78,14 +78,26 @@ export async function getDocFromWord(endereco: string, fileName: string) {
   );
 }
 
-export async function readWordFile(endereco: string, fileName: string) {
-    // case_number, description, publication_date
-    let results: iCompromissoFromFile[] = [], object: iCompromissoFromFile = {
-        case_number: "",
-        description: "",
-        publication_date: "",
-        paragraph: ""
-    }, date = ""
+export async function readWordFile(endereco: string, fileName: string): Promise<ISAnalysisDTO[]> {
+    const resetObjectIS = (): ISAnalysisDTO => ({
+        case_number: null,
+        description: null,
+        publication_date: null,
+        related_case_number: null,
+        internal_deadline: null,
+        fatal_deadline: null,
+        time: null,
+        expert_or_defendant: null,
+        local_adress: null,
+        dataCliente: undefined,
+        dataProcesso: undefined,
+        executor: null,
+        separate_task: null,
+        justification: null,
+        paragraph: null,
+    })
+    
+    let results: ISAnalysisDTO[] = [], object: ISAnalysisDTO = resetObjectIS(), date = ""
     
     const doc = await getDocFromWord(endereco, fileName)
     
@@ -93,27 +105,64 @@ export async function readWordFile(endereco: string, fileName: string) {
     const regexCaseNumberOrigin = /\d{12,20}(?=\s\(ORIGEM)/
     const regexDescription = /\s[-–]\s([\w\W]+?)\s[-–]\s\(/
     const regexCasePublicationDate = /^(\d\d\/\d\d\/\d\d\d\d)/
+    const regexDefendant = /(?<=RÉU:\s)[\w\W]+(?=LOCAL:)/
+    const regexLocal = /(?<=LOCAL:\s)[\w\W]+/
+    const regexExpert = /(?<=PERITO:)[\w\W]+(?=LOCAL:)/
+    const regexInternalDeadline = /\d\d\/\d\d(?=\s[-–]\s\d\d\/\d\d)/
+    const regexFatalDeadline = /(?<=\d\d\/\d\d\s[-–]\s)\d\d\/\d\d/
+    const regexTime = /(?<=\d\d\/\d\d\sÀS\s)\d\d:\d\d/
+    const regexExecutor = /(?<=\d{12,20}\s(\(ORIGEM\s\d{12,20}\))?[-–]\s([\w\W]+?)\s[-–]\s(\(\d\d\/\d\d\s((ÀS\s\d\d:\d\d)|([-–]\s\d\d\/\d\d))\))\s[-–]\s)[\w\W]+((?=PERITO)|(?=RÉU))/
 
     doc.window.document.querySelectorAll("p").forEach(paragraph => {
         const hasOriginCaseNumber = regexCaseNumberOrigin.test(paragraph.textContent)
         if (regexCaseNumber.test(paragraph.textContent) || hasOriginCaseNumber) {
-            const caseNumber = hasOriginCaseNumber ? paragraph.textContent.match(/\(ORIGEM (\d{12,20})/) : paragraph.textContent.match(regexCaseNumber)
+            const defendant = paragraph.textContent.match(regexDefendant)
             const description = paragraph.textContent.match(regexDescription)
-            if(caseNumber)
-                object.case_number = hasOriginCaseNumber ? caseNumber[1] : caseNumber[0]
+            const local = paragraph.textContent.match(regexLocal)
+            const expert = paragraph.textContent.match(regexExpert)
+            const internalDeadline = paragraph.textContent.match(regexInternalDeadline)
+            const fatalDeadline = paragraph.textContent.match(regexFatalDeadline)
+            const time = paragraph.textContent.match(regexTime)
+            const executor = paragraph.textContent.match(regexExecutor)
+
+            if (hasOriginCaseNumber) {
+                const [ dependente, origem ] = paragraph.textContent.match(/\d{12,20}(?=\s\(ORIGEM (\d{12,20}))/)
+                object.case_number = origem
+                object.related_case_number = dependente
+            } else {
+                object.case_number = paragraph.textContent.match(regexCaseNumber)[0]
+            }
+
+            if(defendant)
+                object.expert_or_defendant = defendant[0]
+
+            if(local)
+                object.local_adress = local[0]
+
             if(description)
                 object.description = description[1]
+
+            if(expert)
+                object.expert_or_defendant = expert[0]
+
+            if(internalDeadline)
+                object.internal_deadline = internalDeadline[0]
+
+            if(fatalDeadline)
+                object.fatal_deadline = fatalDeadline[0]
+
+            if(time)
+                object.time = time[0]
+
+            if(executor)
+                object.executor = executor[0]
 
             object.publication_date = date
             object.paragraph = paragraph.textContent
 
             results.push({ ...object })
 
-            object = {
-                case_number: "",
-                description: "",
-                publication_date: ""
-            }
+            object = resetObjectIS()
         } else {
             const casePublicationDate = regexCasePublicationDate.test(paragraph.textContent)
             if(casePublicationDate)
@@ -179,15 +228,16 @@ export async function writeWordFileRepository(wordFileObjects: {
 
         const filePath = path.resolve(path.dirname(endereco), fileName +'.docx')
         console.log(`Iniciando escrita do arquivo ${fileName} no caminho ${filePath}`)
-        fs.writeFile(filePath, resultBuffer.data as Uint8Array, (error) => {
-            if (error) {
-                console.log('File ' + fileName +'.docx creation failed')
-                console.log("Erro:" + error)
-            } else {
-                console.log('File ' + fileName +'.docx created successfully')
-            }
-        })
+
+        try {
+            fs.writeFileSync(filePath, resultBuffer.data as Uint8Array)
+            console.log('File ' + fileName +'.docx created successfully')
+            return true
+        } catch (error) {
+            console.log('File ' + fileName +'.docx creation failed')
+            console.log("Erro:" + error)
+        }
         
-        return true
+        return false
     }))
 }

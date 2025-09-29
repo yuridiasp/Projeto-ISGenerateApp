@@ -3,6 +3,7 @@ import { Result } from "@models/result/result"
 import { readExcelFile } from "@repositories/xlsx/excelISFile"
 import { ValidationError } from "@models/errors/validationError"
 import { readWordFile } from "@repositories/word/wordISFile"
+import { ISAnalysisDTO } from "@models/cliente/Cliente"
 
 export interface iFileData {
     filePath: string,
@@ -10,7 +11,7 @@ export interface iFileData {
     isXlsx?: boolean
 }
 
-export async function getObjectValidateIntimationsService({ filePath, fileName }: iFileData): Promise<Result<{ file: unknown[] }>> {
+export async function getObjectValidateIntimationsService({ filePath, fileName }: iFileData): Promise<Result<{ file: ISAnalysisDTO[] }>> {
     // Excel: .xls, .xlsx, .xlsm, .csv
     // Word: .doc, .docx, .dot, .dotx
     const regexToWordFile = /\.(doc|docx|dot|dotx)$/
@@ -22,7 +23,7 @@ export async function getObjectValidateIntimationsService({ filePath, fileName }
                 const resulstXLSX = readExcelFile(filePath)
                 return { success: true, data: { file: resulstXLSX  } }
             } else if (regexToWordFile.test(filePath))
-                return { success: true, data: { file: await readWordFile(filePath, fileName) as unknown as unknown[] } }
+                return { success: true, data: { file: await readWordFile(filePath, fileName) } }
             return { success: false, error: new ValidationError('Tipo de arquivo inválido.') }
         } catch (error) {
             return { success: false, error: new FileError(error) }

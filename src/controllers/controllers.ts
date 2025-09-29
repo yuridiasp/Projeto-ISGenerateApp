@@ -2,7 +2,7 @@ import { iWindows } from '@models/windows/iWindows'
 import { openFileDialog } from '@infrastructure/dialog/openFile'
 import { closeSobreWindowService, createSobreWindowService } from '@services/windows/sobre/sobreWindow'
 import { createMainWindowService } from '@services/windows/main/mainWindow'
-import { getObjectISService } from '@services/splitIS/splitISService'
+import { splitISService } from '@services/splitIS/splitISService'
 import { getDadosService, openPageGithubService } from '@services/appData/appData'
 import { credential, getCookieLoginService } from '@services/login/loginService'
 import { iFileData } from '@services/validateIntimations/validateIntimationsService'
@@ -49,7 +49,7 @@ export function closeLoginWindowController (windows: iWindows) {
 }
 
 export async function splitISController (event: Electron.IpcMainInvokeEvent, file: iFileData) {
-    return getObjectISService(file)
+    return splitISService(file)
 }
 export async function sendCredenctialsController (credentials: credential, windows: iWindows) {
     return sendCredenctialsService(credentials, windows)

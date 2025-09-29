@@ -146,10 +146,11 @@ function initAndSetIs(lista: NodeListOf<Element>) {
 }
 
 export async function splitISToWord (endereco: string, fileName: string) {
+    //TODO: Implementar tratamento de erros
     const doc = await getDocFromWord(endereco, fileName)
     
     const lista = doc.window.document.querySelectorAll("body > div > p")
-    let concluido = false
+    let concluido = true
     const date = doc.window.document.querySelector("body > div > p:nth-child(2) > table > tbody > tr:nth-child(1) > td:nth-child(2)")?.innerHTML.replace('Data Publicação:\n<br><strong>','').replace('</strong>','').replace(/\//g,'')
     let { prevResult, trtResult, civResult, jfResult } = initAndSetIs(lista)
     
@@ -190,7 +191,10 @@ export async function splitISToWord (endereco: string, fileName: string) {
         fileBuffer: await fileBuffer
     })))
 
-    await writeWordFileRepository(wordFileObject, endereco, fileName)
+    const resultados = await writeWordFileRepository(wordFileObject, endereco, fileName) 
+
+    if(resultados.some(resultado => !resultado))
+        concluido = false
 
     return concluido
 }

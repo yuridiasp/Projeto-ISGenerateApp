@@ -5,16 +5,16 @@ import dotEnv from 'dotenv'
 import { getCadastroProcessoService } from '@services/processos/index'
 import { loggedPostRequest } from '@utils/request/postRequest'
 import { iValidationReport } from "@models/validation/iValidationReport"
-import { iCompromissoFromFile } from "@models/compromisso/iCompromissoFromFile"
+import { ISAnalysisDTO } from "@models/cliente/Cliente"
 
 dotEnv.config()
 
 //TODO: Refatorar essa função
-export async function intimationValidateService({ processo, case_number, description, publicacao, publication_date, expediente, paragraph }: iCompromissoFromFile, cookie: string): Promise<iValidationReport> {
+export async function intimationValidateService({ case_number, description, publication_date, paragraph }: ISAnalysisDTO, cookie: string): Promise<iValidationReport> {
     //console.log(processo, case_number, description, publicacao, publication_date, expediente)
     let isRegistered = false, reason = null
-    const processValue = processo || case_number
-    const dataCadastro = publicacao || publication_date || expediente?.split(' ')[0]
+    const processValue = case_number
+    const dataCadastro = publication_date
     const { URL_COMPROMISSOS_SISTEMFR } = process.env
     const body = {
         bsAdvCompromissos: 's',

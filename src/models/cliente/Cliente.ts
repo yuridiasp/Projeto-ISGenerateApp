@@ -16,7 +16,8 @@ export interface ISAnalysisDTO {
     dataProcesso: iProcesso;
     executor: string;
     separate_task: string;
-    justification: string
+    justification: string;
+    paragraph?: string;
 }
 
 export class Cliente {

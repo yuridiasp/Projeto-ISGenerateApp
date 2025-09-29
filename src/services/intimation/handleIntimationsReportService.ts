@@ -1,12 +1,12 @@
 import { iWindows } from "@models/windows/iWindows"
 import { generateValidationReport } from "@infrastructure/reportGenerator/reportGenerator"
-import { iCompromissoFromFile } from "@models/compromisso/iCompromissoFromFile"
 import { iValidationReport } from "@models/validation/iValidationReport"
 import { updateViewReportValidation, enableButtonCloseReport } from "@utils/viewHelpers/viewHelpers"
 import { getObjectValidateIntimationsService, iFileData } from "@services/validateIntimations/validateIntimationsService"
 import { ValidationError } from "@models/errors/validationError"
 import { Result } from "@models/result/result"
 import { intimationValidateService } from "@services/intimation/intimationValidateService"
+import { ISAnalysisDTO } from "@models/cliente/Cliente"
 
 export type HandleIntimationsReportResult = { message: string; newFilePath: string }
 
@@ -23,7 +23,7 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
         }
     }
 
-    resultFile.data.file.forEach((intimation: iCompromissoFromFile) => {
+    resultFile.data.file.forEach((intimation: ISAnalysisDTO) => {
         
         const response = intimationValidateService(intimation, cookie).then(result => {
             updateViewReportValidation(result, windows.mainWindow)
