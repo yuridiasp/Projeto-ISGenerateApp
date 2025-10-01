@@ -1,10 +1,10 @@
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes/Cliente"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
 export function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente, tarefas: string[], indexTarefa: number) {
     const { tipoCompromisso, semanas, quantidadeTarefas } = cliente.compromisso,
         { estado } = cliente.processo
-    console.log(cliente.compromisso)
+    
     const hasTwoTasks = {
             outros: ["EMENDAR","DADOS PERICIA SOCIAL","DADOS COMPLEMENTARES"],
             calculo: ["MANIFESTACAO SOBRE CALCULOS", "MANIFESTACAO SOBRE CALCULO", 'PLANILHA'],

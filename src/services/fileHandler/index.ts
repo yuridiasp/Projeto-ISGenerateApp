@@ -1,3 +1,5 @@
 export * from '@services/fileHandler/utils/isPrev'
 export * from '@services/fileHandler/utils/isTRT'
 export * from '@services/fileHandler/utils/isJF'
+export * from '@services/fileHandler/fileHandlerExcelService'
+export * from '@services/fileHandler/fileHandlerWordService'

@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 
-import { Result } from '../../models/result/result'
-import { NotFoundError } from '../../models/errors/notFoundError'
+import { Result } from '@models/results'
+import { NotFoundError } from '@models/errors'
 
 const credentialsFilePath = path.join(__dirname, '..', '..', '..', 'data', 'credentials.json')
 

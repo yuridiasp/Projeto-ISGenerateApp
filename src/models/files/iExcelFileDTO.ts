@@ -1,4 +1,4 @@
-import { iFileData } from "@services/validateIntimations/validateIntimationsService"
+import { iFileData } from "@services/validateIntimations"
 
 export interface iExcelFileDTO {
     data: object[]

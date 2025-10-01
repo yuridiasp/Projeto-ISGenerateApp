@@ -1,7 +1,7 @@
-import { iCreateTarefa } from "@models/tarefa/iCreateTarefa";
-import { Cliente } from "@models/cliente/Cliente";
-import { iColaborador } from "@models/colaborador/iColaborador";
-import { seletores } from "@models/seletores/iSeletores";
+import { iCreateTarefa } from "@models/tarefas"
+import { Cliente } from "@models/clientes"
+import { iColaborador } from "@models/colaboradores"
+import { seletores } from "@models/seletores"
 
 interface createBodyForCreateTaskDTO {
     cliente: Cliente

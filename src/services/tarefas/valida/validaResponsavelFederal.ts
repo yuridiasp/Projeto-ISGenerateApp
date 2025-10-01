@@ -1,4 +1,4 @@
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes/Cliente"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 import { validaResponsavelDTO } from "@services/tarefas/index"
 

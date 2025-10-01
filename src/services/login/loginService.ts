@@ -3,7 +3,7 @@ require('dotenv').config()
 import { LoginError } from '@models/errors/LoginError'
 import { HttpStatusCodes } from '@helpers/statusCode'
 import { loggedPostRequest } from '@utils/request/postRequest'
-import { Result } from '@models/result/result'
+import { Result } from '@models/results/result'
 import { getRequest } from '@utils/request/getRequest'
 
 export interface credential {
@@ -43,6 +43,13 @@ export async function login(cookie: string, credentials: credential = { login: p
 async function setCookieLoginForm(): Promise<Result<Cookie>> {
     try {
         const response = await getRequest(process.env.URL_FORM_LOGIN_SISTEMFR)
+
+        if (response.request.res.responseUrl !== process.env.URL_FORM_LOGIN_SISTEMFR) {
+            return {
+                success: false,
+                error: new LoginError("", HttpStatusCodes.BAD_REQUEST)
+            }
+        }
 
         return {
             success: true,

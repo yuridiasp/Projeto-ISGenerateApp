@@ -1,5 +1,5 @@
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes/Cliente"
 import { validaEsferaProcesso, validaExecutorContatar, validaResponsavelTj, validaResponsavelFederal } from "@services/tarefas/index"
 
 export async function getResponsavelExecutor(tarefa: string, cliente: Cliente, cookie: string, dataParaFinalizacao: Date) {

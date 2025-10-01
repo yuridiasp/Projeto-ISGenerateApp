@@ -1,8 +1,7 @@
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
-export function validaTipoCompromisso(descriptionCompromisso: string, cliente: Cliente) {
-    const { cidade, estado } = cliente.processo
+export function validaTipoCompromisso(descriptionCompromisso: string, cidade: string, estado: string) {
     const descriptionCompromissoNormalizado = removeAcentuacaoString(descriptionCompromisso)
     const pauta = ["PAUTA", "RETIRADO DE PAUTA"]
     const emendar = ["DADOS PERICIA SOCIAL", "DADOS COMPLEMENTARES", "EMENDA", "EMENDA A INICIAL", "EMENDAR A INICIAL", "EMENDAR"]

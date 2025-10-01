@@ -1,8 +1,8 @@
-import { Result } from '@models/result/result';
-import { storeCredentials, retrieveCredentials } from '@repositories/auth/authRepository';
-import { encrypt, decrypt } from '@utils/crypto/cryptoUtils';
-import { Cookie, credential, getCookieLoginService } from '@services/login/loginService';
-import { iWindows } from '@models/windows/iWindows';
+import { Result } from '@models/results/result'
+import { storeCredentials, retrieveCredentials } from '@repositories/auth/authRepository'
+import { encrypt, decrypt } from '@utils/crypto/cryptoUtils'
+import { Cookie, credential, getCookieLoginService } from '@services/login'
+import { iWindows } from '@models/windows'
 
 export async function loginService(username: string | undefined, password: string | undefined): Promise<Result<Cookie>> {
     

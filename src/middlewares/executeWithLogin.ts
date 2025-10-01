@@ -1,11 +1,11 @@
-import { Result } from "@models/result/result"
+import { Result } from "@models/results/result"
 import { iWindows } from "@models/windows/iWindows"
+import { tHandleIntimation } from "@services/intimation/handleIntimationsRegistrationService";
 import { HandleIntimationsReportResult } from "@services/intimation/handleIntimationsReportService";
-import { credential, getCookieLoginService } from "@services/login/loginService"
-import { tResultCreateService } from "@services/tarefas";
+import { credential, getCookieLoginService } from "@services/login"
 import { iFileData } from "@services/validateIntimations/validateIntimationsService"
 
-export type tActionReturn = Promise<Result<tResultCreateService[]>> | Promise<Result<HandleIntimationsReportResult>>
+export type tActionReturn = Promise<Result<tHandleIntimation>> | Promise<Result<HandleIntimationsReportResult>>
 
 export async function executeWithLogin(
     window: iWindows,

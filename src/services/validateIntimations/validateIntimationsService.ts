@@ -1,9 +1,9 @@
 import { FileError } from "@models/errors/fileError"
-import { Result } from "@models/result/result"
+import { Result } from "@models/results/result"
 import { readExcelFile } from "@repositories/xlsx/excelISFile"
 import { ValidationError } from "@models/errors/validationError"
 import { readWordFile } from "@repositories/word/wordISFile"
-import { ISAnalysisDTO } from "@models/cliente/Cliente"
+import { ISAnalysisDTO } from "@models/clientes/Cliente"
 
 export interface iFileData {
     filePath: string,

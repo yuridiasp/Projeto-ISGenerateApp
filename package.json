@@ -5,11 +5,11 @@
   "main": "dist/src/main.js",
   "scripts": {
     "clean": "rimraf dist",
-    "test": "dotenvx run -f .env.test -- npm run build && jest",
-    "test:watch": "dotenvx run -f .env.test -- npm run build && jest --watchAll --detectOpenHandles",
-    "test:register": "dotenvx run -f .env.test -- npx jest test/integration/intimationRegister.create.test.ts",
-    "test:report": "dotenvx run -f .env.test -- npx jest test/integration/intimationReporter.validateIntimation.test.ts",
-    "test:split": "dotenvx run -f .env.test -- npx jest test/integration/splitIS.test.ts",
+    "test": "dotenvx run -f .env.test --quiet -- jest",
+    "test:watch": "dotenvx run -f .env.test --quiet -- jest --watchAll --detectOpenHandles",
+    "test:register": "dotenvx run -f .env.test --quiet -- npx jest test/integration/intimationRegister.create.test.ts",
+    "test:report": "dotenvx run -f .env.test --quiet -- npx jest test/integration/intimationReporter.validateIntimation.test.ts",
+    "test:split": "dotenvx run -f .env.test --quiet -- npx jest test/integration/splitIS.test.ts",
     "build": "npm run clean && babel src --extensions \".ts,.tsx,.js\" --out-dir dist/src --source-maps inline",
     "start": "npm run build && electron .",
     "package": "cross-env NODE_ENV=production npm run build && electron-forge package",
@@ -31,7 +31,8 @@
     "pdf2json": "^3.1.4",
     "pizzip": "^3.1.7",
     "update-electron-app": "^3.1.1",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "xlsx-js-style": "^1.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.3",
@@ -39,7 +40,7 @@
     "@babel/preset-env": "^7.25.7",
     "@babel/preset-typescript": "^7.25.7",
     "@dotenvx/dotenvx": "^1.51.0",
-    "@electron-forge/cli": "^7.4.0",
+    "@electron-forge/cli": "^7.9.0",
     "@electron-forge/maker-deb": "^7.9.0",
     "@electron-forge/maker-rpm": "^7.9.0",
     "@electron-forge/maker-squirrel": "^7.9.0",

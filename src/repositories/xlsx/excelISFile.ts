@@ -1,10 +1,10 @@
 import XLSX from 'xlsx'
 
-import { buildXlsxPath } from '../../utils/directory/directory'
-import { iExcelFileDTO } from '../../models/file/iExcelFileDTO'
-import { Result } from '../../models/result/result'
-import { ValidationError } from '../../models/errors/validationError'
-import { ISAnalysisDTO } from '@models/cliente/Cliente'
+import { buildXlsxPath } from '@utils/directory/directory'
+import { iExcelFileDTO } from '@models/files'
+import { Result } from '@models/results'
+import { ValidationError } from '@models/errors'
+import { ISAnalysisDTO } from '@models/clientes'
 
 type ResultWriteEFile = {
     newFilePath?: string,

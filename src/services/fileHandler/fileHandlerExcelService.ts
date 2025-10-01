@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import jsdom from "jsdom"
 import { writeExcelFileRepository } from '@repositories/xlsx/excelISFile'
-import { isJF, isPrev, isTRT } from '@services/fileHandler/index'
+import { isJF, isPrev, isTRT } from '@services/fileHandler'
 
 function initAndSetIs(lista: NodeListOf<Element>) {
 
@@ -82,11 +82,11 @@ function initAndSetIs(lista: NodeListOf<Element>) {
     return { prev, trt, civ, jf }
 }
 
-export async function splitISToExcel (endereco: string, fileName: string) {
+export async function splitISToExcel (filePath: string, fileName: string) {
     console.log('Processo de extracao iniciado...')
-    const caminho = path.resolve(endereco.replace(new RegExp("\\" + fileName, "g"),""))
+    const caminho = path.resolve(filePath.replace(new RegExp("\\" + fileName, "g"),""))
     console.log(`Caminho: ${caminho}`)
-    const data = fs.readFileSync(endereco, {encoding:'latin1', flag:'r'})
+    const data = fs.readFileSync(filePath, {encoding:'latin1', flag:'r'})
     console.log(`Realizado leitura do arquivo ${fileName} no caminho ${caminho}...`)
     const doc = new jsdom.JSDOM(data)
     console.log("Convertido binarios em documento html...")
@@ -100,7 +100,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
 
         console.log(`Iniciando criacao do documento xlsx ${prevFileName}`)
 
-        const resultPrev = writeExcelFileRepository({ data: prev, filePath: { endereco, fileName: `${prevFileName}.xlsx` }, sheetName: prevFileName })
+        const resultPrev = writeExcelFileRepository({ data: prev, filePath: { filePath, fileName: `${prevFileName}.xlsx` }, sheetName: prevFileName })
         
         if (resultPrev.success === true) {
             console.log(`File ${prevFileName}.xlsx created successfully`)
@@ -114,7 +114,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
         
         console.log(`Iniciando criacao do documento xlsx ${civFileName}`)
 
-        const resultCiv = writeExcelFileRepository({ data: civ, filePath: { endereco, fileName: `${civFileName}.xlsx` }, sheetName: civFileName })
+        const resultCiv = writeExcelFileRepository({ data: civ, filePath: { filePath, fileName: `${civFileName}.xlsx` }, sheetName: civFileName })
         
         if (resultCiv.success === true) {
             console.log(`File ${civFileName}.xlsx created successfully`)
@@ -128,7 +128,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
         
         console.log(`Iniciando criacao do documento xlsx ${trtFileName}`)
 
-        const resultTrt = writeExcelFileRepository({ data: trt, filePath: { endereco, fileName: `${trtFileName}.xlsx` }, sheetName: trtFileName })
+        const resultTrt = writeExcelFileRepository({ data: trt, filePath: { filePath, fileName: `${trtFileName}.xlsx` }, sheetName: trtFileName })
         
         if (resultTrt.success === true) {
             console.log(`File ${trtFileName}.xlsx created successfully`)
@@ -142,7 +142,7 @@ export async function splitISToExcel (endereco: string, fileName: string) {
         
         console.log(`Iniciando criacao do documento xlsx ${jfFileName}`)
 
-        const resultJF = writeExcelFileRepository({ data: jf, filePath: { endereco, fileName: `${jfFileName}.xlsx` }, sheetName: jfFileName })
+        const resultJF = writeExcelFileRepository({ data: jf, filePath: { filePath, fileName: `${jfFileName}.xlsx` }, sheetName: jfFileName })
         
         if (resultJF.success === true) {
             console.log(`File ${jfFileName}.xlsx created successfully`)

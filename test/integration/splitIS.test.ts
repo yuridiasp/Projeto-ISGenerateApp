@@ -16,13 +16,9 @@ describe("Dividir arquivos de IS por natureza a partir de um único arquivo de I
                 if(fileExists) {
                     try {
                         fs.unlinkSync(fileData.filePath)
-                        console.log("Arquivo removido!")
                     } catch (error) {
                         console.log("Erro ao remover arquivo: ", error)
                     }
-                } else {
-                    console.log("Arquivo não encontrado.")
-                    console.log("Caminho: ", fileData.filePath)
                 }
             })
         })

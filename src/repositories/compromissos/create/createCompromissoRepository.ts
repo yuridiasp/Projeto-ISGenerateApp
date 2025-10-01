@@ -1,7 +1,7 @@
 import dotEnv from "dotenv"
 
-import { loggedPostRequest } from "../../../utils/request/postRequest"
-import { iCompromissoBody } from "../../../models/compromisso/iCompromissoBody"
+import { loggedPostRequest } from "@utils/request/postRequest"
+import { iCompromissoBody } from "@models/compromissos"
 
 dotEnv.config()
 

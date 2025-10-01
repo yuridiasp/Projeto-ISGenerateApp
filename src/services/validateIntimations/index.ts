@@ -1,0 +1,1 @@
+export * from '@services/validateIntimations/validateIntimationsService'

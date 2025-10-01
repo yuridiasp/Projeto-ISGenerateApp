@@ -1,4 +1,4 @@
-import { Holiday } from "@models/feriado/Holiday"
+import { Holiday } from "@models/feriados/Holiday"
 
 type datasFixas = {
     nacional: Holiday[]

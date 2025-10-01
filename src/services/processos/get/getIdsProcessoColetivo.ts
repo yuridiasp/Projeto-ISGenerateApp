@@ -1,7 +1,7 @@
 import { loggedGetRequest } from "@utils/request/getRequest"
-import { extrairDadosRequisicaoProcessoColetivoDemaisEnvolvidosHtml } from "@services/processos/index"
-import { iProcesso } from "@models/processo/iProcesso"
-import { getIdClienteByCPF } from "@services/clientes/get/getClienteService"
+import { extrairDadosRequisicaoProcessoColetivoDemaisEnvolvidosHtml } from "@services/processos"
+import { iProcesso } from "@models/processos"
+import { getIdClienteByCPF } from "@services/clientes"
 
 export async function getIdsProcessoColetivo (cookie: string, dataProcesso: { idCliente: string, processo: iProcesso }) {
     const { URL_GET_DEMAIS_ENVOLVIDOS_COLETIVO } = process.env

@@ -2,13 +2,13 @@ import path from 'path'
 import fs from 'fs'
 import mammoth from 'mammoth'
 import { JSDOM } from "jsdom"
-import iconv from "iconv-lite";
+import iconv from "iconv-lite"
 
-import { Result } from '@models/result/result';
-import { ValidationError } from '@models/errors/validationError';
-import { ISAnalysisDTO } from '@models/cliente/Cliente';
+import { Result } from '@models/results'
+import { ValidationError } from '@models/errors'
+import { ISAnalysisDTO } from '@models/clientes'
 
-type DocKind = "docx" | "html" | "unknown";
+type DocKind = "docx" | "html" | "unknown"
 
 function detectDocKind(buf: Buffer): DocKind {
   // DOCX é um ZIP: 50 4B 03 04 (ou 50 4B 05 06 / 50 4B 07 08)
@@ -47,16 +47,13 @@ function detectHtmlCharset(htmlHead: string): string {
 }
 
 export async function getDocFromWord(endereco: string, fileName: string) {
-  console.log("Processo de extracao iniciado...");
 
   const caminho = path.resolve(endereco.replace(new RegExp("\\" + fileName, "g"), ""));
-  console.log(`Caminho: ${caminho}`);
 
   // Leia como Buffer SEM encoding para detectar corretamente
   const buf = fs.readFileSync(endereco);
 
   const kind = detectDocKind(buf);
-  console.log(`Tipo detectado: ${kind}`);
 
   if (kind === "docx") {
     // Fluxo DOCX → mammoth
@@ -103,16 +100,16 @@ export async function readWordFile(endereco: string, fileName: string): Promise<
     
     const regexCaseNumber = /\d{12,20}(?=\s(\-|\–)\s)/
     const regexCaseNumberOrigin = /\d{12,20}(?=\s\(ORIGEM)/
-    const regexDescription = /\s[-–]\s([\w\W]+?)\s[-–]\s\(/
-    const regexCasePublicationDate = /^(\d\d\/\d\d\/\d\d\d\d)/
-    const regexDefendant = /(?<=RÉU:\s)[\w\W]+(?=LOCAL:)/
-    const regexLocal = /(?<=LOCAL:\s)[\w\W]+/
-    const regexExpert = /(?<=PERITO:)[\w\W]+(?=LOCAL:)/
-    const regexInternalDeadline = /\d\d\/\d\d(?=\s[-–]\s\d\d\/\d\d)/
-    const regexFatalDeadline = /(?<=\d\d\/\d\d\s[-–]\s)\d\d\/\d\d/
+    const regexDescription = /\s[-–]\s(.+?)\s[-–]\s\(/
+    const regexCasePublicationDate = /^(\d\d\/\d\d\/\d{4})/
+    const regexDefendant = /(?<=RÉU:\s)(.+?)(?=LOCAL:)/
+    const regexLocal = /(?<=LOCAL:\s)([\w\W]+)$/
+    const regexExpert = /(?<=PERITO:)(.+?)(?=LOCAL:)/
+    const regexInternalDeadline = /\d\d\/\d\d\/\d{4}(?=\s[-–]\s\d\d\/\d\d\/\d{4})/
+    const regexFatalDeadline = /(?<=\d\d\/\d\d\/\d{4}\s[-–]\s)\d\d\/\d\d\/\d{4}/
     const regexTime = /(?<=\d\d\/\d\d\sÀS\s)\d\d:\d\d/
-    const regexExecutor = /(?<=\d{12,20}\s(\(ORIGEM\s\d{12,20}\))?[-–]\s([\w\W]+?)\s[-–]\s(\(\d\d\/\d\d\s((ÀS\s\d\d:\d\d)|([-–]\s\d\d\/\d\d))\))\s[-–]\s)[\w\W]+((?=PERITO)|(?=RÉU))/
-
+    const regexExecutor = /(?<=\d{12,20}\s(\(ORIGEM\s\d{12,20}\)\s)?[-–]\s(.+?)\s[-–]\s(\(\d\d\/\d\d\/\d{4}\s((ÀS\s\d\d:\d\d)|([-–]\s\d\d\/\d\d\/\d{4}))\))\s[-–]\s)(.*?)(?=(?:PERITO:|RÉU:|$))/
+    
     doc.window.document.querySelectorAll("p").forEach(paragraph => {
         const hasOriginCaseNumber = regexCaseNumberOrigin.test(paragraph.textContent)
         if (regexCaseNumber.test(paragraph.textContent) || hasOriginCaseNumber) {
@@ -127,35 +124,35 @@ export async function readWordFile(endereco: string, fileName: string): Promise<
 
             if (hasOriginCaseNumber) {
                 const [ dependente, origem ] = paragraph.textContent.match(/\d{12,20}(?=\s\(ORIGEM (\d{12,20}))/)
-                object.case_number = origem
-                object.related_case_number = dependente
+                object.case_number = origem?.trim()
+                object.related_case_number = dependente?.trim()
             } else {
-                object.case_number = paragraph.textContent.match(regexCaseNumber)[0]
+                object.case_number = paragraph.textContent.match(regexCaseNumber)[0]?.trim()
             }
 
             if(defendant)
-                object.expert_or_defendant = defendant[0]
+                object.expert_or_defendant = defendant[0]?.trim()
 
             if(local)
-                object.local_adress = local[0]
+                object.local_adress = local[0]?.trim()
 
             if(description)
-                object.description = description[1]
+                object.description = description[1]?.trim()
 
             if(expert)
-                object.expert_or_defendant = expert[0]
+                object.expert_or_defendant = expert[0]?.trim()
 
             if(internalDeadline)
-                object.internal_deadline = internalDeadline[0]
+                object.internal_deadline = internalDeadline[0]?.trim()
 
             if(fatalDeadline)
-                object.fatal_deadline = fatalDeadline[0]
+                object.fatal_deadline = fatalDeadline[0]?.trim()
 
             if(time)
-                object.time = time[0]
+                object.time = time[0]?.trim()
 
             if(executor)
-                object.executor = executor[0]
+                object.executor = executor[0]?.trim()
 
             object.publication_date = date
             object.paragraph = paragraph.textContent
@@ -227,11 +224,9 @@ export async function writeWordFileRepository(wordFileObjects: {
         }
 
         const filePath = path.resolve(path.dirname(endereco), fileName +'.docx')
-        console.log(`Iniciando escrita do arquivo ${fileName} no caminho ${filePath}`)
 
         try {
             fs.writeFileSync(filePath, resultBuffer.data as Uint8Array)
-            console.log('File ' + fileName +'.docx created successfully')
             return true
         } catch (error) {
             console.log('File ' + fileName +'.docx creation failed')

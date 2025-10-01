@@ -8,8 +8,10 @@ import { login } from './utils/login'
 import { ValidationError } from '../../src/models/errors/validationError'
 import { getFileData } from './utils/getFileData'
 
+const timeout = 10000
+
 describe("Validar cadastro de intimações a partir de um documento Word", () => {
-    const files = ["TRT15092025", "PREV26092025"]
+    const files = ["PREV30092025", "PREV30092025 - Cadastrados"]
     const send = jest.fn();
     const windows: iWindows = {
         mainWindow: { webContents: { send } } as any,
@@ -19,7 +21,7 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
 
     let cookie: string
     
-    beforeAll(async () => { jest.clearAllMocks(); cookie = await login() })
+    beforeAll(async () => { jest.clearAllMocks(); cookie = await login() }, timeout)
 
     afterAll(() => {
         files.forEach(file => {
@@ -30,13 +32,9 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
             if(fileExists) {
                 try {
                     fs.unlinkSync(filePath)
-                    console.log("Arquivo removido!")
                 } catch (error) {
                     console.log("Erro ao remover arquivo: ", error)
                 }
-            } else {
-                console.log("Arquivo não encontrado.")
-                console.log("Caminho: ", filePath)
             }
         })
     })
@@ -53,11 +51,11 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
         expect(result).toEqual({
             success: true,
             data: {
-                message: 'Encontrado 1 intimação sem cadastro. Exportado relatório no caminho: C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RELATORIO-REGISTRO-INTIMACAO-TRT15092025.xlsx',     
-                newFilePath: 'C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RELATORIO-REGISTRO-INTIMACAO-TRT15092025.xlsx'
+                message: 'Encontrado 5 intimações sem cadastro. Exportado relatório no caminho: C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RELATORIO-REGISTRO-INTIMACAO-PREV30092025.xlsx',     
+                newFilePath: 'C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RELATORIO-REGISTRO-INTIMACAO-PREV30092025.xlsx'
             }
         })
-    }, 10000)
+    }, timeout)
 
     it("Arquivo com todas as intimações lançadas", async () => {
         const [ fileNameReport, fileData ] = getFileData(files[1])

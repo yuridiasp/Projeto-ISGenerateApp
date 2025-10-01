@@ -1,23 +1,33 @@
-import { validaTipoCompromisso } from "@utils/compromissos/validarTipoCompromisso"
-import { getProcessoService } from "@services/processos/index"
-import { getClienteByID } from "@services/clientes/get/getClienteService"
-import { Cliente, ISAnalysisDTO } from "@models/cliente/Cliente"
+import { getProcessoService } from "@services/processos"
+import { getClienteByID } from "@services/clientes"
+import { Cliente, ISAnalysisDTO } from "@models/clientes"
+import { Result } from "@models/results"
 
-export async function createClienteService(ISAnalysis: ISAnalysisDTO, cookie: string) {
+export async function createClienteService(ISAnalysis: ISAnalysisDTO, cookie: string): Promise<Result<{ cliente: Cliente}>> {
     const result = await getProcessoService({ processo: ISAnalysis.case_number.replaceAll("'",""), cookie })
     
     if(result.success === false) {
-        //TODO: Construir caso de falha
-        return
+        return {
+            success: false,
+            error: result.error
+        }
     }
 
     const { idCliente, processo } = result.data
     
-    const cliente = await getClienteByID(idCliente, cookie)
+    const resultCliente = await getClienteByID(idCliente, cookie)
 
-    const newCliente = new Cliente(ISAnalysis, cliente, processo)
-    console.log(newCliente)
-    newCliente.compromisso.tipoCompromisso = validaTipoCompromisso(newCliente, ISAnalysis.description)
+    if(resultCliente.success === false) {
+        return {
+            success: false,
+            error: resultCliente.error
+        }
+    }
 
-    return newCliente
+    const newCliente = new Cliente(ISAnalysis, resultCliente.data.dataCliente, processo)
+
+    return {
+        success: true,
+        data: { cliente: newCliente }
+    }
 }

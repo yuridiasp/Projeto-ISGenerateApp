@@ -1,4 +1,4 @@
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes/Cliente"
 import { parametros } from "@utils/feriados/parametros"
 import { contarDias } from "@utils/prazos/contarDias"
 import { getDateFromDateString } from "@utils/prazos/getDateFromDateString"
@@ -18,7 +18,7 @@ export function getListaTarefasCompromissoJudicial(cliente: Cliente) {
 
     const emendar = ["EMENDAR", "CONTATAR CLIENTE"]
 
-    const tipoCompromissoNormalizado = removeAcentuacaoString(cliente.compromisso.tipoCompromisso),
+    const tipoCompromissoNormalizado = removeAcentuacaoString(cliente.compromisso.descricaoCompromisso),
         contDoisEmenda = ["EMENDAR","DADOS PERICIA SOCIAL","DADOS COMPLEMENTARES", "DADOS PARA PERICIA SOCIAL", "DADOS COMPLEMENTARES PARA PERÍCIA SOCIAL"],
         contDoisFinanceiro = ["RECEBIMENTO DE ALVARA", "RPV TRF1 BRASILIA", "RPV TRF1 GOIAS", "RPV TRF5 ARACAJU", "RPV TRF5 ESTANCIA", "RPV TRF1 BAHIA", "RECEBIMENTO DE PRECATORIO"],
         contTres = "PERICIA",

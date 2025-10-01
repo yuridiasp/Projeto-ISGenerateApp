@@ -1,4 +1,8 @@
 export function atualizaHoraFinal (horarioInicial: string) {
+    
+    if(!horarioInicial)
+        return null
+    
     const duracaoAudicencia = 2
     let hora = (Number(horarioInicial.slice(0,2)) + duracaoAudicencia).toString()
 

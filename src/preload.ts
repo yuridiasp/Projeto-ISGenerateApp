@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-import { iValidationReport } from "@models/validation/iValidationReport"
+import { iValidationReport } from "@models/validations/iValidationReport"
 import { credential } from '@services/login/loginService'
 import { iFileData } from '@services/validateIntimations/validateIntimationsService'
 

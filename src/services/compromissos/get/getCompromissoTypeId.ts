@@ -1,4 +1,4 @@
-import { seletores } from "@models/seletores/iSeletores"
+import { seletores } from "@models/seletores"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
 const compromissosJudiciais: Readonly<Record<string, string>> = {

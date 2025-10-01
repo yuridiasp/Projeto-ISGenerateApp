@@ -1,31 +1,26 @@
-import { Cliente } from "@models/cliente/Cliente"
-import { getSelectsTask } from "@services/seletores/seletoresService"
-import { createBodyForCreateTask, createTarefaRepository } from "@repositories/tarefas/index"
+import { Cliente } from "@models/clientes"
+import { getSelectsTask } from "@services/seletores"
+import { createBodyForCreateTask, createTarefaRepository } from "@repositories/tarefas"
 import { objectID } from "@utils/request/successfulCreationRequestValidation"
-import { AppError } from "@models/errors/appError"
-import { Result } from "@models/result/result"
-import { createEntityKorbilError } from "@models/errors/createEntityKorbilError"
-import { iCreateTarefa } from "@models/tarefa/iCreateTarefa"
-import { iCompromissoBody } from "@models/compromisso/iCompromissoBody"
+import { Result } from "@models/results"
+import { createEntityKorbilError } from "@models/errors"
+import { iCreateTarefa } from "@models/tarefas"
+import { iCompromissoBody } from "@models/compromissos"
 import { errorsCodeList } from "@helpers/errorsCode"
 
 export type tSuccessfulRecordCount = {
     successfulRecordCount: number,
     registeredSuccessfully: objectID[],
-    failedRegistry: AppError[]
+    failedRegistryTask?: iCreateTarefa[]
+    failedRegistryCommitment?: iCompromissoBody
 }
 
-export type tResultCreateService = {
-    resultCreationTasks: tSuccessfulRecordCount,
-    bodys: iCreateTarefa[] | iCompromissoBody[]
-}
-
-export async function createTaskService(cliente: Cliente, cookie: string): Promise<Result<tResultCreateService>> {
+export async function createTaskService(cliente: Cliente, cookie: string): Promise<Result<{ successfulRecordCount: tSuccessfulRecordCount}>> {
 
     const successfulRecordCountInit: tSuccessfulRecordCount = {
         successfulRecordCount: 0,
         registeredSuccessfully: [],
-        failedRegistry: [],
+        failedRegistryTask: [],
     }
 
     const { colaboradores, tiposTarefas } = await getSelectsTask(cookie)
@@ -39,7 +34,7 @@ export async function createTaskService(cliente: Cliente, cookie: string): Promi
             previous.successfulRecordCount++
             previous.registeredSuccessfully.push(current.data)
         } else {
-            previous.failedRegistry.push(current.error)
+            previous.failedRegistryTask.push(current.body)
         }
         return previous
     }, successfulRecordCountInit)
@@ -49,7 +44,9 @@ export async function createTaskService(cliente: Cliente, cookie: string): Promi
     if (success)
         return {
             success,
-            data: { resultCreationTasks, bodys }
+            data: {
+                successfulRecordCount: successfulRecordCountInit
+            }
         }
 
     return {

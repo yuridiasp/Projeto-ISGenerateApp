@@ -1,5 +1,5 @@
 import { iFileData } from "@services/validateIntimations/validateIntimationsService";
-import { iValidationReport } from "@models/validation/iValidationReport";
+import { iValidationReport } from "@models/validations/iValidationReport";
 import { writeExcelFileRepository } from "@repositories/xlsx/excelISFile";
 
 interface validationReport { data: iValidationReport[], file: iFileData, prefix: string, sheetName?: string }

@@ -1,5 +1,5 @@
 import { JSDOM } from "jsdom"
-import { FieldsClienteData } from "./extrairDadosRequisicaoClienteHtml"
+import { FieldsClienteData } from "@services/clientes"
 
 export function extractValueFromSelectClienteForm (dom: JSDOM, fields: FieldsClienteData, init: Partial<Record<keyof FieldsClienteData, string>> = {}) {
     return (Object.keys(fields) as (keyof (FieldsClienteData))[]).reduce((previous, current) => {

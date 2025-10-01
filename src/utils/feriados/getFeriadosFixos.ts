@@ -1,5 +1,5 @@
-import { Cliente } from "@models/cliente/Cliente"
-import { Holiday } from "@models/feriado/Holiday"
+import { Cliente } from "@models/clientes/Cliente"
+import { Holiday } from "@models/feriados/Holiday"
 import { datas } from "@utils/feriados/datasFixasHelper"
 import { parametros } from "@utils/feriados/parametros"
 

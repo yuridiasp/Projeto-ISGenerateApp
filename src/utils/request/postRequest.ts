@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios'
 import axiosRetry from 'axios-retry'
 
-import { iCompromissoBody } from '@models/compromisso/iCompromissoBody'
-import { iCreateTarefa } from '@models/tarefa/iCreateTarefa'
-import { credential } from '@services/login/loginService'
+import { iCompromissoBody } from '@models/compromissos'
+import { iCreateTarefa } from '@models/tarefas'
+import { credential } from '@services/login'
 
 axiosRetry(axios, { retries: 3, retryDelay: axiosRetry.exponentialDelay })
 

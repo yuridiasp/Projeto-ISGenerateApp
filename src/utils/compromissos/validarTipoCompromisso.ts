@@ -1,21 +1,20 @@
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes/Cliente"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
-export function validaTipoCompromisso(cliente: Cliente, descriptionCompromisso: string) {
-    const { cidade, estado } = cliente.processo
+export function validaTipoCompromisso(descriptionCompromisso: string, cidadeProcesso: string, estadoProcesso: string) {
     const descriptionCompromissoNormalizado = removeAcentuacaoString(descriptionCompromisso)
     const pauta = ["PAUTA", "RETIRADO DE PAUTA"]
     const emendar = ["DADOS PERICIA SOCIAL", "DADOS COMPLEMENTARES", "EMENDA", "EMENDA A INICIAL", "EMENDAR A INICIAL", "EMENDAR"]
     const pedidoVistas = ["PEDIDO DE VISTAS", "PEDIDO DE VISTA"]
 
     if (descriptionCompromissoNormalizado === "RPV") {
-        if (cidade === "ESTANCIA")
+        if (cidadeProcesso === "ESTANCIA")
             return "RPV TRF5 ESTÂNCIA"
-        if (estado === "DF")
+        if (estadoProcesso === "DF")
             return "RPV TRF1 BRASÌLIA"
-        if (estado === "GO")
+        if (estadoProcesso === "GO")
             return "RPV TRF1 GOIÁS"
-        if (estado === "BA")
+        if (estadoProcesso === "BA")
             return "RPV TRF1 BAHIA"
         return "RPV TRF5 ARACAJU"
     }

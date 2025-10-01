@@ -4,13 +4,16 @@ import dotEnv from 'dotenv'
 
 import { getCadastroProcessoService } from '@services/processos/index'
 import { loggedPostRequest } from '@utils/request/postRequest'
-import { iValidationReport } from "@models/validation/iValidationReport"
-import { ISAnalysisDTO } from "@models/cliente/Cliente"
+import { iValidationReport } from "@models/validations"
+import { ISAnalysisDTO } from "@models/clientes/Cliente"
+import { RequestValidationURL } from "@utils/request/requestValidation"
+import { Result } from "@models/results"
+import { RecordResultsWithError } from "@models/errors"
 
 dotEnv.config()
 
 //TODO: Refatorar essa função
-export async function intimationValidateService({ case_number, description, publication_date, paragraph }: ISAnalysisDTO, cookie: string): Promise<iValidationReport> {
+export async function intimationValidateService({ case_number, description, publication_date, paragraph }: ISAnalysisDTO, cookie: string): Promise<Result<{ validationReport: iValidationReport }>> {
     //console.log(processo, case_number, description, publicacao, publication_date, expediente)
     let isRegistered = false, reason = null
     const processValue = case_number
@@ -24,8 +27,23 @@ export async function intimationValidateService({ case_number, description, publ
 
     const response = await loggedPostRequest({url: URL_COMPROMISSOS_SISTEMFR, body, cookie })
 
-    const dom = new JSDOM(response.data)
+    const result = RequestValidationURL(response.request.res.responseUrl, URL_COMPROMISSOS_SISTEMFR)
 
+    if (result.success === false)
+        return {
+            success: false,
+            error: new RecordResultsWithError({
+                case_number: processValue,
+                description,
+                publicacao: dataCadastro,
+                isRegistered: null,
+                reason: result.error.code,
+                paragraph
+            }, "Houve um erro para validar registro dessa intimação.")
+        }
+
+    const dom = new JSDOM(response.data)
+    
     const compromissosElementHTML = dom.window.document.querySelectorAll('body > section > section > div.fdt-espaco > div > div.fdt-pg-conteudo > div.table-responsive > table > tbody > tr')
 
     const hasTD = !compromissosElementHTML[0].textContent.includes('Nenhum registro até o momento.')
@@ -46,13 +64,34 @@ export async function intimationValidateService({ case_number, description, publ
     } else {
         const resultRegisterProcess = await getCadastroProcessoService(processValue, cookie)
         if (resultRegisterProcess.success === false) {
-            //TODO: Construir caso de falha na busca do cadastro do processo
-            return
+            return {
+                success: false,
+                error: new RecordResultsWithError({
+                    case_number: processValue,
+                    description,
+                    publicacao: dataCadastro,
+                    isRegistered: null,
+                    reason: resultRegisterProcess.error.code,
+                    paragraph
+                }, "Houve um erro para validar registro o cadastro do processo.")
+            }
         }
 
         reason = resultRegisterProcess.data.reason
     }
     
-    return { processo: processValue, description, publicacao: dataCadastro, isRegistered, reason, paragraph }
+    return {
+        success: true,
+        data: {
+            validationReport: {
+                processo: processValue,
+                description,
+                publicacao: dataCadastro,
+                isRegistered,
+                reason,
+                paragraph
+            }
+        }
+    }
 
 }

@@ -1,7 +1,8 @@
 import { AxiosResponse } from "axios"
 import { JSDOM } from "jsdom"
 
-import { extractValueFromSelectClienteForm } from "./extractValueFromSelectProcessForm"
+import { extractValueFromSelectClienteForm } from "@services/clientes"
+import { iDataCliente } from "@models/clientes"
 
 export type FieldsClienteData = {
     parceiro: string,
@@ -11,7 +12,7 @@ export type FieldsClienteData = {
     situacao: string,
 }
 
-export function extrairDadosRequisicaoClienteHtml(response: AxiosResponse<any, any>) {
+export function extrairDadosRequisicaoClienteHtml(response: AxiosResponse<any, any>): iDataCliente {
 
     const fieldsClienteForm: FieldsClienteData = {
         parceiro: "#idFornecedor",
@@ -25,7 +26,8 @@ export function extrairDadosRequisicaoClienteHtml(response: AxiosResponse<any, a
 
     const { cidade, estado, localAtendido, parceiro, situacao } = extractValueFromSelectClienteForm(dom, fieldsClienteForm)
 
-    const dataClient = {
+    const dataClient: iDataCliente = {
+        id: null,
         nome: dom.window.document.querySelector("#apelido").getAttribute("value")?.toUpperCase()?.trim(),
         cpf: dom.window.document.querySelector("#cpf").getAttribute("value"),
         parceiro,

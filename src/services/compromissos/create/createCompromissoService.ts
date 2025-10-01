@@ -1,22 +1,22 @@
-import { createCompromissoRepository } from "@repositories/compromissos/create/createCompromissoRepository"
-import { Cliente } from "@models/cliente/Cliente"
-import { Compromisso, createBodyForCreateCompromisso } from "@repositories/compromissos/create/createBodyForCreateCompromisso"
-import { getSelectsCompromisso } from "@services/seletores/seletoresService"
-import { isCompromissoSuccessfullyCreated } from "@services/compromissos/index"
-import { Result } from "@models/result/result"
-import { tResultCreateService, tSuccessfulRecordCount } from "@services/tarefas"
-import { createEntityKorbilError } from "@models/errors/createEntityKorbilError"
-import { AppError } from "@models/errors/appError"
-import { objectID } from "@utils/request/successfulCreationRequestValidation"
+import { createCompromissoRepository } from "@repositories/compromissos"
+import { Cliente } from "@models/clientes"
+import { Compromisso, createBodyForCreateCompromisso } from "@repositories/compromissos"
+import { getSelectsCompromisso } from "@services/seletores"
+import { isCompromissoSuccessfullyCreated } from "@services/compromissos"
+import { Result } from "@models/results/result"
+import { tSuccessfulRecordCount } from "@services/tarefas"
+import { createEntityKorbilError } from "@models/errors"
+import { errorsCodeList } from "@helpers/errorsCode"
 
-export async function createCompromissoService (cliente: Cliente, cookie: string): Promise<Result<tResultCreateService>> {
-    const { tipoCompromisso, prazoFatal, prazoInterno, publicacao } = cliente.compromisso
+export async function createCompromissoService (cliente: Cliente, cookie: string): Promise<Result<{ successfulRecordCount: tSuccessfulRecordCount}>> {
+    const { tipoCompromisso, prazoFatal, prazoInterno, publicacao, descricaoCompromisso } = cliente.compromisso
     
     const compromisso: Compromisso =  {
         prazoFatal,
         prazoInterno,
         publicacao,
-        tipoCompromisso
+        tipoCompromisso,
+        descricaoCompromisso
     }
 
     const processo = {
@@ -31,8 +31,8 @@ export async function createCompromissoService (cliente: Cliente, cookie: string
     
     const compromissoResult =  isCompromissoSuccessfullyCreated(result)
 
-    const tSuccessfulRecordCount: tSuccessfulRecordCount = {
-        failedRegistry: [],
+    const successfulRecordCountInit: tSuccessfulRecordCount = {
+        failedRegistryCommitment: null,
         registeredSuccessfully: [],
         successfulRecordCount: 0
     }
@@ -40,15 +40,14 @@ export async function createCompromissoService (cliente: Cliente, cookie: string
     if (compromissoResult.success === false) {
         return {
             success: false,
-            error: new createEntityKorbilError("Houve um erro para registrar o compromisso.", "CREATE_COMPROMISSO_ERROR", tSuccessfulRecordCount)
+            error: new createEntityKorbilError("Houve um erro para registrar o compromisso.", errorsCodeList.createCompromissoError, successfulRecordCountInit)
         }
     } else {
-        tSuccessfulRecordCount.registeredSuccessfully.push(compromissoResult.data)
+        successfulRecordCountInit.registeredSuccessfully.push(compromissoResult.data)
         return {
             success: true,
             data: {
-                resultCreationTasks: tSuccessfulRecordCount,
-                bodys: [body]
+                successfulRecordCount: successfulRecordCountInit
             }
         }
     }

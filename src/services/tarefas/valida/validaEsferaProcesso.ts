@@ -1,4 +1,4 @@
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes/Cliente"
 
 export function validaEsferaProcesso(cliente: Cliente) {
     const caracteresProcesso = cliente.processo.origem.length

@@ -5,6 +5,7 @@ dotEnv.config()
 
 export async function login () {
     const { LOGIN, SENHA } = process.env
+    
     const result = await loginService(LOGIN, SENHA)
 
     if(result.success) {

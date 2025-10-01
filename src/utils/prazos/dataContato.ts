@@ -1,4 +1,4 @@
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes/Cliente"
 import { isFeriado } from "@utils/feriados/isFeriados"
 
 export function dataContato(intervalo: number, internalDeadline: Date, param: number, dataProcess: Pick<Cliente["processo"], "cidade" | "origem" | "natureza" | "estado">) {

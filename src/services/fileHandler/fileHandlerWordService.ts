@@ -1,6 +1,6 @@
 import HTMLtoDOCX from 'html-to-docx'
 
-import { isJF, isPrev, isTRT } from '@services/fileHandler/index'
+import { isJF, isPrev, isTRT } from '@services/fileHandler'
 import { getDocFromWord, writeWordFileRepository } from '@repositories/word/wordISFile'
 
 function initAndSetIs(lista: NodeListOf<Element>) {
@@ -155,7 +155,6 @@ export async function splitISToWord (endereco: string, fileName: string) {
     let { prevResult, trtResult, civResult, jfResult } = initAndSetIs(lista)
     
     const result = []
-    console.log('Inicializado variaveis...')
     
     const documentOptions = {
         margin: {top: 250, right: 250, bottom: 250, left: 250},
@@ -168,22 +167,18 @@ export async function splitISToWord (endereco: string, fileName: string) {
     if (prevResult?.length) {
         let obj = {fileName: `PREV${date}`, fileBuffer: HTMLtoDOCX(prevResult, null, documentOptions)}
         result.push(obj)
-        console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (civResult?.length) {
         let obj = {fileName: `CIV${date}`, fileBuffer: HTMLtoDOCX(civResult, null, documentOptions)}
         result.push(obj)
-        console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (trtResult?.length) {
         let obj = {fileName: `TRT${date}`, fileBuffer: HTMLtoDOCX(trtResult, null, documentOptions)}
         result.push(obj)
-        console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
     if (jfResult?.length) {
         let obj = {fileName: `JFSE${date}`, fileBuffer: HTMLtoDOCX(jfResult, null, documentOptions)}
         result.push(obj)
-        console.log(`Iniciando criacao do documento docx ${obj.fileName}`)
     }
 
     const wordFileObject = await Promise.all(result.map(async ({ fileName, fileBuffer }) => ({

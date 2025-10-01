@@ -1,4 +1,4 @@
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes/Cliente"
 import { getDateFromDateString } from "@utils/prazos/getDateFromDateString"
 import { contarDias } from "@utils/prazos/contarDias"
 import { calculaIntervaloTarefasJudicial } from "@utils/prazos/calculaIntervaloTarefasJudicial"

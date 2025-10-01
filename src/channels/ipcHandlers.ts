@@ -1,7 +1,8 @@
 import { ipcMain } from 'electron'
 
 import { iWindows } from "@models/windows/iWindows"
-import { credential } from '@services/login/loginService'
+import { credential } from '@services/login'
+import { iFileData } from '@services/validateIntimations'
 import { splitISController,
     githubController,
     getVersionsController,
@@ -14,7 +15,6 @@ import { splitISController,
     closeLoginWindowController,
     sendCredenctialsController
 } from '@controllers/controllers'
-import { iFileData } from '@services/validateIntimations/validateIntimationsService'
 
 export async function setHandlers (windows: iWindows) {
     ipcMain.handle('intimation-validate', (event: Electron.IpcMainInvokeEvent, data: iFileData, credentials: credential) => intimationsReportController(event, data, credentials, windows))

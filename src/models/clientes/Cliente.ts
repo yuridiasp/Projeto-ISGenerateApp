@@ -1,6 +1,7 @@
-import { iCompromisso } from "@models/compromisso/iCompromisso"
-import { iProcesso } from "@models/processo/iProcesso"
-import { iDataCliente } from "@models/cliente/iDataCliente"
+import { iCompromisso } from "@models/compromissos"
+import { iProcesso } from "@models/processos"
+import { iDataCliente } from "@models/clientes"
+import { validaTipoCompromisso } from "@utils/compromissos/validarTipoCompromisso";
 
 export interface ISAnalysisDTO {
     publication_date: string;
@@ -47,7 +48,8 @@ export class Cliente {
             prazoFatal: typeof ISAnalysis.fatal_deadline === 'number' ? this.excelDateToJsDate(ISAnalysis.fatal_deadline).toLocaleDateString() : ISAnalysis.fatal_deadline,
             tarefas: null,
             quantidadeTarefas: null,
-            tipoCompromisso: ISAnalysis.description,
+            tipoCompromisso: validaTipoCompromisso(ISAnalysis.description, dataProcesso.cidade, dataProcesso.estado),
+            descricaoCompromisso: ISAnalysis.description,
             descricao: null,
             semanas: null,
             publicacao: typeof ISAnalysis.publication_date === 'number' ? this.excelDateToJsDate(ISAnalysis.publication_date).toLocaleDateString() : ISAnalysis.publication_date,

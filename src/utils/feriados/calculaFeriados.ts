@@ -1,5 +1,5 @@
 
-import { Cliente } from "@models/cliente/Cliente"
+import { Cliente } from "@models/clientes/Cliente"
 import { calculaPascoa } from "@utils/feriados/calculaPascoa"
 import { getFeriadosFixos } from "@utils/feriados/getFeriadosFixos"
 import { calculaFeriadosDerivadosPascoa } from "./calculaFeriadosDerivadosPascoa"

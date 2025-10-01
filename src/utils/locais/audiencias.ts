@@ -241,7 +241,7 @@ const locaisAudiencias = {
 
 export function getEndereço (local: string) {
 
-    if (local.length == 0)
+    if (!local || local.length == 0)
         return ""
     else {
         let locais = Object.entries(locaisAudiencias)

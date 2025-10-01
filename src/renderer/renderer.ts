@@ -1,6 +1,6 @@
-import { iValidationReport } from "@models/validation/iValidationReport"
-import { credential } from "@services/login/loginService"
-import { iFileData } from "@services/validateIntimations/validateIntimationsService"
+import { iValidationReport } from "@models/validations/iValidationReport"
+import { credential } from "@services/login"
+import { iFileData } from "@services/validateIntimations"
 
 const splitISInput: HTMLInputElement = document.querySelector('#splitIS')
 const buttonsDivSplit = document.querySelector('#splitBtnsOptions')
@@ -58,7 +58,8 @@ async function intimationRegister () {
 
             if (success) {
                 console.log('Sucesso')
-                alert(data)
+                alert("Intimações registradas com sucesso!")
+                console.log(data)
             } else {
                 console.log('Erro')
                 alert(error.message)

@@ -1,4 +1,4 @@
-import { iTarefa } from "@models/tarefa/iTarefa"
+import { iTarefa } from "@models/tarefas"
 
 export interface iCompromisso {
     id: string
@@ -7,6 +7,7 @@ export interface iCompromisso {
     tarefas: iTarefa[]
     quantidadeTarefas: number
     tipoCompromisso: string
+    descricaoCompromisso: string
     descricao: string
     semanas: number
     publicacao: string

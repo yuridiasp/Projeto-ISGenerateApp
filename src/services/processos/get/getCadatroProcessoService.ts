@@ -1,7 +1,7 @@
 import { JSDOM } from "jsdom"
 
 import { loggedPostRequest } from "@utils/request/postRequest"
-import { Result } from "@models/result/result"
+import { Result } from "@models/results/result"
 import { NotFoundError } from "@models/errors/notFoundError"
 
 export async function getCadastroProcessoService(processo: string, cookie: string, isValidation = false): Promise<Result<{ reason: string, url: string }>> {

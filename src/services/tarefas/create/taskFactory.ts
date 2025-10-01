@@ -1,12 +1,12 @@
-import { Cliente } from "@models/cliente/Cliente"
-import { seletores } from "@models/seletores/iSeletores"
+import { Cliente } from "@models/clientes"
+import { seletores } from "@models/seletores"
 import { parametros } from "@utils/feriados/parametros"
-import { atualizaHoraFinal } from "../utils/atualizaHoraFinal"
+import { atualizaHoraFinal } from "@services/tarefas"
 import { calcularDataTarefa } from "@utils/prazos/calcularDataTarefa"
-import { getResponsavelExecutor } from "../get/getResponsavelExecutor"
-import { iTarefa } from "@models/tarefa/iTarefa"
-import { getDescricao } from "../utils/getDescricao"
-import { getTipoTarefa } from "../utils/getTipoTarefa"
+import { getResponsavelExecutor } from "@services/tarefas"
+import { iTarefa } from "@models/tarefas"
+import { getDescricao } from "@services/tarefas"
+import { getTipoTarefa } from "@services/tarefas"
 
 export async function taskFactory (cliente: Cliente, tarefas: string[], cookie: string, tiposTarefas: seletores[]) {
 
