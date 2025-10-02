@@ -1,4 +1,4 @@
-import { iColaborador } from "@models/colaborador/iColaborador"
+import { iColaborador } from "@models/colaboradores"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
 export function selectExecutorContatarJudicial (colaboradores: iColaborador[], localAtendido: string, estadoProcesso: string) {

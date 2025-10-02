@@ -1,6 +1,6 @@
 import { Cliente } from "@models/clientes/Cliente"
 import { Holiday } from "@models/feriados/Holiday"
-import { datas } from "@utils/feriados/datasFixasHelper"
+import { datas } from "@helpers/datasFeriadosFixos"
 import { parametros } from "@utils/feriados/parametros"
 
 function dataFactory (date: Holiday, resultados: { [key: string]: { feriado: string, isNacional: boolean }[] }, ano: number, increment: boolean = null) {

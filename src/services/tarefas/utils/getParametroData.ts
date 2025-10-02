@@ -1,4 +1,4 @@
-import { iTarefa } from "@models/tarefa/iTarefa"
+import { iTarefa } from "@models/tarefas"
 import { parametros } from "@utils/feriados/parametros"
 
 export function getParametroData (tarefa: iTarefa): number {

@@ -9,15 +9,15 @@ export interface validaResponsavelDTO {
     secao?: string
 }
 
-export function validaResponsavelTj (tarefa: string, cliente: Cliente, processLength: number, validaResponsavelMock?: validaResponsavelDTO) {
-    const digito = validaResponsavelMock ? validaResponsavelMock.digito : Number(cliente.processo.origem[processLength - 1]),
+export function validaResponsavelTj (tarefa: string, cliente: Cliente, processLength: number) {
+    const digito = Number(cliente.processo.origem[processLength - 1]),
         financeiro = ["RPV TRF1 BRASILIA", "RPV TRF1 GOIAS", "RPV TRF5 ARACAJU", "RPV TRF5 ESTANCIA", "RPV TRF1 BAHIA", "RECEBIMENTO DE PRECATORIO"],
         tarefasAdm = ["CONTATAR CLIENTE","LEMBRAR CLIENTE"],
         sac = "SMS E WHATSAPP",
         liminarPericiaAdm = "ACOMPANHAR",
         natureza = cliente.processo.natureza,
-        tipoCompromissoNormalizado = validaResponsavelMock? validaResponsavelMock.tipoCompromissoNormalizado : removeAcentuacaoString(cliente.compromisso.tipoCompromisso),
-        tarefaAtualNormalizada = validaResponsavelMock? validaResponsavelMock.tarefaAtualNormalizada : removeAcentuacaoString(tarefa)
+        tipoCompromissoNormalizado = removeAcentuacaoString(cliente.compromisso.tipoCompromisso),
+        tarefaAtualNormalizada = removeAcentuacaoString(tarefa)
 
     if (tarefaAtualNormalizada.includes(liminarPericiaAdm)  && tarefaAtualNormalizada.includes("ADM")) {
         return {responsavel: 'LEANDRO SANTOS', executor: 'LEANDRO SANTOS'}

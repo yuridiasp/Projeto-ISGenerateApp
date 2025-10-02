@@ -1,7 +1,7 @@
-import { Cliente } from "@models/clientes/Cliente"
+import { Cliente } from "@models/clientes"
 import { getEndereço } from "@utils/locais/audiencias"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
-import { existeOrigem } from "@services/tarefas/index"
+import { existeOrigem } from "@services/tarefas"
 
 export interface getDescricaoMockDTO {
     fistWordInTarefa: string,
@@ -11,12 +11,12 @@ export interface getDescricaoMockDTO {
     tipoCompromissoNormalizado: string
 }
 
-export function getDescricao (tarefa: string, cliente: Cliente, tarefas: string[], getDescricaoMock?: getDescricaoMockDTO) {
-    const fistWordInTarefa = getDescricaoMock?.fistWordInTarefa ?? removeAcentuacaoString(tarefa.split(" ")[0]),
-        localText = getDescricaoMock?.localText ?? getEndereço(cliente.compromisso.local),
-        numero = getDescricaoMock?.numero ?? existeOrigem(cliente),
-        tipoTarefaNormalizado = getDescricaoMock?.tipoTarefaNormalizado ?? removeAcentuacaoString(tarefa),
-        tipoCompromissoNormalizado = getDescricaoMock?.tipoCompromissoNormalizado ?? removeAcentuacaoString(cliente.compromisso.tipoCompromisso)
+export function getDescricao (tarefa: string, cliente: Cliente, tarefas: string[]) {
+    const fistWordInTarefa = removeAcentuacaoString(tarefa.split(" ")[0]),
+        localText = getEndereço(cliente.compromisso.local),
+        numero = existeOrigem(cliente),
+        tipoTarefaNormalizado = removeAcentuacaoString(tarefa),
+        tipoCompromissoNormalizado = removeAcentuacaoString(cliente.compromisso.tipoCompromisso)
     
     if (cliente.compromisso.descricao && fistWordInTarefa !== "ANALISE" && tipoTarefaNormalizado !== "ATO ORDINATORIO" && cliente.compromisso.tipoCompromisso !== "EMENDAR"  && !tipoCompromissoNormalizado.includes('DECISAO ANTECIPACAO PERICIA')) {
 

@@ -1,20 +1,19 @@
-import { seletores } from "@models/seletores/iSeletores"
-import { iTarefa } from "@models/tarefa/iTarefa"
+import { seletores } from "@models/seletores"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
 
 interface getTipoTarefaMockDTO {
     tipoIntimacaoToUpperNormalized: string
 }
 
-export function getTipoTarefa(tarefa: string, tiposTarefas: seletores[], getTipoTarefaMock?: getTipoTarefaMockDTO) {
+export function getTipoTarefa(tarefa: string, tiposTarefas: seletores[]) {
     
-    const tipoIntimacaoToUpperNormalized = getTipoTarefaMock ? getTipoTarefaMock.tipoIntimacaoToUpperNormalized : removeAcentuacaoString(tarefa.toUpperCase()).split("-")[0].trim()
+    const tipoIntimacaoToUpperNormalized = removeAcentuacaoString(tarefa.toUpperCase()).split("-")[0].trim()
     let achou = false,
         inputManifestacao = null,
         shortInput = null
     
     for (const option of tiposTarefas) {
-        const optionToUpperNormalized = getTipoTarefaMock ? option.normalizado : removeAcentuacaoString(option.nome.toUpperCase().trim())
+        const optionToUpperNormalized = removeAcentuacaoString(option.nome.toUpperCase().trim())
         const isManifestacao = optionToUpperNormalized.includes("MANIFESTACAO")
         const isTask = optionToUpperNormalized === tipoIntimacaoToUpperNormalized
         const fistWordIncluded = optionToUpperNormalized.split(" ").includes(tipoIntimacaoToUpperNormalized.split(" ")[0])

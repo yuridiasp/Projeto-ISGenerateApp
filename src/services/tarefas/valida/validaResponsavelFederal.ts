@@ -1,13 +1,13 @@
 import { Cliente } from "@models/clientes/Cliente"
 import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
-import { validaResponsavelDTO } from "@services/tarefas/index"
+import { validaResponsavelDTO } from "@services/tarefas"
 
-export function validaResponsavelFederal (tarefa: string, cliente: Cliente, processLength: number, validaResponsavelMock?: validaResponsavelDTO) {
+export function validaResponsavelFederal (tarefa: string, cliente: Cliente, processLength: number) {
     const PROCESS_DIGIT_INDEX = 6
     const PROCESS_SLICE_START = 13
     const PROCESS_SLICE_END = 16
 
-    const tarefaAtualNormalizada = validaResponsavelMock ? validaResponsavelMock.tarefaAtualNormalizada : removeAcentuacaoString(tarefa),
+    const tarefaAtualNormalizada = removeAcentuacaoString(tarefa),
         numeroProcesso = cliente.processo.origem,
         varasDF = ["23ª VARA FEDERAL BRASÍLIA", "24ª VARA FEDERAL DE BRASÍLIA", "25ª VARA FEDERAL DE BRASÍLIA", "26ª VARA FEDERAL DE BRASÍLIA", "27ª VARA FEDERAL DE BRASÍLIA", "23ª VARA FEDERAL", "24ª VARA FEDERAL", "25ª VARA FEDERAL", "26ª VARA FEDERAL", "27ª VARA FEDERAL", "BRASILIA", "1ª VARA FEDERAL CÍVEL SJGO", "TJ GOIÁS", "VARA FEDERAL DA SSJ LUZIÂNIA-GO", "VARA DE ÁGUAS LINDAS DE GOIÁS", "VARA FEDERAL DE RIO VERDE-GO", "VARA FEDERAL SJDF"],
         financeiro = ["RPV TRF1 BRASILIA", "RPV TRF1 GOIAS", "RPV TRF5 ARACAJU", "RPV TRF5 ESTANCIA", "RPV TRF1 BAHIA", "RECEBIMENTO DE PRECATORIO"],
@@ -15,10 +15,10 @@ export function validaResponsavelFederal (tarefa: string, cliente: Cliente, proc
         tarefaSac = "SMS E WHATSAPP",
         liminarPericiaAdm = "ACOMPANHAR",
         lengthSecao = 4,
-        secao = validaResponsavelMock ? validaResponsavelMock.secao : numeroProcesso.slice(processLength - lengthSecao, processLength),
+        secao = numeroProcesso.slice(processLength - lengthSecao, processLength),
         secaoDFGO = ["3400","3501","3502","3506", "0015"],
-        setimoDigito = validaResponsavelMock ? validaResponsavelMock.digito : Number(numeroProcesso[PROCESS_DIGIT_INDEX]),
-        digitoVerificador = validaResponsavelMock ? validaResponsavelMock.digitoVerificador : numeroProcesso.slice(PROCESS_SLICE_START, PROCESS_SLICE_END),
+        setimoDigito = Number(numeroProcesso[PROCESS_DIGIT_INDEX]),
+        digitoVerificador = numeroProcesso.slice(PROCESS_SLICE_START, PROCESS_SLICE_END),
         natureza = cliente.processo.natureza
 
     if (tarefaAtualNormalizada.includes(liminarPericiaAdm) && tarefaAtualNormalizada.includes("ADM")) {
