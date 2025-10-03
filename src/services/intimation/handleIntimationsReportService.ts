@@ -33,6 +33,7 @@ const cellStyle = {
 //TODO: Refatorar essa função e distribuir responsabilidades
 export async function handleIntimationsReportService (windows: iWindows, cookie: string, file: iFileData): Promise<Result<HandleIntimationsReportResult>> {
     const resultFile = await getObjectValidateIntimationsService(file)
+    let unregisteredCont = 0
     
     if (resultFile.success === false) {
         return {
@@ -47,11 +48,13 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
             updateViewReportValidation(result.data.validationReport, windows.mainWindow)
             return result.data.validationReport
         }
-
+        
+        
         const error = result.error as RecordResultsWithError
         const validationReport = error.data as iValidationReport
-        
         updateViewReportValidation(validationReport, windows.mainWindow)
+        
+        unregisteredCont++
 
         return validationReport
     }))
@@ -77,11 +80,11 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
     
     const resultReport = generateValidationReport({ data: validations, file: file, prefix: isRecorte ? '' : 'RELATORIO-REGISTRO-INTIMACAO-', isRecorte })
 
-    //TODO: Refatorar essa parte da função para considerar o tipo de documento do Recorte Digital (contabilizar somente as que não foram cadastradas para a mensagem)
     if (resultReport.success === true) {
-        const pluralOrSingularForIntimacao = validations.length > 1 ? 'intimações' : 'intimação'
         
-        const message =  `Encontrado ${validations.length} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${resultReport.data.newFilePath}`
+        const pluralOrSingularForIntimacao = unregisteredCont > 1 ? 'intimações' : 'intimação'
+        
+        const message =  `Encontrado ${unregisteredCont} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${resultReport.data.newFilePath}`
 
         return {
             success: true,

@@ -12,7 +12,7 @@ import { Result } from "../../src/models/results/result"
 const timeout = 10000
 
 describe("Validar cadastro de intimações a partir de um documento Word", () => {
-    const files = ["PREV30092025", "PREV30092025 - Cadastrados"]
+    const files = ["PREV30092025", "PREV30092025 - Cadastrados", "RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025"]
     const send = jest.fn();
     const windows: iWindows = {
         mainWindow: { webContents: { send } } as any,
@@ -32,7 +32,7 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
     
             if(fileExists) {
                 try {
-                    fs.unlinkSync(filePath)
+                    ///fs.unlinkSync(filePath)
                 } catch (error) {
                     console.log("Erro ao remover arquivo: ", error)
                 }
@@ -74,11 +74,17 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
         })
     }, timeout)
 
-    it.only("Arquivo de relatório do Recorte Digital", async () => {
-        const fileName = 'RECORTE DIGITAL_BA-GO-DF - DISP 02-10-2025.xlsx'
-        const filePath = `N:\\ADMINISTRATIVO\\YURI DIAS PEREIRA\\Intimações\\Intimações - Analisar\\${fileName}`
+    it("Arquivo de relatório do Recorte Digital", async () => {
+        const [ fileNameReport, fileData ] = getFileData(files[2], ".xlsx")
 
-        const result: Result<HandleIntimationsReportResult> = await handleIntimationsReportService(windows, cookie, { fileName, filePath })
-        console.log(result)
+        const result: Result<HandleIntimationsReportResult> = await handleIntimationsReportService(windows, cookie, fileData)
+        
+        expect(result).toEqual({
+            success: true,
+            data: {
+                message: 'Encontrado 0 intimação sem cadastro. Exportado relatório no caminho: C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025.xlsx',     
+                newFilePath: 'C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025.xlsx'
+            }
+        })
     }, timeout)
 })
