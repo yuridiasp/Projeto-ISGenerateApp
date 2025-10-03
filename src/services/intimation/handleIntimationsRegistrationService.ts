@@ -21,7 +21,8 @@ export type tCreateTaskResult = {
     success: false,
     data?: {
         bodys: {
-            compromisso: iCompromissoBody,
+            failedCompromisso?: iCompromissoBody,
+            compromisso?: objectID[],
             tarefas: iCreateTarefa[]
         }
     },
@@ -51,7 +52,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
             error: result.error
         }
     }
-    console.log(result.data.file)
+
     if(!result.data.file.length) {
         return {
             success: false,
@@ -61,7 +62,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
 
     const { tiposTarefas } = await getSelectsTask(cookie)
 
-    const createTaskResult = await Promise.all(result.data.file.map((intimation: ISAnalysisDTO) =>
+    const createTaskResult: tCreateTaskResult[] = await Promise.all(result.data.file.map((intimation: ISAnalysisDTO) =>
         createClienteService({ ...intimation }, cookie)
             .then(async (resultCliente): Promise<tCreateTaskResult> => {
                 if (resultCliente.success === false)
@@ -76,7 +77,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
                         error: resultCompromisso.error,
                         data: {
                             bodys: {
-                                compromisso: error.data.failedRegistryCommitment,
+                                failedCompromisso: error.data.failedRegistryCommitment,
                                 tarefas: null
                             }
                         }
@@ -100,7 +101,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
                         error: resultTarefa.error,
                         data: {
                             bodys: {
-                                compromisso: resultCompromisso.data.successfulRecordCount.failedRegistryCommitment,
+                                compromisso: resultCompromisso.data.successfulRecordCount.registeredSuccessfully,
                                 tarefas: error.data.failedRegistryTask
                             }
                         }

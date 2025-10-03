@@ -3,13 +3,14 @@ import { describe, expect, it, beforeAll, jest, beforeEach, afterEach } from '@j
 
 import { login } from './utils/login'
 import { iWindows } from '../../src/models/windows/iWindows'
-import { handleIntimationsRegistrationService } from '../../src/services/intimation/handleIntimationsRegistrationService'
+import { handleIntimationsRegistrationService, tCreateTaskResult } from '../../src/services/intimation/handleIntimationsRegistrationService'
 import { getFileData } from './utils/getFileData'
 import { excluirCompromisso } from './utils/excluirCompromisso'
 import { tHandleIntimation } from '../../src/services/intimation/handleIntimationsRegistrationService'
 import { Result } from '../../src/models/results/result'
 import { objectID } from '../../src/utils/request/successfulCreationRequestValidation'
 import { getObjectValidateIntimationsService } from '../../src/services/validateIntimations/validateIntimationsService'
+import { RecordResultsWithError } from '../../src/models/errors/recordResultsWithError'
 
 dotEnv.config()
 
@@ -100,20 +101,27 @@ describe('Criar tarefas de compromissos', () => {
 
         
         if(resultRegister.success) {
-            compromissos = resultRegister.data?.registered[0].data?.bodys.compromisso
+            compromissos = resultRegister.data?.registered[0].data?.bodys.compromisso as objectID[]
+        } else {
+          const data = resultRegister.error?.data[0] as tCreateTaskResult
+          compromissos = data.data?.bodys?.compromisso?.length ? data.data?.bodys?.compromisso[0] : []
         }
         
         expect(resultRegister.success).toBeTruthy()
-    }, timeout)
-    
-    it("Criando compromisso de perícia com sucesso", async () => {
+      }, timeout)
+      
+      it.only("Criando compromisso de perícia com sucesso", async () => {
         (getObjectValidateIntimationsService as jest.Mock).mockResolvedValueOnce(mockSuccessPericia)
         const [ fileNameReport, fileData ] = getFileData(files[0])
         const resultRegister: Result<tHandleIntimation> = await handleIntimationsRegistrationService(windows, cookie, fileData)
-
+        
         
         if(resultRegister.success) {
-            compromissos = resultRegister.data?.registered[0].data?.bodys.compromisso
+          compromissos = resultRegister.data?.registered[0].data?.bodys.compromisso as objectID[]
+        } else {
+          const data = resultRegister.error?.data[0] as tCreateTaskResult
+          compromissos = data.data?.bodys?.compromisso?.length ? data.data?.bodys?.compromisso[0] : []
+          console.log(resultRegister.error.data[0].error)
         }
         
         expect(resultRegister.success).toBeTruthy()

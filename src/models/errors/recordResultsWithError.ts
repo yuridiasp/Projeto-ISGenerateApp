@@ -1,10 +1,9 @@
 import { errorsCodeList } from "@helpers/errorsCode";
 import { AppError } from "./appError";
-import { tResultCreateService } from "@services/tarefas";
-import { Result } from "@models/results/result";
 import { iValidationReport } from "@models/validations/iValidationReport";
+import { tCreateTaskResult } from "@services/intimation";
 
-type tDataRecordResult = Result<tResultCreateService>[] | iValidationReport
+export type tDataRecordResult = tCreateTaskResult[] | iValidationReport
 
 export class RecordResultsWithError extends AppError {
     data: tDataRecordResult

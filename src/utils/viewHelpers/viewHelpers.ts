@@ -1,7 +1,5 @@
 import { iValidationReport } from "@models/validations/iValidationReport"
-import { Result } from "@models/results/result"
 import { BrowserWindow } from "electron"
-import { tSuccessfulRecordCount } from "@services/tarefas"
 import { tCreateTaskResult } from "@services/intimation"
 
 export function enableButtonCloseReport(win: Pick<BrowserWindow, 'webContents'>) {

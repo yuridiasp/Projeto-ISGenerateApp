@@ -1,17 +1,16 @@
 import { iCreateTarefa } from "@models/tarefas"
 import { Cliente } from "@models/clientes"
-import { iColaborador } from "@models/colaboradores"
 import { seletores } from "@models/seletores"
 
 interface createBodyForCreateTaskDTO {
     cliente: Cliente
-    colaboradores: iColaborador[]
+    colaboradores: seletores[]
     tiposTarefas: seletores[]
     cookie: string
 }
 
 export function createBodyForCreateTask({ cliente, colaboradores }: createBodyForCreateTaskDTO): iCreateTarefa[] {
-
+    
     return cliente.compromisso.tarefas.map((tarefa, index) => {
         const isAudiencia = /AUDI[ÊE]NCIA/.test(tarefa.descricao)
 

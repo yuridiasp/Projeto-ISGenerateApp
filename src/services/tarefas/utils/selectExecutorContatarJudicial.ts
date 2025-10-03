@@ -26,7 +26,7 @@ export function selectExecutorContatarJudicial (colaboradores: iColaborador[], l
     if (executor.nome.includes("SANDOVAL"))
         responsavel =  'SANDOVAL FILHO CORREIA LIMA FILHO'
     else if (estadoProcesso === 'GO' || estadoProcesso === 'DF') {
-        responsavel = 'HENYR GOIS DOS SANTOS'
+        responsavel = "FLAVIO LUCAS LIMA SOUZA"
     }
 
     return { responsavel, executor: executor.nome }

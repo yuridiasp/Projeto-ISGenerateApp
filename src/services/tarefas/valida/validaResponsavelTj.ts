@@ -28,7 +28,7 @@ export function validaResponsavelTj (tarefa: string, cliente: Cliente, processLe
     }
 
     if (financeiro.includes(tarefaAtualNormalizada.split("-")[0].trim()) && tarefaAtualNormalizada.includes("FINANCEIRO")) {
-        return {responsavel: "LUCIANA LIMA REZENDE",executor: "SHEYLA SANTANA SANTOS"} //ehMateusFinanceiro ? "MATEUS DOS SANTOS SILVA":"OVERLANDIA SANTOS MELO"
+        return {responsavel: "LUCIANA LIMA REZENDE",executor: "LUCIANA LIMA REZENDE"}
     }
 
     if (tarefasAdm.includes(tarefaAtualNormalizada)) {
@@ -38,7 +38,7 @@ export function validaResponsavelTj (tarefa: string, cliente: Cliente, processLe
     }
 
     if (sac === tarefaAtualNormalizada)
-        return {responsavel: "HENYR GOIS DOS SANTOS",executor: "LAYNE DA SILVA GOIS"}
+        return {responsavel: "FLAVIO LUCAS LIMA SOUZA",executor: "FLAVIO LUCAS LIMA SOUZA"}
 
     if (tipoCompromissoNormalizado === "MANIFESTACAO SOBRE CALCULOS" && tarefaAtualNormalizada.includes("ANALISE")) {
         return {responsavel: "GUILHERME JASMIM", executor: "GUILHERME JASMIM"}

@@ -6,6 +6,6 @@ import { getTarefaCreatedId } from "@services/tarefas"
 
 export function isTarefaSuccessfullyCreated(response: AxiosResponse<any, any>): Result<objectID> {
     const validUrl = "msg=add"
-
+    
     return successfulCreationRequestValidation(response.request.res.responseUrl, validUrl, getTarefaCreatedId)
 }
