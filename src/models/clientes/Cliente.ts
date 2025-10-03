@@ -2,8 +2,10 @@ import { iCompromisso } from "@models/compromissos"
 import { iProcesso } from "@models/processos"
 import { iDataCliente } from "@models/clientes"
 import { validaTipoCompromisso } from "@utils/compromissos/validarTipoCompromisso";
+import { lineXlsxIS } from "@repositories/xlsx/excelISFile";
 
 export interface ISAnalysisDTO {
+    availability_date?: string;
     publication_date: string;
     case_number: string;
     related_case_number: string;
@@ -19,6 +21,8 @@ export interface ISAnalysisDTO {
     separate_task: string;
     justification: string;
     paragraph?: string;
+    isRecorte?: boolean;
+    objectRecorte?: lineXlsxIS;
 }
 
 export class Cliente {

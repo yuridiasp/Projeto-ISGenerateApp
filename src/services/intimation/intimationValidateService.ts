@@ -9,19 +9,18 @@ import { ISAnalysisDTO } from "@models/clientes/Cliente"
 import { RequestValidationURL } from "@utils/request/requestValidation"
 import { Result } from "@models/results"
 import { RecordResultsWithError } from "@models/errors"
+import { calculatePreviousBusinessDay, ptBRDateStringTODate } from "@utils/prazos/calculatePreviousBusinessDay"
 
 dotEnv.config()
 
 //TODO: Refatorar essa função
-export async function intimationValidateService({ case_number, description, publication_date, paragraph }: ISAnalysisDTO, cookie: string): Promise<Result<{ validationReport: iValidationReport }>> {
+export async function intimationValidateService({ case_number, description, publication_date, paragraph, availability_date, isRecorte, objectRecorte }: ISAnalysisDTO, cookie: string): Promise<Result<{ validationReport: iValidationReport }>> {
     //console.log(processo, case_number, description, publicacao, publication_date, expediente)
     let isRegistered = false, reason = null
-    const processValue = case_number
-    const dataCadastro = publication_date
     const { URL_COMPROMISSOS_SISTEMFR } = process.env
     const body = {
         bsAdvCompromissos: 's',
-        bsAdvCompromissosProcesso: processValue,
+        bsAdvCompromissosProcesso: case_number,
         filtrar: 'Filtrar'
     }
 
@@ -33,12 +32,13 @@ export async function intimationValidateService({ case_number, description, publ
         return {
             success: false,
             error: new RecordResultsWithError({
-                case_number: processValue,
+                case_number: case_number,
                 description,
-                publicacao: dataCadastro,
+                publicacao: publication_date,
                 isRegistered: null,
                 reason: result.error.code,
-                paragraph
+                paragraph,
+                objectRecorte
             }, "Houve um erro para validar registro dessa intimação.")
         }
 
@@ -54,25 +54,36 @@ export async function intimationValidateService({ case_number, description, publ
             const publicationHTML = compromissoElementHTML.querySelector('td:nth-child(6)').textContent
 
             if (description)
-                return descriptionHTML === description && publicationHTML === dataCadastro
+                return descriptionHTML === description && publicationHTML === publication_date
 
-            return publicationHTML === dataCadastro
+            if (isRecorte) {
+                const datePubRecorte = ptBRDateStringTODate(publication_date)
+                
+                const datePubPage = ptBRDateStringTODate(publicationHTML)
+
+                const previousBusinessDateDispRecorte = calculatePreviousBusinessDay(availability_date)
+
+                return previousBusinessDateDispRecorte <= datePubPage && datePubPage <= datePubRecorte
+            }
+
+            return publicationHTML === publication_date
         })
         
         if (!isRegistered)
             reason = 'publication'
     } else {
-        const resultRegisterProcess = await getCadastroProcessoService(processValue, cookie)
+        const resultRegisterProcess = await getCadastroProcessoService(case_number, cookie)
         if (resultRegisterProcess.success === false) {
             return {
                 success: false,
                 error: new RecordResultsWithError({
-                    case_number: processValue,
+                    case_number: case_number,
                     description,
-                    publicacao: dataCadastro,
+                    publicacao: publication_date,
                     isRegistered: null,
                     reason: resultRegisterProcess.error.code,
-                    paragraph
+                    paragraph,
+                    objectRecorte
                 }, "Houve um erro para validar registro o cadastro do processo.")
             }
         }
@@ -84,12 +95,13 @@ export async function intimationValidateService({ case_number, description, publ
         success: true,
         data: {
             validationReport: {
-                processo: processValue,
+                processo: case_number,
                 description,
-                publicacao: dataCadastro,
+                publicacao: publication_date,
                 isRegistered,
                 reason,
-                paragraph
+                paragraph,
+                objectRecorte
             }
         }
     }

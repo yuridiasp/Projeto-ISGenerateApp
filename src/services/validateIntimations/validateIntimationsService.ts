@@ -4,6 +4,8 @@ import { readExcelFile } from "@repositories/xlsx/excelISFile"
 import { ValidationError } from "@models/errors/validationError"
 import { readWordFile } from "@repositories/word/wordISFile"
 import { ISAnalysisDTO } from "@models/clientes/Cliente"
+import fs from 'fs'
+import { NotFoundError } from "@models/errors"
 
 export interface iFileData {
     filePath: string,
@@ -19,12 +21,16 @@ export async function getObjectValidateIntimationsService({ filePath, fileName }
     
     if (filePath) {
         try {
-            if (regexToExcekFile.test(filePath)) {
-                const resulstXLSX = readExcelFile(filePath)
-                return { success: true, data: { file: resulstXLSX  } }
-            } else if (regexToWordFile.test(filePath))
-                return { success: true, data: { file: await readWordFile(filePath, fileName) } }
-            return { success: false, error: new ValidationError('Tipo de arquivo inválido.') }
+            const fileExists = fs.existsSync(filePath)
+            if (fileExists) {
+                if (regexToExcekFile.test(filePath)) {
+                    const resulstXLSX = readExcelFile(filePath)
+                    return { success: true, data: { file: resulstXLSX  } }
+                } else if (regexToWordFile.test(filePath))
+                    return { success: true, data: { file: await readWordFile(filePath, fileName) } }
+                return { success: false, error: new ValidationError('Tipo de arquivo inválido.') }
+            }
+            return { success: false, error: new NotFoundError(fileName) }
         } catch (error) {
             return { success: false, error: new FileError(error) }
         }

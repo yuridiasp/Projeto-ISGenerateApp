@@ -2,11 +2,12 @@ import path from 'path'
 import { describe, expect, it, beforeAll, jest, afterAll } from '@jest/globals'
 import fs from 'fs'
 
-import { handleIntimationsReportService } from '../../src/services/intimation/handleIntimationsReportService'
+import { HandleIntimationsReportResult, handleIntimationsReportService } from '../../src/services/intimation/handleIntimationsReportService'
 import { iWindows } from "../../src/models/windows/iWindows"
 import { login } from './utils/login'
 import { ValidationError } from '../../src/models/errors/validationError'
 import { getFileData } from './utils/getFileData'
+import { Result } from "../../src/models/results/result"
 
 const timeout = 10000
 
@@ -71,5 +72,13 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
             success: false,
             error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.')
         })
-    })
+    }, timeout)
+
+    it.only("Arquivo de relatório do Recorte Digital", async () => {
+        const fileName = 'RECORTE DIGITAL_BA-GO-DF - DISP 02-10-2025.xlsx'
+        const filePath = `N:\\ADMINISTRATIVO\\YURI DIAS PEREIRA\\Intimações\\Intimações - Analisar\\${fileName}`
+
+        const result: Result<HandleIntimationsReportResult> = await handleIntimationsReportService(windows, cookie, { fileName, filePath })
+        console.log(result)
+    }, timeout)
 })

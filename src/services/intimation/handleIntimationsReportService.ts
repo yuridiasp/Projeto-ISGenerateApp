@@ -8,8 +8,27 @@ import { Result } from "@models/results"
 import { intimationValidateService } from "@services/intimation"
 import { ISAnalysisDTO } from "@models/clientes"
 import { RecordResultsWithError } from "@models/errors"
+import { excelDateToJsDate } from "@utils/date/excelDateToJsDate"
+import { CellObject } from "xlsx-js-style"
 
 export type HandleIntimationsReportResult = { message: string; newFilePath: string }
+
+export type RecorteDTO = CellObject
+
+const cellStyle = {
+    title: {
+        fill: { fgColor: { rgb: "0F243E" } },
+        font: { color: { rgb: "FFFFFF"} },
+    },
+    success: {
+        fill: { fgColor: { rgb: "C6EFCE" } },
+        font: { color: { rgb: "006100" } }
+    },
+    fail: {
+        fill: { fgColor: { rgb: "FFC7CE" } },
+        font: { color: { rgb: "9C0006" } },
+    },
+}
 
 //TODO: Refatorar essa função e distribuir responsabilidades
 export async function handleIntimationsReportService (windows: iWindows, cookie: string, file: iFileData): Promise<Result<HandleIntimationsReportResult>> {
@@ -36,13 +55,29 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
 
         return validationReport
     }))
-    
-    const validations = await Promise.all(resultado).then(intimationsValidated => intimationsValidated.filter((intimation: { isRegistered: boolean }) => !intimation.isRegistered))
+
+    const isRecorte = resultFile.data.file.some(file => file.isRecorte)
+    //TODO: Refatorar essa função - Extrair para um novo arquivo
+    const validations = (await Promise.all(resultado).then(intimationsValidated => isRecorte ? intimationsValidated : intimationsValidated.filter((intimation: { isRegistered: boolean }) => !intimation.isRegistered))).map((line) => {
+        if(isRecorte) {
+            line.objectRecorte['DATA DISP'] = excelDateToJsDate(line.objectRecorte['DATA DISP'] as string)
+            line.objectRecorte['DATA PUBLIC'] = excelDateToJsDate(line.objectRecorte['DATA PUBLIC'] as string)
+            return Object.keys(line.objectRecorte).reduce((previous, current) => {
+                previous.push({ v: line.objectRecorte[current as keyof typeof line.objectRecorte], t: "DATA DISP" === current || current === "DATA PUBLIC" ? "d" : "s", s: line.isRegistered ? cellStyle.success : cellStyle.fail })
+                return previous
+            }, [] as RecorteDTO[])
+        }
+        
+        return line
+    })
+
+    if(isRecorte) validations.unshift([...Object.keys(resultFile.data.file[0].objectRecorte).map(key => ({ v: key, t:"s", s: cellStyle.title }))] as RecorteDTO[])
+
     enableButtonCloseReport(windows.mainWindow)
     
-    const resultReport = generateValidationReport({ data: validations, file: file, prefix: 'RELATORIO-REGISTRO-INTIMACAO-' })
+    const resultReport = generateValidationReport({ data: validations, file: file, prefix: isRecorte ? '' : 'RELATORIO-REGISTRO-INTIMACAO-', isRecorte })
 
-
+    //TODO: Refatorar essa parte da função para considerar o tipo de documento do Recorte Digital (contabilizar somente as que não foram cadastradas para a mensagem)
     if (resultReport.success === true) {
         const pluralOrSingularForIntimacao = validations.length > 1 ? 'intimações' : 'intimação'
         

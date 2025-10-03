@@ -1,17 +1,21 @@
-import XLSX from 'xlsx'
+import XLSX from 'xlsx-js-style'
+import { CellObject } from 'xlsx-js-style'
 
 import { buildXlsxPath } from '@utils/directory/directory'
 import { iExcelFileDTO } from '@models/files'
 import { Result } from '@models/results'
 import { ValidationError } from '@models/errors'
 import { ISAnalysisDTO } from '@models/clientes'
+import { excelDateToJsDate } from '@utils/date/excelDateToJsDate'
+import { removeCaracteresProcesso } from '@utils/textFormatting/textFormatting'
+import { iValidationReport } from '@models/validations'
 
 type ResultWriteEFile = {
     newFilePath?: string,
     result: boolean
 }
 
-type lineXlsxIS = {
+export type lineXlsxIS = {
     availability_date: string,
     publication_date: string,
     code: string,
@@ -29,21 +33,25 @@ type lineXlsxIS = {
     local_adress: string,
     executor: string,
     separate_task: string,
-    justification: string
+    justification: string,
+    'DATA PUBLIC'?: string | Date,
+    'NRO. PROCESSO'?: string,
+    'DATA DISP'?: string | Date,
+    isRecorte: boolean,
 }
 
-export function readExcelFile(endereco: string): ISAnalysisDTO[] {
-    
-    const workbook = XLSX.readFile(endereco)
+export function readExcelFile(path: string): ISAnalysisDTO[] {
+    const workbook = XLSX.readFile(path)
     
     const sheetName = workbook.SheetNames[0]
     const worksheet = workbook.Sheets[sheetName]
     
     const data = XLSX.utils.sheet_to_json(worksheet) as unknown as lineXlsxIS[]
-    
-    return data.map((line) => ({ 
-        publication_date: line.publication_date,
-        case_number: line.case_number,
+
+    return data.map((line) => ({
+        availability_date: line.availability_date || excelDateToJsDate(line['DATA DISP'] as string).toLocaleDateString(),
+        publication_date: line.publication_date || excelDateToJsDate(line['DATA PUBLIC'] as string).toLocaleDateString(),
+        case_number: line.case_number || removeCaracteresProcesso(line['NRO. PROCESSO']),
         related_case_number: line.related_case_number,
         description: line.description,
         internal_deadline: line.internal_deadline,
@@ -68,7 +76,9 @@ export function readExcelFile(endereco: string): ISAnalysisDTO[] {
             line?.executor,
             line?.separate_task,
             line?.justification,
-        ].join(" - ")
+        ].join(" - "),
+        isRecorte: !!line['NRO. PROCESSO'],
+        objectRecorte: line
     } as ISAnalysisDTO))
 }
 
@@ -77,15 +87,25 @@ function toValidSheetName(name: string) {
   return name.replace(/[:\\/?*\[\]]/g, " ").slice(0, 31) || "Planilha1";
 }
 
-export function writeExcelFileRepository({ data, filePath: { filePath, fileName  }, sheetName, prefix = ''}: iExcelFileDTO): Result<ResultWriteEFile> {
+function createWorksheet(isRecorte: boolean, data: (iValidationReport | CellObject[])[]) {
+    if (!isRecorte)
+        return XLSX.utils.json_to_sheet(data)
+
+    const dataRecorte = data as unknown as CellObject[][]
+
+    return XLSX.utils.aoa_to_sheet(dataRecorte)
+}
+
+export function writeExcelFileRepository({ data, filePath: { filePath, fileName  }, sheetName, prefix = '', isRecorte }: iExcelFileDTO): Result<ResultWriteEFile> {
     
     if (data.length) {
-        const newFilePath = buildXlsxPath(filePath, fileName, prefix);
-        const safeSheetName = toValidSheetName(sheetName);
-
-        const worksheet = XLSX.utils.json_to_sheet(data)
-    
+        const newFilePath = buildXlsxPath(filePath, fileName, prefix)
+        const safeSheetName = toValidSheetName(sheetName)
+        
         const workbook = XLSX.utils.book_new()
+
+        const worksheet = createWorksheet(isRecorte, data)
+    
         XLSX.utils.book_append_sheet(workbook, worksheet, safeSheetName)
     
         XLSX.writeFile(workbook, newFilePath)

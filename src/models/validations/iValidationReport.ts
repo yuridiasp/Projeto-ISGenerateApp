@@ -1,3 +1,5 @@
+import { lineXlsxIS } from "@repositories/xlsx/excelISFile";
+
 export interface iValidationReport {
     processo?: string;
     case_number?: string,
@@ -6,5 +8,6 @@ export interface iValidationReport {
     publication_date?: string,
     isRegistered: boolean;
     reason: string;
-    paragraph?: string
+    paragraph?: string,
+    objectRecorte?: lineXlsxIS
 }
