@@ -10,7 +10,7 @@ function showLoader() {
     const loginLoader = document.querySelector(".login-loader")
     loginLoader.classList.toggle('hidde')
     loginLoader.classList.toggle('visible')
-};
+}
 
 async function login(event) {
     event.preventDefault()
@@ -30,9 +30,8 @@ async function login(event) {
 
     showLoader()
 
-    const result = await window.API.loginKorbil({ login: form.login.value, senha: form.senha.value  })
-
-    console.log(result)
+    const resultJSONText = await window.API.loginKorbil({ login: form.login.value, senha: form.senha.value  })
+    const result = JSON.parse(resultJSONText)
 
     if(result.success) {
         showSuccessResult()

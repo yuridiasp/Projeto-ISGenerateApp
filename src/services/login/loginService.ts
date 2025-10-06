@@ -64,7 +64,7 @@ async function setCookieLoginForm(): Promise<Result<Cookie>> {
     }
 }
 
-export async function getCookieLoginService(credentials?: credential): Promise<Result<Cookie>> {
+export async function getCookieLoginService(credentials?: credential): Promise<string> {
 
     const resultCookie = await setCookieLoginForm()
 
@@ -72,10 +72,10 @@ export async function getCookieLoginService(credentials?: credential): Promise<R
         const resultLogin = await login(resultCookie.data.cookie, credentials)
 
         if (resultLogin.success === false)
-            return resultLogin
+            return JSON.stringify(resultLogin)
 
-        return resultLogin
+        return JSON.stringify(resultLogin)
     }
 
-    return resultCookie
+    return JSON.stringify(resultCookie)
 }

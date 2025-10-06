@@ -2,7 +2,7 @@ import { Result } from "@models/results/result"
 import { iWindows } from "@models/windows/iWindows"
 import { tHandleIntimation } from "@services/intimation/handleIntimationsRegistrationService";
 import { HandleIntimationsReportResult } from "@services/intimation/handleIntimationsReportService";
-import { credential, getCookieLoginService } from "@services/login"
+import { Cookie, credential, getCookieLoginService } from "@services/login"
 import { iFileData } from "@services/validateIntimations/validateIntimationsService"
 
 export type tActionReturn = Promise<Result<tHandleIntimation>> | Promise<Result<HandleIntimationsReportResult>>
@@ -15,7 +15,8 @@ export async function executeWithLogin(
 ){
     console.log('Realizando login...')
 
-    const result =  await getCookieLoginService(credentials)
+    const resultJSONText =  await getCookieLoginService(credentials)
+    const result = JSON.parse(resultJSONText) as Result<Cookie>
 
     if (result.success) {
         console.log('Login realizado!')
@@ -26,5 +27,5 @@ export async function executeWithLogin(
 
     console.log('Falha no login!')
 
-    return result
+    return JSON.stringify(result)
 }

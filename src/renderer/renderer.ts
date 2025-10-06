@@ -1,4 +1,6 @@
+import { Result } from "@models/results"
 import { iValidationReport } from "@models/validations/iValidationReport"
+import { HandleIntimationsReportResult, tHandleIntimation } from "@services/intimation"
 import { credential } from "@services/login"
 import { iFileData } from "@services/validateIntimations"
 
@@ -28,19 +30,19 @@ const operations = {
 
 let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, credentials: credential, operation: keyof typeof operations
 
-// Defina uma interface para a API
+// Define uma interface para a API
 interface iAPI {
     openFileDialogForFile(): PromiseLike<{ filePaths: string; canceled: string }>
-    intimationRegister: (args: iFileData, credentials: credential) => Promise<any>;
-    intimationValidate: (args: iFileData, credentials: credential) => Promise<any>;
-    splitFileIs: (args: iFileData) => Promise<any>;
-    updateReportStatus: (report: any) => Promise<any>;
-    enableButtonCloseReport: (args: any) => Promise<any>;
-    abrirJanelaLogin: () => void;
-    receiveCredentials: (receiveCredentials: any) => Promise<any>;
+    intimationRegister: (args: iFileData, credentials: credential) => Promise<string>
+    intimationValidate: (args: iFileData, credentials: credential) => Promise<string>
+    splitFileIs: (args: iFileData) => Promise<any>
+    updateReportStatus: (report: any) => Promise<any>
+    enableButtonCloseReport: (args: any) => Promise<any>
+    abrirJanelaLogin: () => void
+    receiveCredentials: (receiveCredentials: any) => Promise<any>
 }
   
-// Estenda a interface Window para incluir a API
+// Estende a interface Window para incluir a API
 declare global {
     interface Window {
         API: iAPI;
@@ -54,15 +56,15 @@ async function intimationRegister () {
             operation = "intimationRegister"
             window.API.abrirJanelaLogin()
         } else {
-            const { data, success, error } = await window.API.intimationRegister(argsRegister, credentials)
-
-            if (success) {
+            const resultJSONText = await window.API.intimationRegister(argsRegister, credentials)
+            const result = JSON.parse(resultJSONText) as Result<tHandleIntimation>
+            if (result.success === true) {
                 console.log('Sucesso')
                 alert("Intimações registradas com sucesso!")
-                console.log(data)
+                console.log(result.data)
             } else {
-                console.log('Erro')
-                alert(error.message)
+                console.log(result.error)
+                alert(result.error.message)
             }
         }
     }
@@ -102,17 +104,16 @@ async function validateIntimations() {
             operation = 'validateIntimations'
             window.API.abrirJanelaLogin()
         } else {
-            const { data, success, error } = await window.API.intimationValidate(argsValidate, credentials)
-            
-            if (success) {
+            // Promise<> | Promise<>
+            const resultJSONText = await window.API.intimationValidate(argsValidate, credentials)
+            const result = JSON.parse(resultJSONText) as Result<HandleIntimationsReportResult>
+            if (result.success === true) {
                 console.log('Sucesso')
-                alert(data.message)
+                alert(result.data.message)
             } else {
-                alert(error.message)
-                console.log('Erro', error)
-            }
-
-            
+                alert(result.error.message)
+                console.log(result.error)
+            }            
         }
     }
     else {
