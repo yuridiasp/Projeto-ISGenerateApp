@@ -104,8 +104,8 @@ async function validateIntimations() {
             operation = 'validateIntimations'
             window.API.abrirJanelaLogin()
         } else {
-            // Promise<> | Promise<>
             const resultJSONText = await window.API.intimationValidate(argsValidate, credentials)
+            console.log(resultJSONText)
             const result = JSON.parse(resultJSONText) as Result<HandleIntimationsReportResult>
             if (result.success === true) {
                 console.log('Sucesso')
@@ -113,7 +113,7 @@ async function validateIntimations() {
             } else {
                 alert(result.error.message)
                 console.log(result.error)
-            }            
+            }          
         }
     }
     else {

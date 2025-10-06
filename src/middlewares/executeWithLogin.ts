@@ -22,10 +22,10 @@ export async function executeWithLogin(
         console.log('Login realizado!')
         const response = await action(window, result.data.cookie, file)
 
-        return response
+        return JSON.stringify(response)
     }
 
     console.log('Falha no login!')
 
-    return JSON.stringify(result)
+    return resultJSONText
 }
