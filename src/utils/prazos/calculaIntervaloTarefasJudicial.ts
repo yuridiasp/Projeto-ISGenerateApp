@@ -1,5 +1,5 @@
 import { Cliente } from "@models/clientes/Cliente"
-import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { removeAcentuacaoString } from "@utils/text/textFormatting"
 
 export function calculaIntervaloTarefasJudicial(dias: number, cliente: Cliente, tarefas: string[], indexTarefa: number) {
     const { tipoCompromisso, semanas, quantidadeTarefas } = cliente.compromisso,

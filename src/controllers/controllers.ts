@@ -11,6 +11,7 @@ import { handleIntimationsRegistrationService } from '@services/intimation'
 import { executeWithLogin } from '@middlewares/executeWithLogin'
 import { closeLoginWindowService, createLoginWindowService } from '@services/windows'
 import { sendCredenctialsService } from '@services/auth'
+import { copyToClipboardService } from '@services/clipboard/copyToClipboardService'
 
 export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
     return openFileDialog(windows)
@@ -61,4 +62,8 @@ export async function intimationsRegisterController(event: Electron.IpcMainInvok
 
 export async function intimationsReportController(event: Electron.IpcMainInvokeEvent, file: iFileData, credentials: credential, windows: iWindows) {
     return executeWithLogin(windows, handleIntimationsReportService, credentials, file)
+}
+
+export function copyToClipboardController(text: string) {
+    return copyToClipboardService(text)
 }

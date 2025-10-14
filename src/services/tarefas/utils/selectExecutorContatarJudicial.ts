@@ -1,5 +1,5 @@
 import { iColaborador } from "@models/colaboradores"
-import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { removeAcentuacaoString } from "@utils/text/textFormatting"
 
 export function selectExecutorContatarJudicial (colaboradores: iColaborador[], localAtendido: string, estadoProcesso: string) {
     let responsavel = 'JULIANO OLIVEIRA DE SOUZA'

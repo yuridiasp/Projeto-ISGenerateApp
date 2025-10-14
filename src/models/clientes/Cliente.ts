@@ -3,10 +3,14 @@ import { iProcesso } from "@models/processos"
 import { iDataCliente } from "@models/clientes"
 import { validaTipoCompromisso } from "@utils/compromissos/validarTipoCompromisso";
 import { lineXlsxIS } from "@repositories/xlsx/excelISFile";
+import { excelDateToJsDate } from "@utils/date/excelDateToJsDate";
+import dayjs, { Dayjs } from "dayjs";
+import { timezone } from "@helpers/timezone";
+import { dateTimeFormat } from "@helpers/dateTimeFormat";
 
 export interface ISAnalysisDTO {
-    availability_date?: string;
-    publication_date: string;
+    availability_date?: Dayjs;
+    publication_date: Dayjs;
     case_number: string;
     related_case_number: string;
     description: string;
@@ -48,15 +52,15 @@ export class Cliente {
         this.situacao = dataCliente.situacao,
         this.compromisso = {
             id: null,
-            prazoInterno: typeof ISAnalysis.internal_deadline === 'number' ? this.excelDateToJsDate(ISAnalysis.internal_deadline).toLocaleDateString() : ISAnalysis.internal_deadline,
-            prazoFatal: typeof ISAnalysis.fatal_deadline === 'number' ? this.excelDateToJsDate(ISAnalysis.fatal_deadline).toLocaleDateString() : ISAnalysis.fatal_deadline,
+            prazoInterno: typeof ISAnalysis.internal_deadline === 'number' ? excelDateToJsDate(ISAnalysis.internal_deadline) : dayjs.tz(ISAnalysis.internal_deadline, dateTimeFormat, timezone),
+            prazoFatal: typeof ISAnalysis.fatal_deadline === 'number' ? excelDateToJsDate(ISAnalysis.fatal_deadline) : dayjs.tz(ISAnalysis.fatal_deadline, dateTimeFormat, timezone),
             tarefas: null,
             quantidadeTarefas: null,
             tipoCompromisso: validaTipoCompromisso(ISAnalysis.description, dataProcesso.cidade, dataProcesso.estado),
             descricaoCompromisso: ISAnalysis.description,
             descricao: null,
             semanas: null,
-            publicacao: typeof ISAnalysis.publication_date === 'number' ? this.excelDateToJsDate(ISAnalysis.publication_date).toLocaleDateString() : ISAnalysis.publication_date,
+            publicacao: typeof ISAnalysis.publication_date === 'number' ? excelDateToJsDate(ISAnalysis.publication_date) : dayjs.tz(ISAnalysis.publication_date, dateTimeFormat, timezone),
             peritoOrReu: ISAnalysis.expert_or_defendant,
             local: ISAnalysis.local_adress,
             horario: typeof ISAnalysis.time === 'number' ? this.excelDecimalToTime(ISAnalysis.time) : ISAnalysis.time
@@ -73,16 +77,6 @@ export class Cliente {
             estado: dataProcesso.estado,
             vara: dataProcesso.vara
         }
-    }
-
-    excelDateToJsDate(excelDate: string) {
-        // Subtrai 25569 (diferença entre 1900-01-01 e 1970-01-01) e converte para milissegundos
-        const jsDate = new Date((Number(excelDate) - 25569) * 86400 * 1000)
-        
-        // Adiciona um dia (24 horas em milissegundos) para corrigir o erro do Excel
-        jsDate.setDate(jsDate.getDate() + 1)
-        
-        return jsDate
     }
 
     excelDecimalToTime(excelDecimal: string) {

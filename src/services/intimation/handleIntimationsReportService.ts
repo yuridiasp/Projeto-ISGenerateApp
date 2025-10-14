@@ -8,12 +8,11 @@ import { Result } from "@models/results"
 import { intimationValidateService } from "@services/intimation"
 import { ISAnalysisDTO } from "@models/clientes"
 import { RecordResultsWithError } from "@models/errors"
-import { excelDateToJsDate } from "@utils/date/excelDateToJsDate"
 import { CellObject } from "xlsx-js-style"
+import { excelDateToJsDate } from "@utils/date/excelDateToJsDate"
+import { timezone } from "@helpers/timezone"
 
 export type HandleIntimationsReportResult = { message: string; newFilePath: string }
-
-export type RecorteDTO = CellObject
 
 const cellStyle = {
     title: {
@@ -53,28 +52,43 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
         const error = result.error as RecordResultsWithError
         const validationReport = error.data as iValidationReport
         updateViewReportValidation(validationReport, windows.mainWindow)
-        
-        unregisteredCont++
 
         return validationReport
     }))
 
     const isRecorte = resultFile.data.file.some(file => file.isRecorte)
-    //TODO: Refatorar essa função - Extrair para um novo arquivo
-    const validations = (await Promise.all(resultado).then(intimationsValidated => isRecorte ? intimationsValidated : intimationsValidated.filter((intimation: { isRegistered: boolean }) => !intimation.isRegistered))).map((line) => {
+    //TODO: Refatorar essa função - Dividir responsabilidades
+    const validations = (await Promise.all(resultado).then(intimationsValidated => {
         if(isRecorte) {
-            line.objectRecorte['DATA DISP'] = excelDateToJsDate(line.objectRecorte['DATA DISP'] as string)
-            line.objectRecorte['DATA PUBLIC'] = excelDateToJsDate(line.objectRecorte['DATA PUBLIC'] as string)
+            return intimationsValidated
+        }
+        
+        return intimationsValidated.filter((intimation: { isRegistered: boolean }) => !intimation.isRegistered)}
+    )).map((line) => {
+        if (!line.isRegistered) unregisteredCont++
+        if(isRecorte) {
             return Object.keys(line.objectRecorte).reduce((previous, current) => {
-                previous.push({ v: line.objectRecorte[current as keyof typeof line.objectRecorte], t: "DATA DISP" === current || current === "DATA PUBLIC" ? "d" : "s", s: line.isRegistered ? cellStyle.success : cellStyle.fail })
+                //const widths =  [ 15.57, 7.29, 10, 12.71, 71.43, 7.43, 23.71, 73.57, 6.86, 11.71, 8.43 ]
+                const isDataType = "DATA DISP" === current || current === "DATA PUBLIC"
+                const t = isDataType ? "d" : "s"
+                //const s = line.isRegistered ? {...cellStyle.success, } : {...cellStyle.fail}
+                let v = line.objectRecorte[current as keyof typeof line.objectRecorte]
+                
+                if (isDataType) {
+                    const date = excelDateToJsDate(line.objectRecorte[current as keyof typeof line.objectRecorte] as string)
+                    // TODO: Propor nova solução para substituir esse acréscimo de 28 segundos
+                    v =  date.tz().hour(0).minute(0).second(28).millisecond(0).format("YYYY-MM-DD HH:mm:ss")
+                }
+                const s = line.isRegistered ? cellStyle.success : cellStyle.fail
+                previous.push({ v, t, s })
                 return previous
-            }, [] as RecorteDTO[])
+            }, [] as CellObject[])
         }
         
         return line
     })
 
-    if(isRecorte) validations.unshift([...Object.keys(resultFile.data.file[0].objectRecorte).map(key => ({ v: key, t:"s", s: cellStyle.title }))] as RecorteDTO[])
+    if(isRecorte) validations.unshift([...Object.keys(resultFile.data.file[0].objectRecorte).map(key => ({ v: key, t:"s", s: cellStyle.title }))] as CellObject[])
 
     enableButtonCloseReport(windows.mainWindow)
     

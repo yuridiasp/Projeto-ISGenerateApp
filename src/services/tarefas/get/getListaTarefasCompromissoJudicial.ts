@@ -1,8 +1,7 @@
 import { Cliente } from "@models/clientes/Cliente"
 import { parametros } from "@utils/feriados/parametros"
 import { contarDias } from "@utils/prazos/contarDias"
-import { getDateFromDateString } from "@utils/prazos/getDateFromDateString"
-import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { removeAcentuacaoString } from "@utils/text/textFormatting"
 
 export function getListaTarefasCompromissoJudicial(cliente: Cliente) {
 
@@ -25,7 +24,7 @@ export function getListaTarefasCompromissoJudicial(cliente: Cliente) {
         contQuatro = ["AUDIENCIA DE CONCILIACAO", "AUDIENCIA CONCILIATORIA", "AUDIENCIA DE INTERROGATORIO"],
         contCinco = ["AUDIENCIA INAUGURAL", "AUDIENCIA INICIAL","AUDIENCIA DE INSTRUCAO", "AUDIENCIA DE INSTRUCAO E JULGAMENTO", "AUDIENCIA UNA"]
     
-    const dataInterno = getDateFromDateString(cliente.compromisso.prazoInterno)
+    const dataInterno = cliente.compromisso.prazoInterno.toDate()
 
     const { semanas } = contarDias(dataInterno, parametros.tarefaAdvogado, cliente.processo)
 

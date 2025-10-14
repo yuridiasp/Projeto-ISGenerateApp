@@ -1,6 +1,6 @@
 import { Cliente } from "@models/clientes"
 import { getEndereço } from "@utils/locais/audiencias"
-import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { removeAcentuacaoString } from "@utils/text/textFormatting"
 import { existeOrigem } from "@services/tarefas"
 
 export interface getDescricaoMockDTO {

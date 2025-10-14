@@ -7,8 +7,11 @@ import { Result } from '@models/results'
 import { ValidationError } from '@models/errors'
 import { ISAnalysisDTO } from '@models/clientes'
 import { excelDateToJsDate } from '@utils/date/excelDateToJsDate'
-import { removeCaracteresProcesso } from '@utils/textFormatting/textFormatting'
+import { removeCaracteresProcesso } from '@utils/text/textFormatting'
 import { iValidationReport } from '@models/validations'
+import dayjs from 'dayjs'
+import { timezone } from '@helpers/timezone'
+import { dateTimeFormat } from '@helpers/dateTimeFormat'
 
 type ResultWriteEFile = {
     newFilePath?: string,
@@ -34,9 +37,9 @@ export type lineXlsxIS = {
     executor: string,
     separate_task: string,
     justification: string,
-    'DATA PUBLIC'?: string | Date,
+    'DATA PUBLIC'?: string,
     'NRO. PROCESSO'?: string,
-    'DATA DISP'?: string | Date,
+    'DATA DISP'?: string,
     isRecorte: boolean,
 }
 
@@ -49,8 +52,8 @@ export function readExcelFile(path: string): ISAnalysisDTO[] {
     const data = XLSX.utils.sheet_to_json(worksheet) as unknown as lineXlsxIS[]
 
     return data.map((line) => ({
-        availability_date: line.availability_date || excelDateToJsDate(line['DATA DISP'] as string).toLocaleDateString(),
-        publication_date: line.publication_date || excelDateToJsDate(line['DATA PUBLIC'] as string).toLocaleDateString(),
+        availability_date: line.availability_date ? dayjs.tz(line.availability_date, dateTimeFormat, timezone) : excelDateToJsDate(line['DATA DISP']),
+        publication_date: line.publication_date ? dayjs.tz(line.publication_date, dateTimeFormat, timezone) : excelDateToJsDate(line['DATA PUBLIC']),
         case_number: line.case_number || removeCaracteresProcesso(line['NRO. PROCESSO']),
         related_case_number: line.related_case_number,
         description: line.description,

@@ -8,6 +8,7 @@ module.exports = {
         root: ['./src'],
         alias: {
           "@channels": "./src/channels",
+          "@config": "./src/config",
           "@controllers": "./src/controllers",
           "@helpers": "./src/helpers",
           "@infrastructure": "./src/infrastructure",

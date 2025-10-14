@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import dotEnv from 'dotenv'
 import { describe, expect, it, beforeAll, jest, beforeEach, afterEach } from '@jest/globals'
 
@@ -10,11 +11,30 @@ import { tHandleIntimation } from '../../src/services/intimation/handleIntimatio
 import { Result } from '../../src/models/results/result'
 import { objectID } from '../../src/utils/request/successfulCreationRequestValidation'
 import { getObjectValidateIntimationsService } from '../../src/services/validateIntimations/validateIntimationsService'
-import { RecordResultsWithError } from '../../src/models/errors/recordResultsWithError'
+import { dayjsConfig } from '../../src/config/dayjsConfig'
+import { timezone } from '../../src/helpers/timezone'
 
 dotEnv.config()
 
-const timeout = 20000, sentenca = { interno: '03/10/2025', fatal: '21/10/2025' }, pericia = '21/10/2025'
+dayjsConfig()
+
+function setPrazos(diasInterno: number, diasFatal: number) {
+
+  const prazoInterno = dayjs.tz(timezone).add(diasInterno, 'd')
+  const prazoFatal = dayjs.tz(timezone).add(diasFatal, 'd')
+
+  return [ prazoInterno, prazoFatal ]
+}
+
+const diasSentecaJEF = { interno: 5,fatal: 10}
+const diasPericia = { interno: 30,fatal: 30}
+
+const [ prazoInternoSentencaJEF, prazoFatalSentencaJEF ] = setPrazos(diasSentecaJEF.interno, diasSentecaJEF.fatal)
+const [ prazoInternoPericia, prazoFatalPericia ] = setPrazos(diasPericia.interno, diasPericia.fatal)
+
+const timeout = 20000,
+  sentenca = { interno: prazoInternoSentencaJEF, fatal: prazoFatalSentencaJEF },
+  pericia = { interno: prazoInternoPericia, fatal: prazoFatalPericia }
 
 const mockSuccessSentenca = {
   success: true,
@@ -47,8 +67,8 @@ const mockSuccessPericia = {
       description: 'PERÍCIA MÉDICA',
       publication_date: '30/09/2025',
       related_case_number: null,
-      internal_deadline: pericia,
-      fatal_deadline: pericia,
+      internal_deadline: pericia.interno,
+      fatal_deadline: pericia.fatal,
       time: '07:00',
       expert_or_defendant: 'MONICA FULANA DE TAL',
       local_adress: 'FORUM DE ALGUM LUGAR',
@@ -57,7 +77,7 @@ const mockSuccessPericia = {
       executor: '(ADM)',
       separate_task: null,
       justification: null,
-      paragraph: `202488101866 - PERÍCIA MÉDICA - (${pericia} ÀS 07:00) - (ADM)PERITO: MONICA FULANA DE TALLOCAL:FORUM DE ALGUM LUGAR`
+      paragraph: `202488101866 - PERÍCIA MÉDICA - (${pericia.interno.toDate().toLocaleDateString()} ÀS 07:00) - (ADM)PERITO: MONICA FULANA DE TALLOCAL:FORUM DE ALGUM LUGAR`
     }]
   }
 } as never
@@ -82,9 +102,9 @@ describe('Criar tarefas de compromissos', () => {
         loginWindow: null
     }
 
-    let cookie: string, hoje: Date, compromissos: objectID[] = []
+    let cookie: string, compromissos: objectID[] = []
 
-    beforeAll(async () => { cookie = await login(); hoje = new Date() })
+    beforeAll(async () => { cookie = await login() })
     
     beforeEach(async () => jest.clearAllMocks())
 

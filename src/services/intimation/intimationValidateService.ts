@@ -1,5 +1,5 @@
+import dayjs from "dayjs"
 import jsdom from "jsdom"
-const { JSDOM } = jsdom
 import dotEnv from 'dotenv'
 
 import { getCadastroProcessoService } from '@services/processos/index'
@@ -9,7 +9,11 @@ import { ISAnalysisDTO } from "@models/clientes/Cliente"
 import { RequestValidationURL } from "@utils/request/requestValidation"
 import { Result } from "@models/results"
 import { RecordResultsWithError } from "@models/errors"
-import { calculatePreviousBusinessDay, ptBRDateStringTODate } from "@utils/prazos/calculatePreviousBusinessDay"
+import { calculatePreviousBusinessDay } from "@utils/prazos/calculatePreviousBusinessDay"
+import { dateTimeFormat } from "@helpers/dateTimeFormat"
+import { timezone } from "@helpers/timezone"
+
+const { JSDOM } = jsdom
 
 dotEnv.config()
 
@@ -34,7 +38,7 @@ export async function intimationValidateService({ case_number, description, publ
             error: new RecordResultsWithError({
                 case_number: case_number,
                 description,
-                publicacao: publication_date,
+                publicacao: publication_date.tz(timezone).format(dateTimeFormat),
                 isRegistered: null,
                 reason: result.error.code,
                 paragraph,
@@ -49,24 +53,23 @@ export async function intimationValidateService({ case_number, description, publ
     const hasTD = !compromissosElementHTML[0].textContent.includes('Nenhum registro até o momento.')
     
     if (hasTD) {
-        isRegistered = Array.from(compromissosElementHTML).some(compromissoElementHTML => {
-            const descriptionHTML = compromissoElementHTML.querySelector('td:nth-child(3)').innerHTML.split('<br>')[0].trim()
-            const publicationHTML = compromissoElementHTML.querySelector('td:nth-child(6)').textContent
+        const previousBusinessDateDispRecorte = calculatePreviousBusinessDay(availability_date)
 
+        isRegistered = Array.from(compromissosElementHTML).some(compromissoElementHTML => {
+            const publicationLocaleDateString = publication_date.tz(timezone).format(dateTimeFormat)
+            const descriptionHTML = compromissoElementHTML.querySelector('td:nth-child(3)').innerHTML.split('<br>')[0].trim()
+            const publicationHTML = compromissoElementHTML.querySelector('td:nth-child(6)').textContent //DD/MM/YYYY
+            
             if (description)
-                return descriptionHTML === description && publicationHTML === publication_date
+                return descriptionHTML === description && publicationHTML === publicationLocaleDateString
 
             if (isRecorte) {
-                const datePubRecorte = ptBRDateStringTODate(publication_date)
-                
-                const datePubPage = ptBRDateStringTODate(publicationHTML)
+                const datePubPage = dayjs.tz(publicationHTML, dateTimeFormat, timezone)
 
-                const previousBusinessDateDispRecorte = calculatePreviousBusinessDay(availability_date)
-
-                return previousBusinessDateDispRecorte <= datePubPage && datePubPage <= datePubRecorte
+                return datePubPage.isBetween(previousBusinessDateDispRecorte, publication_date, "day", "[]")
             }
 
-            return publicationHTML === publication_date
+            return publicationHTML === publicationLocaleDateString
         })
         
         if (!isRegistered)
@@ -79,7 +82,7 @@ export async function intimationValidateService({ case_number, description, publ
                 error: new RecordResultsWithError({
                     case_number: case_number,
                     description,
-                    publicacao: publication_date,
+                    publicacao: publication_date.tz(timezone, true).format(dateTimeFormat),
                     isRegistered: null,
                     reason: resultRegisterProcess.error.code,
                     paragraph,
@@ -97,7 +100,7 @@ export async function intimationValidateService({ case_number, description, publ
             validationReport: {
                 processo: case_number,
                 description,
-                publicacao: publication_date,
+                publicacao: publication_date.tz(timezone, true).format(dateTimeFormat),
                 isRegistered,
                 reason,
                 paragraph,
@@ -105,5 +108,4 @@ export async function intimationValidateService({ case_number, description, publ
             }
         }
     }
-
 }

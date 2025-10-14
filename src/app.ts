@@ -1,7 +1,7 @@
 import { app } from 'electron'
 
-import configMenu from '@infrastructure/menu/menu';
-import { iWindows } from '@models/windows/iWindows';
+import configMenu from '@infrastructure/menu/menu'
+import { iWindows } from '@models/windows/iWindows'
 
 export function createApp(windows: iWindows): Electron.App {
     const handleSquirrelEvent = require('./handleSquirrel')

@@ -7,6 +7,9 @@ import iconv from "iconv-lite"
 import { Result } from '@models/results'
 import { ValidationError } from '@models/errors'
 import { ISAnalysisDTO } from '@models/clientes'
+import dayjs from 'dayjs'
+import { timezone } from '@helpers/timezone'
+import { dateTimeFormat } from '@helpers/dateTimeFormat'
 
 type DocKind = "docx" | "html" | "unknown"
 
@@ -154,7 +157,7 @@ export async function readWordFile(endereco: string, fileName: string): Promise<
             if(executor)
                 object.executor = executor[0]?.trim()
 
-            object.publication_date = date
+            object.publication_date = dayjs.tz(date, dateTimeFormat, timezone)
             object.paragraph = paragraph.textContent
 
             results.push({ ...object })

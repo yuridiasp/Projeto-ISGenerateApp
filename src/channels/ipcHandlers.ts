@@ -13,7 +13,8 @@ import { splitISController,
     createLoginWindowController,
     loginController,
     closeLoginWindowController,
-    sendCredenctialsController
+    sendCredenctialsController,
+    copyToClipboardController
 } from '@controllers/controllers'
 
 export async function setHandlers (windows: iWindows) {
@@ -28,4 +29,5 @@ export async function setHandlers (windows: iWindows) {
     ipcMain.on('send-credencials-to-renderer', (event, credencials: credential) => sendCredenctialsController(credencials, windows))
     ipcMain.handle('open-file-dialog-for-file', (event) => openFileDialogForFile(event, windows))
     ipcMain.handle('login-korbil', (event, credential: credential) => loginController(credential))
+    ipcMain.handle('clopy-to-clip', (event, text) => copyToClipboardController(text))
 }

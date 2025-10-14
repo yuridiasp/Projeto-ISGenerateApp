@@ -1,25 +1,17 @@
 import { updateElectronApp } from 'update-electron-app'
-import path from 'path'
-import dotenv from 'dotenv'
-import fs from 'fs'
+
+updateElectronApp()
 
 import { createApp } from "./app"
 import { createMainWindowController, createSobreWindowController, createLoginWindowController } from "@controllers/controllers"
 import { setHandlers } from "@channels/ipcHandlers"
 import { iWindows } from "@models/windows/iWindows"
+import { loadDotEnv } from '@config/loadDotEnv'
+import { dayjsConfig } from '@config/dayjsConfig'
 
-function loadDotEnv() {
-  // Em dev, o .env está na raiz; em prod, fica em resources ao lado do asar
-  const devPath = path.resolve(process.cwd(), ".env");
-  const prodPath = path.join(process.resourcesPath, ".env");
-
-  const envPath = fs.existsSync(prodPath) ? prodPath : devPath;
-  dotenv.config({ path: envPath });
-}
+dayjsConfig()
 
 loadDotEnv()
-
-updateElectronApp()
 
 const windows: iWindows = {
     mainWindow: null,

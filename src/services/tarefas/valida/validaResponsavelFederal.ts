@@ -1,5 +1,5 @@
 import { Cliente } from "@models/clientes/Cliente"
-import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { removeAcentuacaoString } from "@utils/text/textFormatting"
 import { validaResponsavelDTO } from "@services/tarefas"
 
 export function validaResponsavelFederal (tarefa: string, cliente: Cliente, processLength: number) {

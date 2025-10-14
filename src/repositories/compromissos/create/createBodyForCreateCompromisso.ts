@@ -1,14 +1,8 @@
 import { seletores } from "@models/seletores"
 import { getCompromissoTypeId } from "@services/compromissos"
-import { iCompromissoBody } from "@models/compromissos"
+import { iCompromisso, iCompromissoBody } from "@models/compromissos"
 
-export type Compromisso = {
-    tipoCompromisso: string
-    descricaoCompromisso: string
-    publicacao: string
-    prazoInterno: string
-    prazoFatal: string
-}
+export type Compromisso = Pick<iCompromisso, 'prazoFatal' | 'prazoInterno' | 'publicacao' | 'tipoCompromisso' | 'descricaoCompromisso'>
 
 export function createBodyForCreateCompromisso(compromisso: Compromisso, processo: { origem: string }, tiposCompromisso: seletores[]): iCompromissoBody {
     
@@ -18,9 +12,9 @@ export function createBodyForCreateCompromisso(compromisso: Compromisso, process
         idTipoCompromisso: idTipoCompromisso,
         numeroProcesso: processo.origem,
         descricao: compromisso.descricaoCompromisso,
-        dataPublicacao: compromisso.publicacao,
-        dataPrazoInterno: compromisso.prazoInterno,
-        dataPrazoFatal: compromisso.prazoFatal,
+        dataPublicacao: compromisso.publicacao.toDate().toLocaleDateString(),
+        dataPrazoInterno: compromisso.prazoInterno.toDate().toLocaleDateString(),
+        dataPrazoFatal: compromisso.prazoFatal.toDate().toLocaleDateString(),
         btnGravar: 'Gravar e continuar'
     }
 }

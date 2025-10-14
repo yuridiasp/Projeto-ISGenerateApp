@@ -1,4 +1,4 @@
-import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { removeAcentuacaoString } from "@utils/text/textFormatting"
 
 const locaisAudiencias = {
     '1ª VARA FEDERAL': 'AV. DR. CARLOS RODRIGUES DA CRUZ, 1500 - CAPUCHO, ARACAJU - SE, 49081-083',

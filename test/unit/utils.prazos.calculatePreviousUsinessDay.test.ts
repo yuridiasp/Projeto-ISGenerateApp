@@ -1,13 +1,17 @@
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { expect, test } from '@jest/globals'
 
 import { calculatePreviousBusinessDay } from '../../src/utils/prazos/calculatePreviousBusinessDay'
 
+dayjs.extend(customParseFormat)
+
 const date = "02/10/2025"
-const [ day, month, year ] = "01/10/2025".split("/")
+const expectDate = "01/10/2025"
 
 test(`Calcular dia util anterior à ${date}`, () => {
-    const expectResult = new Date(Number(year), Number(month) - 1, Number(day))
-    const result = calculatePreviousBusinessDay(date)
+    const expectResult = dayjs(expectDate, "DD-MM-YYYY").toDate()
+    const result = calculatePreviousBusinessDay(dayjs(date, "DD-MM-YYYY"))
 
     expect(result).toEqual(expectResult)
 })

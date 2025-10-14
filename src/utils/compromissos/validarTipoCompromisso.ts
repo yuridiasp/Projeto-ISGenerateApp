@@ -1,5 +1,5 @@
 import { Cliente } from "@models/clientes/Cliente"
-import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { removeAcentuacaoString } from "@utils/text/textFormatting"
 
 export function validaTipoCompromisso(descriptionCompromisso: string, cidadeProcesso: string, estadoProcesso: string) {
     const descriptionCompromissoNormalizado = removeAcentuacaoString(descriptionCompromisso)

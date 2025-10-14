@@ -2,14 +2,18 @@ import path from 'path'
 import { describe, expect, it, beforeAll, jest, afterAll } from '@jest/globals'
 import fs from 'fs'
 
+import { dayjsConfig } from '../../src/config/dayjsConfig'
+
+dayjsConfig()
+
 import { HandleIntimationsReportResult, handleIntimationsReportService } from '../../src/services/intimation/handleIntimationsReportService'
 import { iWindows } from "../../src/models/windows/iWindows"
 import { login } from './utils/login'
 import { ValidationError } from '../../src/models/errors/validationError'
 import { getFileData } from './utils/getFileData'
 import { Result } from "../../src/models/results/result"
-
 const timeout = 10000
+
 
 describe("Validar cadastro de intimações a partir de um documento Word", () => {
     const files = ["PREV30092025", "PREV30092025 - Cadastrados", "RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025"]
@@ -82,7 +86,7 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
         expect(result).toEqual({
             success: true,
             data: {
-                message: 'Encontrado 0 intimação sem cadastro. Exportado relatório no caminho: C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025.xlsx',     
+                message: 'Encontrado 2 intimações sem cadastro. Exportado relatório no caminho: C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025.xlsx',     
                 newFilePath: 'C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025.xlsx'
             }
         })

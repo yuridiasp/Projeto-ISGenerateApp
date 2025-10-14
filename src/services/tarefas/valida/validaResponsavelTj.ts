@@ -1,4 +1,4 @@
-import { removeAcentuacaoString } from "@utils/textFormatting/textFormatting"
+import { removeAcentuacaoString } from "@utils/text/textFormatting"
 import { Cliente } from "@models/clientes/Cliente"
 
 export interface validaResponsavelDTO {

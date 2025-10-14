@@ -23,4 +23,5 @@ contextBridge.exposeInMainWorld('API', {
     updateReportStatus: (callback: callbackUpdateReportStatus) => ipcRenderer.on('update-view-report-validation', (event: Electron.IpcRendererEvent, value: iValidationReport) => callback(value)),
     enableButtonCloseReport: (calback: callbackEnableButtonCloseReport) => ipcRenderer.on('enable-button-close-report', calback),
     receiveCredentials: (calback: callbackreceiveCredentials) => ipcRenderer.on('receive-credentials', (event, credentials: credential) => calback(credentials)),
+    copyToClipboard: (text: string) => ipcRenderer.invoke('clopy-to-clip', text)
 })

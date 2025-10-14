@@ -28,6 +28,11 @@
     --excel-color-btn: #185D36;
     --word-background-btn: #40A4EE;
     --word-color-btn: #103E90;
+    --success-message-color: #21A668;
+    --success-message-bg: #AEF2D3;
+    --error-message-color: #3A2739;
+    --error-message-line: #E55770;
+    --error-message-bg: #F49AA9;
 }
 
 * {
@@ -257,6 +262,10 @@ label:active, .btn:active {
     border-left: solid var(--report-error-line);
 }
 
+span.process-report {
+    cursor: pointer;
+}
+
 .content-validation-result.error.process span.process-report{
     color: var(--report-error-color-text-reason);
 }
@@ -323,3 +332,79 @@ label:active, .btn:active {
         background-color: var(--scrollbar-bar);
         border-radius: 0.5rem;
     }
+
+.messageCopy-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 5%;
+    visibility: hidden;
+    z-index: 999;
+}
+
+.messageCopy {
+    box-sizing: border-box;
+    position: relative;
+    width: 30vw;
+}
+
+.messageCopy p {
+    padding: 10px;
+}
+
+.showMessageOneSecond div.successCopy {
+    background: var(--success-message-bg);
+    color: var(--success-message-color);
+}
+
+.showMessageOneSecond div.successCopy::before, .showMessageOneSecond div.errorCopy::before {
+    content: "";
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    animation: loadingCountdownScaleAttribute 1s;
+}
+
+.showMessageOneSecond div.successCopy::before {
+    background: var(--success-message-color);
+}
+
+.showMessageOneSecond div.errorCopy::before {
+    background: var(--error-message-line);
+}
+
+div.errorCopy {
+    background: var(--error-message-bg);
+    color: var(--error-message-color);
+}
+
+.showMessageOneSecond {
+    visibility: visible;
+    filter: opacity(0);
+    animation: showMessageOneSecondAnimation 1s;
+}
+
+@keyframes loadingCountdownScaleAttribute {
+    0% {
+        width: 100%;
+    }
+    100% {
+        width: 0%;
+    }
+}
+
+@keyframes showMessageOneSecondAnimation {
+    0% {
+        filter: opacity(1);
+    }
+    70% {
+        filter: opacity(1);
+    }
+    100% {
+        filter: opacity(0);
+        visibility: hidden;
+    }
+}

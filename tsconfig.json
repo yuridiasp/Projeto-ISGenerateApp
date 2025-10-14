@@ -13,6 +13,7 @@
     "resolveJsonModule": true,
     "paths": {
       "@channels/*": ["channels/*"],
+      "@config/*": ["config/*"],
       "@controllers/*": ["controllers/*"],
       "@helpers/*": ["helpers/*"],
       "@infrastructure/*": ["infrastructure/*"],

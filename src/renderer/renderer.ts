@@ -40,6 +40,7 @@ interface iAPI {
     enableButtonCloseReport: (args: any) => Promise<any>
     abrirJanelaLogin: () => void
     receiveCredentials: (receiveCredentials: any) => Promise<any>
+    copyToClipboard: (text: string) => Promise<boolean>
 }
   
 // Estende a interface Window para incluir a API
@@ -47,6 +48,19 @@ declare global {
     interface Window {
         API: iAPI;
     }
+}
+
+function showMessageCopy(result: boolean) {
+    const toggleClassShow = (element: HTMLInputElement) => {
+        element.classList.toggle("showMessageOneSecond")
+        setTimeout(() => {
+            element.classList.toggle("showMessageOneSecond")
+        }, 1000)
+    }
+    if(result)
+        toggleClassShow(document.querySelector("#messageCopySuccess"))
+    else
+        toggleClassShow(document.querySelector("#messageCopyError"))
 }
 
 async function intimationRegister () {
@@ -189,6 +203,12 @@ function insertReportValidation({ processo, case_number, publicacao, publication
     spanPublicationDate.innerHTML = publicationValue
     spanPublicationDate.classList.add("publication-report")
     content.append(spanPublicationDate)
+
+    spanCaseNumber.addEventListener("click", async () => {
+        const result = await window.API.copyToClipboard(spanCaseNumber.textContent)
+        
+        showMessageCopy(result)
+    })
     
     if(!isRegistered) {
         const button = document.createElement("button")

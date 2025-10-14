@@ -6,7 +6,7 @@ import { iWindows } from '@models/windows'
 
 export async function loginService(username: string | undefined, password: string | undefined): Promise<Result<Cookie>> {
     
-    const result = await getCookieLoginService({ login: username, senha: password })
+    const result = JSON.parse(await getCookieLoginService({ login: username, senha: password }))
 
     if (result.success) {
         const encryptedPassword = encrypt(password)
