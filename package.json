@@ -1,6 +1,6 @@
 {
   "name": "ISGeA",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Aplicação desenvolvida para automação de separação das intimações provenientes de IS, cadastro e validação.",
   "main": "dist/src/main.js",
   "scripts": {
