@@ -1,6 +1,6 @@
 import { iFileData } from "@services/validateIntimations/validateIntimationsService";
 import { iValidationReport } from "@models/validations/iValidationReport";
-import { lineXlsxIS, writeExcelFileRepository } from "@repositories/xlsx/excelISFile";
+import { writeExcelFileRepository } from "@repositories/xlsx/excelISFile";
 import { CellObject } from "xlsx-js-style";
 
 interface validationReport { data: (iValidationReport | CellObject[])[], file: iFileData, prefix: string, sheetName?: string, isRecorte?: boolean }

@@ -32,6 +32,7 @@ export async function getObjectValidateIntimationsService({ filePath, fileName }
             }
             return { success: false, error: new NotFoundError(fileName) }
         } catch (error) {
+            console.log(error)
             return { success: false, error: new FileError(error) }
         }
     }

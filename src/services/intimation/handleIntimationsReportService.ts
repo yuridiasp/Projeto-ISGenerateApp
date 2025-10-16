@@ -10,7 +10,6 @@ import { ISAnalysisDTO } from "@models/clientes"
 import { RecordResultsWithError } from "@models/errors"
 import { CellObject } from "xlsx-js-style"
 import { excelDateToJsDate } from "@utils/date/excelDateToJsDate"
-import { timezone } from "@helpers/timezone"
 
 export type HandleIntimationsReportResult = { message: string; newFilePath: string }
 
@@ -92,7 +91,7 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
 
     enableButtonCloseReport(windows.mainWindow)
     
-    const resultReport = generateValidationReport({ data: validations, file: file, prefix: isRecorte ? '' : 'RELATORIO-REGISTRO-INTIMACAO-', isRecorte })
+    const resultReport = generateValidationReport({ data: validations, file: file, prefix: 'RELATORIO-REGISTRO-INTIMACAO-', isRecorte })
 
     if (resultReport.success === true) {
         
@@ -108,6 +107,6 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
 
     return {
         success: false,
-        error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.')
+        error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.', resultFile.data.file.length)
     }
 }

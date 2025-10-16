@@ -2,8 +2,10 @@ import { errorsCodeList } from "@helpers/errorsCode";
 import { AppError } from "@models/errors/appError";
 
 export class ValidationError extends AppError {
+    fileLength: number
 
-    constructor(message: string) {
+    constructor(message: string, fileLength: number) {
         super(message, errorsCodeList.validationError)
+        this.fileLength = fileLength
     }
 }

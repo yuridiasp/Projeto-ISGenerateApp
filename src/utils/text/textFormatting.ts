@@ -3,6 +3,10 @@ export function removeAcentuacaoString (string: string): string {
 }
 
 export function removeCaracteresProcesso(numeroProcesso: string): string {
+
+    if(!numeroProcesso) {
+        return null
+    }
     
     let processoFormatado = ''
 

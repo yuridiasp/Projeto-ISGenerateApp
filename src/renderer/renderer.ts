@@ -1,3 +1,4 @@
+import { ValidationError } from "@models/errors"
 import { Result } from "@models/results"
 import { iValidationReport } from "@models/validations/iValidationReport"
 import { HandleIntimationsReportResult, tHandleIntimation } from "@services/intimation"
@@ -119,14 +120,19 @@ async function validateIntimations() {
             window.API.abrirJanelaLogin()
         } else {
             const resultJSONText = await window.API.intimationValidate(argsValidate, credentials)
-            console.log(resultJSONText)
+            
             const result = JSON.parse(resultJSONText) as Result<HandleIntimationsReportResult>
             if (result.success === true) {
                 console.log('Sucesso')
                 alert(result.data.message)
             } else {
+                const error = result.error as ValidationError
+                showReportContainer()
+                setReportFileName(argsValidate.fileName)
+                setReportFilePath(argsValidate.filePath)
+                if(!error.fileLength)
+                    inserSuccessMessageResponse()
                 alert(result.error.message)
-                console.log(result.error)
             }          
         }
     }
@@ -158,6 +164,34 @@ function setReportFilePath(filePath: string) {
     const filePathTitle = document.querySelector("#filePath")
 
     filePathTitle.innerHTML = filePath
+}
+
+function inserSuccessMessageResponse() {
+    const resultClass = 'success'
+    const resultIcon = 'check'
+
+    const container = document.createElement("div")
+    reportContent.append(container)
+    
+    const content = document.createElement("div")
+    content.classList.add("content-validation-result")
+    content.classList.add(resultClass)
+    container.append(content)
+    
+    const iContent = document.createElement("i")
+    iContent.classList.add("fa", `fa-${resultIcon}`)
+    iContent.ariaHidden = "true"
+    content.append(iContent)
+    
+    const spanCaseNumber = document.createElement("span")
+    spanCaseNumber.innerHTML = "Arquivo sem intimações para validar."
+    spanCaseNumber.classList.add("process-report")
+    content.append(spanCaseNumber)
+
+    const spanPublicationDate = document.createElement("span")
+    spanPublicationDate.innerHTML = ""
+    spanPublicationDate.classList.add("publication-report")
+    content.append(spanPublicationDate)
 }
 
 function insertReportValidation({ processo, case_number, publicacao, publication_date, isRegistered, reason = '', paragraph }: iValidationReport) {
@@ -331,7 +365,6 @@ window.API.updateReportStatus((report: iValidationReport) => {
     setReportFileName(argsValidate.fileName)
     setReportFilePath(argsValidate.filePath)
     insertReportValidation(report)
-    //showReportCloseButtonReport()
 })
 
 window.API.enableButtonCloseReport(() => {
