@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "target": "ESNext",
+    "module": "ESNext",
+    "target": "ES2020",
+    "isolatedModules": true,
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -9,8 +10,9 @@
     "sourceMap": true,
     "baseUrl": "./src",
     "outDir": "dist",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "noEmit": true,
     "paths": {
       "@channels/*": ["channels/*"],
       "@config/*": ["config/*"],

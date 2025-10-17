@@ -1,8 +1,9 @@
-module.exports = {
+export default {
     presets: [
-      [ '@babel/preset-env', {targets: {electron: '38.1.1'}} ],
+      [ '@babel/preset-env', { targets: {electron: '38.1.1'} } ],
       '@babel/preset-typescript',
     ],
+    sourceMaps: "inline",
     plugins: [
       ['module-resolver', {
         root: ['./src'],
