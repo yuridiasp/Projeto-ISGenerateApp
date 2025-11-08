@@ -170,7 +170,7 @@ export async function readWordFile(endereco: string, fileName: string): Promise<
         }
     })
     
-    return results.filter(result => result.case_number.length && result.description.length)
+    return results.filter(result => result.case_number?.length && result.description?.length)
 }
 
 type BufferLike = ArrayBuffer | ArrayBufferView | Blob | Buffer;
