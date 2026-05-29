@@ -1,3 +1,3 @@
-export * from '@services/windows/login/loginWindow'
-export * from '@services/windows/main/mainWindow'
-export * from '@services/windows/sobre/sobreWindow'
+export * from '@services/windows/login/loginWindow.services'
+export * from '@services/windows/main/mainWindow.services'
+export * from '@services/windows/sobre/sobreWindow.services'

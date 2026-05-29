@@ -1,1 +1,1 @@
-export * from '@services/appData/appData'
+export * from '@services/appData/appData.services'

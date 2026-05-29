@@ -1,2 +1,2 @@
-export * from './create/createBodyForCreateTask'
-export * from './create/createTarefaRepository'
+export * from './create/createBodyForCreateTask.repositories'
+export * from './create/createTarefaRepository.repositories'

@@ -1,6 +1,6 @@
 import { ValidationError } from "@models/errors"
 import { Result } from "@models/results"
-import { iValidationReport } from "@models/validations/iValidationReport"
+import { iValidationReport } from "@models/validations/iValidationReport.models"
 import { HandleIntimationsReportResult, tHandleIntimation } from "@services/intimation"
 import { credential } from "@services/login"
 import { iFileData } from "@services/validateIntimations"

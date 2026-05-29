@@ -1,1 +1,1 @@
-export * from '@models/feriados/Holiday'
+export * from '@models/feriados/Holiday.models'

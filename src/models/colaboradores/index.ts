@@ -1,1 +1,1 @@
-export * from '@models/colaboradores/iColaborador'
+export * from '@models/colaboradores/iColaborador.models'

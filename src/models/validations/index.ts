@@ -1,2 +1,2 @@
-export * from '@models/validations/iValidation'
-export * from '@models/validations/iValidationReport'
+export * from '@models/validations/iValidation.models'
+export * from '@models/validations/iValidationReport.models'

@@ -1,1 +1,1 @@
-export * from '@models/windows/iWindows'
+export * from '@models/windows/iWindows.models'

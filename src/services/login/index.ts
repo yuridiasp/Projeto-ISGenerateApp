@@ -1,1 +1,1 @@
-export * from '@services/login/loginService'
+export * from '@services/login/login.services'

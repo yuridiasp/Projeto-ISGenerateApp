@@ -1,3 +1,3 @@
-export * from '@models/tarefas/iCreateTarefa'
-export * from '@models/tarefas/iTarefa'
-export * from '@models/tarefas/iTarefaBusca'
+export * from '@models/tarefas/iCreateTarefa.models'
+export * from '@models/tarefas/iTarefa.models'
+export * from '@models/tarefas/iTarefaBusca.models'

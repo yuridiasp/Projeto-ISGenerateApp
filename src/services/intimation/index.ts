@@ -1,3 +1,3 @@
-export * from '@services/intimation/handleIntimationsRegistrationService'
-export * from '@services/intimation/handleIntimationsReportService'
-export * from '@services/intimation/intimationValidateService'
+export * from '@services/intimation/handleIntimationsRegistration.services'
+export * from '@services/intimation/handleIntimationsReport.services'
+export * from '@services/intimation/intimationValidate.services'

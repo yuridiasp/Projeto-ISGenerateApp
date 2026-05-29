@@ -1,1 +1,1 @@
-export * from '@models/seletores/iSeletores'
+export * from '@models/seletores/iSeletores.models'

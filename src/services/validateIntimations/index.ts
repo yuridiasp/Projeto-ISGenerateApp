@@ -1,1 +1,1 @@
-export * from '@services/validateIntimations/validateIntimationsService'
+export * from '@services/validateIntimations/validateIntimations.services'

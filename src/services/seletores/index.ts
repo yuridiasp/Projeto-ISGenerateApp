@@ -1,1 +1,1 @@
-export * from '@services/seletores/seletoresService'
+export * from '@services/seletores/seletores.services'

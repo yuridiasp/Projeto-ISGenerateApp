@@ -1,2 +1,2 @@
-export * from '@models/compromissos/iCompromisso'
-export * from '@models/compromissos/iCompromissoBody'
+export * from '@models/compromissos/iCompromisso.models'
+export * from '@models/compromissos/iCompromissoBody.models'

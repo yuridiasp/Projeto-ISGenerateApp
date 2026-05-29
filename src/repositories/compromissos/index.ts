@@ -1,2 +1,2 @@
-export * from './create/createCompromissoRepository'
-export * from './create/createBodyForCreateCompromisso'
+export * from './create/createCompromissoRepository.repositories'
+export * from './create/createBodyForCreateCompromisso.repositories'

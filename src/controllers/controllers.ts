@@ -1,17 +1,17 @@
 import { iWindows } from '@models/windows'
-import { openFileDialog } from '@infrastructure/dialog/openFile'
+import { openFileDialog } from '@infrastructure/dialog/openFile.infrastructure'
 import { closeSobreWindowService, createSobreWindowService } from '@services/windows'
 import { createMainWindowService } from '@services/windows'
-import { splitISService } from '@services/splitIS/splitISService'
+import { splitISService } from '@services/splitIS/splitIS.services'
 import { getDadosService, openPageGithubService } from '@services/appData'
 import { credential, getCookieLoginService } from '@services/login'
 import { iFileData } from '@services/validateIntimations'
 import { handleIntimationsReportService } from '@services/intimation'
 import { handleIntimationsRegistrationService } from '@services/intimation'
-import { executeWithLogin } from '@middlewares/executeWithLogin'
+import { executeWithLogin } from '@middlewares/executeWithLogin.middlewares'
 import { closeLoginWindowService, createLoginWindowService } from '@services/windows'
 import { sendCredenctialsService } from '@services/auth'
-import { copyToClipboardService } from '@services/clipboard/copyToClipboardService'
+import { copyToClipboardService } from '@services/clipboard/copyToClipboard.services'
 
 export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
     return openFileDialog(windows)

@@ -1,8 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-import { iValidationReport } from "@models/validations/iValidationReport"
-import { credential } from '@services/login/loginService'
-import { iFileData } from '@services/validateIntimations/validateIntimationsService'
+import { iValidationReport } from "@models/validations/iValidationReport.models"
+import { credential } from '@services/login/login.services'
+import { iFileData } from '@services/validateIntimations/validateIntimations.services'
 
 type callbackUpdateReportStatus = (value: iValidationReport) => void
 type callbackEnableButtonCloseReport = () => void
