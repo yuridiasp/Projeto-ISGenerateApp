@@ -129,3 +129,7 @@ dist
 
 #build
 out
+
+# artefatos
+data
+doc
