@@ -32,22 +32,17 @@ const recessos: { [ key: string ]: tipoRecesso } = {
 }
 
 export function setIntervaloFeriadosJudiciario (tipoRecesso: tipoRecesso): Holiday[] {
-    const fimMesDezembro = 31
-    const diaPrimeiro = 1
     const feriados = []
-    const indexJaneiro = 0
-    
-    let [ dia, mes ] = tipoRecesso.inicio,
-        [ diaFinal, mesFinal ] = tipoRecesso.fim
+    const [ diaInicial, mesInicial ] = tipoRecesso.inicio
+    const [ diaFinal, mesFinal ] = tipoRecesso.fim
+    const anoBase = 2000
+    const anoFinal = mesFinal < mesInicial ? anoBase + 1 : anoBase
+    const dataAtual = new Date(anoBase, mesInicial, diaInicial)
+    const dataFinal = new Date(anoFinal, mesFinal, diaFinal)
 
-    while(dia > diaFinal && mes == mesFinal) {
-        feriados.push(new Holiday([mes, dia], tipoRecesso.nome, true ))
-        dia++
-        
-        if (dia > fimMesDezembro) {
-            dia = diaPrimeiro
-            mes = indexJaneiro
-        }
+    while(dataAtual <= dataFinal) {
+        feriados.push(new Holiday([dataAtual.getMonth(), dataAtual.getDate()], tipoRecesso.nome, true ))
+        dataAtual.setDate(dataAtual.getDate() + 1)
     }
 
     return feriados

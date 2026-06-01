@@ -1,5 +1,5 @@
 import dotEnv from '@dotenvx/dotenvx'
-import { loginService } from "../../../src/services/auth/authService"
+import { loginService } from "../../../src/services/auth/auth.services"
 
 dotEnv.config()
 

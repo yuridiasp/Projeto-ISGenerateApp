@@ -1,60 +1,77 @@
-import dayjs from 'dayjs'
-import dotEnv from 'dotenv'
-import { describe, expect, it, beforeAll, jest, beforeEach, afterEach } from '@jest/globals'
+import { describe, expect, it, jest, beforeEach } from "@jest/globals"
 
-import { login } from './utils/login'
-import { iWindows } from '../../src/models/windows/iWindows'
-import { handleIntimationsRegistrationService, tCreateTaskResult } from '../../src/services/intimation/handleIntimationsRegistrationService'
-import { getFileData } from './utils/getFileData'
-import { excluirCompromisso } from './utils/excluirCompromisso'
-import { tHandleIntimation } from '../../src/services/intimation/handleIntimationsRegistrationService'
-import { Result } from '../../src/models/results/result'
-import { objectID } from '../../src/utils/request/successfulCreationRequestValidation'
-import { getObjectValidateIntimationsService } from '../../src/services/validateIntimations/validateIntimationsService'
-import { dayjsConfig } from '../../src/config/dayjsConfig'
-import { timezone } from '../../src/helpers/timezone'
+import { iWindows } from "../../src/models/windows/iWindows.models"
+import {
+  handleIntimationsRegistrationService,
+  tHandleIntimation
+} from "../../src/services/intimation/handleIntimationsRegistration.services"
+import { getFileData } from "./utils/getFileData"
+import { Result } from "../../src/models/results/result.models"
+import { getObjectValidateIntimationsService } from "../../src/services/validateIntimations/validateIntimations.services"
+import { createClienteService } from "../../src/services/clientes"
+import { createCompromissoService } from "../../src/services/compromissos"
+import { getSelectsTask } from "../../src/services/seletores"
+import {
+  createTaskService,
+  getListaTarefasCompromissoJudicial,
+  taskFactory
+} from "../../src/services/tarefas"
+import { updateViewRegistrationIntimations } from "../../src/utils/viewHelpers/viewHelpers.utils"
+import { errorsCodeList } from "../../src/helpers/errorsCode.helpers"
 
-dotEnv.config()
+jest.mock("../../src/services/validateIntimations/validateIntimations.services", () => ({
+  __esModule: true,
+  getObjectValidateIntimationsService: jest.fn()
+}))
 
-dayjsConfig()
+jest.mock("../../src/services/clientes", () => ({
+  __esModule: true,
+  createClienteService: jest.fn()
+}))
 
-function setPrazos(diasInterno: number, diasFatal: number) {
+jest.mock("../../src/services/compromissos", () => ({
+  __esModule: true,
+  createCompromissoService: jest.fn()
+}))
 
-  const prazoInterno = dayjs.tz(timezone).add(diasInterno, 'd')
-  const prazoFatal = dayjs.tz(timezone).add(diasFatal, 'd')
+jest.mock("../../src/services/seletores", () => ({
+  __esModule: true,
+  getSelectsTask: jest.fn()
+}))
 
-  return [ prazoInterno, prazoFatal ]
-}
+jest.mock("../../src/services/tarefas", () => ({
+  __esModule: true,
+  createTaskService: jest.fn(),
+  getListaTarefasCompromissoJudicial: jest.fn(),
+  taskFactory: jest.fn()
+}))
 
-const diasSentecaJEF = { interno: 5,fatal: 10}
-const diasPericia = { interno: 30,fatal: 30}
+jest.mock("../../src/utils/viewHelpers/viewHelpers.utils", () => ({
+  __esModule: true,
+  updateViewRegistrationIntimations: jest.fn()
+}))
 
-const [ prazoInternoSentencaJEF, prazoFatalSentencaJEF ] = setPrazos(diasSentecaJEF.interno, diasSentecaJEF.fatal)
-const [ prazoInternoPericia, prazoFatalPericia ] = setPrazos(diasPericia.interno, diasPericia.fatal)
-
-const timeout = 20000,
-  sentenca = { interno: prazoInternoSentencaJEF, fatal: prazoFatalSentencaJEF },
-  pericia = { interno: prazoInternoPericia, fatal: prazoFatalPericia }
+const cookie = "cookie-test"
 
 const mockSuccessSentenca = {
   success: true,
   data: {
     file: [{
-      case_number: '202488101866',
-      description: 'SENTENÇA',
-      publication_date: '30/09/2025',
+      case_number: "202488101866",
+      description: "SENTENCA",
+      publication_date: "30/09/2025",
       related_case_number: null,
-      internal_deadline: sentenca.interno,
-      fatal_deadline: sentenca.fatal,
+      internal_deadline: "06/06/2026",
+      fatal_deadline: "11/06/2026",
       time: null,
       expert_or_defendant: null,
       local_adress: null,
       dataCliente: undefined,
       dataProcesso: undefined,
-      executor: 'KEVEN',
+      executor: "KEVEN",
       separate_task: null,
       justification: null,
-      paragraph: `202488101866 - SENTENÇA - (${sentenca.interno} - ${sentenca.fatal}) - KEVEN`
+      paragraph: "202488101866 - SENTENCA - (06/06/2026 - 11/06/2026) - KEVEN"
     }]
   }
 } as never
@@ -63,87 +80,139 @@ const mockSuccessPericia = {
   success: true,
   data: {
     file: [{
-      case_number: '202488101866',
-      description: 'PERÍCIA MÉDICA',
-      publication_date: '30/09/2025',
+      case_number: "202488101866",
+      description: "PERICIA MEDICA",
+      publication_date: "30/09/2025",
       related_case_number: null,
-      internal_deadline: pericia.interno,
-      fatal_deadline: pericia.fatal,
-      time: '07:00',
-      expert_or_defendant: 'MONICA FULANA DE TAL',
-      local_adress: 'FORUM DE ALGUM LUGAR',
+      internal_deadline: "01/07/2026",
+      fatal_deadline: "01/07/2026",
+      time: "07:00",
+      expert_or_defendant: "MONICA FULANA DE TAL",
+      local_adress: "FORUM DE ALGUM LUGAR",
       dataCliente: undefined,
       dataProcesso: undefined,
-      executor: '(ADM)',
+      executor: "(ADM)",
       separate_task: null,
       justification: null,
-      paragraph: `202488101866 - PERÍCIA MÉDICA - (${pericia.interno.toDate().toLocaleDateString()} ÀS 07:00) - (ADM)PERITO: MONICA FULANA DE TALLOCAL:FORUM DE ALGUM LUGAR`
+      paragraph: "202488101866 - PERICIA MEDICA - (01/07/2026 AS 07:00) - (ADM)"
     }]
   }
 } as never
 
-function delay(ms: number, id: string, cookie: string) {
-  return new Promise<void>(resolve => setTimeout(async () => { await excluirCompromisso(id, cookie); resolve() }, ms));
+function mockCliente() {
+  return {
+    compromisso: {
+      id: null,
+      tarefas: null,
+      quantidadeTarefas: null
+    },
+    processo: {}
+  } as any
 }
 
-jest.mock('../../src/services/validateIntimations/validateIntimationsService', () => ({
-  __esModule: true,
-  getObjectValidateIntimationsService: jest.fn(),   // vira Jest mock
-}))
+function arrangeSuccessfulCreation(validationResult: never) {
+  const cliente = mockCliente()
+  const tarefas = [{ descricao: "CONTATAR CLIENTE" }]
+  const compromisso = [{ id: "compromisso-1" }]
+  const tarefasRegistradas = [{ id: "tarefa-1" }]
 
-describe('Criar tarefas de compromissos', () => {
-    const mocked = jest.mocked(getObjectValidateIntimationsService)
-    const files = ["PREV30092025 - Cadastrar Teste [SENTENÇA]"]
+  jest.mocked(getObjectValidateIntimationsService).mockResolvedValueOnce(validationResult)
+  jest.mocked(getSelectsTask).mockResolvedValueOnce({ tiposTarefas: [] } as any)
+  jest.mocked(createClienteService).mockResolvedValueOnce({
+    success: true,
+    data: { cliente }
+  } as any)
+  jest.mocked(createCompromissoService).mockResolvedValueOnce({
+    success: true,
+    data: { successfulRecordCount: { registeredSuccessfully: compromisso } }
+  } as any)
+  jest.mocked(getListaTarefasCompromissoJudicial).mockReturnValueOnce(["CONTATAR CLIENTE"])
+  jest.mocked(taskFactory).mockResolvedValueOnce(tarefas as any)
+  jest.mocked(createTaskService).mockResolvedValueOnce({
+    success: true,
+    data: { registeredSuccessfully: tarefasRegistradas }
+  } as any)
 
-    const send = jest.fn()
-    const windows: iWindows = {
-        mainWindow: { webContents: { send } } as any,
-        sobreWindow: null,
-        loginWindow: null
-    }
+  return { cliente, tarefas, compromisso, tarefasRegistradas }
+}
 
-    let cookie: string, compromissos: objectID[] = []
+describe("handleIntimationsRegistrationService", () => {
+  const send = jest.fn()
+  const windows: iWindows = {
+    mainWindow: { webContents: { send } } as any,
+    sobreWindow: null,
+    loginWindow: null
+  }
 
-    beforeAll(async () => { cookie = await login() })
-    
-    beforeEach(async () => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
 
-    afterEach(async () => {
-        await delay(2000, compromissos[0]?.id, cookie)
+  it("registra compromisso e tarefas de sentenca com sucesso", async () => {
+    const { cliente, tarefas, compromisso, tarefasRegistradas } = arrangeSuccessfulCreation(mockSuccessSentenca)
+    const [ , fileData ] = getFileData("PREV30092025 - Cadastrar Teste [SENTENCA]")
+
+    const result: Result<tHandleIntimation> = await handleIntimationsRegistrationService(windows, cookie, fileData)
+
+    expect(result).toEqual({
+      success: true,
+      data: {
+        registered: [{
+          success: true,
+          data: {
+            bodys: {
+              compromisso,
+              tarefas: tarefasRegistradas
+            }
+          }
+        }],
+        unregisteredCommitments: [],
+        unregisteredTasks: []
+      }
     })
+    expect(getSelectsTask).toHaveBeenCalledWith(cookie)
+    expect(createCompromissoService).toHaveBeenCalledWith(cliente, cookie)
+    expect(cliente.compromisso.id).toBe("compromisso-1")
+    expect(cliente.compromisso.quantidadeTarefas).toBe(1)
+    expect(cliente.compromisso.tarefas).toBe(tarefas)
+    expect(updateViewRegistrationIntimations).toHaveBeenCalledWith(
+      expect.objectContaining({ success: true }),
+      windows.mainWindow
+    )
+  })
 
+  it("registra compromisso de pericia com sucesso", async () => {
+    arrangeSuccessfulCreation(mockSuccessPericia)
+    const [ , fileData ] = getFileData("PREV30092025 - Cadastrar Teste [SENTENCA]")
 
-    it("Criando compromisso de sentença com sucesso", async () => {
-        mocked.mockResolvedValueOnce(mockSuccessSentenca)
+    const result: Result<tHandleIntimation> = await handleIntimationsRegistrationService(windows, cookie, fileData)
 
-        const [ fileNameReport, fileData ] = getFileData(files[0])
-        const resultRegister: Result<tHandleIntimation> = await handleIntimationsRegistrationService(windows, cookie, fileData)
+    expect(result.success).toBeTruthy()
+    expect(createClienteService).toHaveBeenCalledWith(
+      expect.objectContaining({ description: "PERICIA MEDICA" }),
+      cookie
+    )
+    expect(taskFactory).toHaveBeenCalledWith(
+      expect.any(Object),
+      ["CONTATAR CLIENTE"],
+      cookie,
+      []
+    )
+  })
 
-        
-        if(resultRegister.success) {
-            compromissos = resultRegister.data?.registered[0].data?.bodys.compromisso as objectID[]
-        } else {
-          const data = resultRegister.error?.data[0] as tCreateTaskResult
-          compromissos = data.data?.bodys?.compromisso?.length ? data.data?.bodys?.compromisso[0] : []
-        }
-        
-        expect(resultRegister.success).toBeTruthy()
-      }, timeout)
-      
-      it.only("Criando compromisso de perícia com sucesso", async () => {
-        (getObjectValidateIntimationsService as jest.Mock).mockResolvedValueOnce(mockSuccessPericia)
-        const [ fileNameReport, fileData ] = getFileData(files[0])
-        const resultRegister: Result<tHandleIntimation> = await handleIntimationsRegistrationService(windows, cookie, fileData)
-        
-        
-        if(resultRegister.success) {
-          compromissos = resultRegister.data?.registered[0].data?.bodys.compromisso as objectID[]
-        } else {
-          const data = resultRegister.error?.data[0] as tCreateTaskResult
-          compromissos = data.data?.bodys?.compromisso?.length ? data.data?.bodys?.compromisso[0] : []
-          console.log(resultRegister.error.data[0].error)
-        }
-        
-        expect(resultRegister.success).toBeTruthy()
-    }, timeout)
+  it("retorna erro quando o arquivo validado esta vazio", async () => {
+    jest.mocked(getObjectValidateIntimationsService).mockResolvedValueOnce({
+      success: true,
+      data: { file: [] }
+    } as any)
+
+    const [ , fileData ] = getFileData("PREV30092025 - Cadastrar Teste [SENTENCA]")
+    const result = await handleIntimationsRegistrationService(windows, cookie, fileData)
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error.code).toBe(errorsCodeList.emptyFileError)
+    }
+    expect(createClienteService).not.toHaveBeenCalled()
+  })
 })

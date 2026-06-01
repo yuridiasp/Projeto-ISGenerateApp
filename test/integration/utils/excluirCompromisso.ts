@@ -1,4 +1,4 @@
-import { loggedGetRequest } from '../../../src/utils/request/getRequest'
+import { loggedGetRequest } from '../../../src/utils/request/getRequest.utils'
 
 export async function excluirCompromisso(idCompromisso: string, cookie: string) {
     if(!idCompromisso)

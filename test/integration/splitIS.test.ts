@@ -3,7 +3,7 @@ import { describe, expect, it, afterAll } from '@jest/globals'
 import fs from 'fs'
 
 import { getFileDataSplit, getFileData } from './utils/getFileData'
-import { splitISService } from '../../src/services/splitIS/splitISService'
+import { splitISService } from '../../src/services/splitIS/splitIS.services'
 
 describe("Dividir arquivos de IS por natureza a partir de um único arquivo de IS", () => {
     const files = [{filename: "47", publication: "29092025" }]

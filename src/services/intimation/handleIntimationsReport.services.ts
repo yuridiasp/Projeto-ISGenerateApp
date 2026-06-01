@@ -30,6 +30,7 @@ const cellStyle = {
 
 //TODO: Refatorar essa função e distribuir responsabilidades
 export async function handleIntimationsReportService (windows: iWindows, cookie: string, file: iFileData): Promise<Result<HandleIntimationsReportResult>> {
+    const mainWindow = windows.mainWindow as Pick<Electron.CrossProcessExports.BrowserWindow, 'webContents'>
     const resultFile = await getObjectValidateIntimationsService(file)
     let unregisteredCont = 0
     
@@ -40,22 +41,22 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
         }
     }
     
-    const resultado = resultFile.data.file.map(async (intimation: ISAnalysisDTO) => intimationValidateService(intimation, cookie).then(result => {
+    const resultado = resultFile.data?.file.map(async (intimation: ISAnalysisDTO) => intimationValidateService(intimation, cookie).then(result => {
         
         if (result.success === true) {
-            updateViewReportValidation(result.data.validationReport, windows.mainWindow)
-            return result.data.validationReport
+            updateViewReportValidation(result.data?.validationReport as iValidationReport, mainWindow)
+            return result.data?.validationReport
         }
         
         
         const error = result.error as RecordResultsWithError
         const validationReport = error.data as iValidationReport
-        updateViewReportValidation(validationReport, windows.mainWindow)
+        updateViewReportValidation(validationReport, mainWindow)
 
         return validationReport
     }))
 
-    const isRecorte = resultFile.data.file.some(file => file.isRecorte)
+    const isRecorte = resultFile.data?.file.some(file => file.isRecorte)
     //TODO: Refatorar essa função - Dividir responsabilidades
     const validations = (await Promise.all(resultado).then(intimationsValidated => {
         if(isRecorte) {
@@ -66,15 +67,15 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
     )).map((line) => {
         if (!line.isRegistered) unregisteredCont++
         if(isRecorte) {
-            return Object.keys(line.objectRecorte).reduce((previous, current) => {
+            return Object.keys(line.objectRecorte as Object).reduce((previous, current) => {
                 //const widths =  [ 15.57, 7.29, 10, 12.71, 71.43, 7.43, 23.71, 73.57, 6.86, 11.71, 8.43 ]
                 const isDataType = "DATA DISP" === current || current === "DATA PUBLIC"
                 const t = isDataType ? "d" : "s"
                 //const s = line.isRegistered ? {...cellStyle.success, } : {...cellStyle.fail}
-                let v = line.objectRecorte[current as keyof typeof line.objectRecorte]
+                let v:string = line.objectRecorte[current as keyof typeof line.objectRecorte]
                 
                 if (isDataType) {
-                    const date = excelDateToJsDate(line.objectRecorte[current as keyof typeof line.objectRecorte] as string)
+                    const date = excelDateToJsDate(line.objectRecorte[current as keyof typeof line.objectRecorte])
                     // TODO: Propor nova solução para substituir esse acréscimo de 28 segundos
                     v =  date.tz().hour(0).minute(0).second(28).millisecond(0).format("YYYY-MM-DD HH:mm:ss")
                 }
@@ -87,9 +88,9 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
         return line
     })
 
-    if(isRecorte) validations.unshift([...Object.keys(resultFile.data.file[0].objectRecorte).map(key => ({ v: key, t:"s", s: cellStyle.title }))] as CellObject[])
+    if(isRecorte) validations.unshift([...Object.keys(resultFile.data?.file[0].objectRecorte as Object).map(key => ({ v: key, t:"s", s: cellStyle.title }))] as CellObject[])
 
-    enableButtonCloseReport(windows.mainWindow)
+    enableButtonCloseReport(mainWindow)
     
     const resultReport = generateValidationReport({ data: validations, file: file, prefix: 'RELATORIO-REGISTRO-INTIMACAO-', isRecorte })
 
@@ -97,16 +98,16 @@ export async function handleIntimationsReportService (windows: iWindows, cookie:
         
         const pluralOrSingularForIntimacao = unregisteredCont > 1 ? 'intimações' : 'intimação'
         
-        const message =  `Encontrado ${unregisteredCont} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${resultReport.data.newFilePath}`
+        const message =  `Encontrado ${unregisteredCont} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${resultReport.data?.newFilePath}`
 
         return {
             success: true,
-            data: { message, newFilePath: resultReport.data.newFilePath }
+            data: { message, newFilePath: resultReport.data?.newFilePath as string }
         }
     }
 
     return {
         success: false,
-        error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.', resultFile.data.file.length)
+        error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.', resultFile.data?.file.length)
     }
 }

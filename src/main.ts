@@ -28,7 +28,7 @@ app?.whenReady().then(async () => {
     //createLoginWindowController(windows)
     await setHandlers(windows)
 
-    const registros = await readDiaryFromPdfController("./doc/IS JFSE 08052026.pdf")
+    const registros = await readDiaryFromPdfController("./doc/TRT30092025 - Cadastrados.docx")
     
     if (registros.length > 0) {
         console.dir(registros[0], {

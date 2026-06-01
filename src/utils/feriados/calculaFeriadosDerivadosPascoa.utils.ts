@@ -8,7 +8,7 @@ export function calculaFeriadosDerivadosPascoa(pascoa: Date) {
         { nome: "QUARTA-FEIRA SANTA - PONTO FACULTATIVO", offset: -4 },
         { nome: "QUINTA-FEIRA MAIOR - PONTO FACULTATIVO", offset: -3 },
         { nome: "SEXTA-FEIRA DA PAIXÃO - NACIONAL", offset: -2 },
-        { nome: "CORPUS CHRISTI - PONTO FACULTATIVO", offset: -60 }
+        { nome: "CORPUS CHRISTI - PONTO FACULTATIVO", offset: 60 }
     ]
 
     return [ {data: pascoa, feriado: "PÁSCOA - NACIONAL", isNacional: true},

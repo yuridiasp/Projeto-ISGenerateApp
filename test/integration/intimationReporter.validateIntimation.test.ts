@@ -2,16 +2,16 @@ import path from 'path'
 import { describe, expect, it, beforeAll, jest, afterAll } from '@jest/globals'
 import fs from 'fs'
 
-import { dayjsConfig } from '../../src/config/dayjsConfig'
+import { dayjsConfig } from '../../src/config/dayjsConfig.config'
 
 dayjsConfig()
 
-import { HandleIntimationsReportResult, handleIntimationsReportService } from '../../src/services/intimation/handleIntimationsReportService'
-import { iWindows } from "../../src/models/windows/iWindows"
+import { HandleIntimationsReportResult, handleIntimationsReportService } from '../../src/services/intimation/handleIntimationsReport.services'
+import { iWindows } from "../../src/models/windows/iWindows.models"
 import { login } from './utils/login'
-import { ValidationError } from '../../src/models/errors/validationError'
+import { ValidationError } from '../../src/models/errors/validationError.models'
 import { getFileData } from './utils/getFileData'
-import { Result } from "../../src/models/results/result"
+import { Result } from "../../src/models/results/result.models"
 const timeout = 10000
 
 
@@ -56,8 +56,8 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
         expect(result).toEqual({
             success: true,
             data: {
-                message: 'Encontrado 5 intimações sem cadastro. Exportado relatório no caminho: C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RELATORIO-REGISTRO-INTIMACAO-PREV30092025.xlsx',     
-                newFilePath: 'C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RELATORIO-REGISTRO-INTIMACAO-PREV30092025.xlsx'
+                message: `Encontrado 5 intimações sem cadastro. Exportado relatório no caminho: ${filePath}`,
+                newFilePath: filePath
             }
         })
     }, timeout)
@@ -74,20 +74,21 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
         expect(fileExists).toBeFalsy()
         expect(result).toEqual({
             success: false,
-            error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.')
+            error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.', 5)
         })
     }, timeout)
 
     it("Arquivo de relatório do Recorte Digital", async () => {
         const [ fileNameReport, fileData ] = getFileData(files[2], ".xlsx")
+        const filePath = path.join(path.dirname(fileData.filePath), fileNameReport)
 
         const result: Result<HandleIntimationsReportResult> = await handleIntimationsReportService(windows, cookie, fileData)
         
         expect(result).toEqual({
             success: true,
             data: {
-                message: 'Encontrado 2 intimações sem cadastro. Exportado relatório no caminho: C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025.xlsx',     
-                newFilePath: 'C:\\Users\\yuri\\Documents\\GitHub\\ISGenerateApp\\doc\\RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025.xlsx'
+                message: `Encontrado 2 intimações sem cadastro. Exportado relatório no caminho: ${filePath}`,
+                newFilePath: filePath
             }
         })
     }, timeout)

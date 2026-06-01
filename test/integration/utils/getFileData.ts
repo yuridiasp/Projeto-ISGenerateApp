@@ -1,5 +1,5 @@
 import path from "path"
-import { iFileData } from "../../../src/services/validateIntimations/validateIntimationsService"
+import { iFileData } from "../../../src/services/validateIntimations/validateIntimations.services"
 
 type valideExtensions = ".doc" | ".docx" | ".xlsx"
 

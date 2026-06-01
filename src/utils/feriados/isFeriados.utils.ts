@@ -4,7 +4,7 @@ import { calculaFeriados } from "@utils/feriados/calculaFeriados.utils"
 export type isFeriadoDTO = { isHoliday: boolean, holiday: string , isNacional: boolean | undefined } | { isHoliday: boolean }
 
 export function isFeriado (date: Date, parametro: number, dataProcess: Pick<Cliente["processo"], "cidade" | "origem" | "natureza" | "estado">, year?: number): isFeriadoDTO {
-    const feriados = calculaFeriados(parametro, dataProcess, year)
+    const feriados = calculaFeriados(parametro, dataProcess, year ?? date.getFullYear())
     
     const dateString = date.toISOString()
 
