@@ -1,4 +1,4 @@
-export type DiarySourceLayout = "DEFAULT" | "SERDIJUL";
+export type DiarySourceLayout = "DEFAULT" | "SERDIJUL" | "WORD_CADASTRADO";
 
 export interface PdfDiaryMetadata {
   jornal?: string;

@@ -3,16 +3,19 @@ import { fixDiaryEncoding } from "./diaryEncoding.helpers";
 import { cleanDiaryValue } from "./diaryText.helpers";
 
 export function normalizePdfDiaryText(text: string): string {
-  const fixed = fixDiaryEncoding(text)
+  return fixDiaryEncoding(text)
     .replace(/\r/g, "")
     .replace(/\t/g, " ")
 
     // Corrige links quebrados
     .replace(/https:\s*\/\s*\/\s*/gi, "https://")
     .replace(/\/\s+/g, "/")
-    .replace(/\s+\?/g, "?");
+    .replace(/\s+\?/g, "?")
 
-  return removeSerdijulNoise(fixed)
+    // IMPORTANTE:
+    // Não remover números isolados aqui.
+    // Isso apagava o "Código: 259" dos PDFs IS Processos.
+
     .replace(/[ ]{2,}/g, " ")
     .replace(/\n{2,}/g, "\n")
     .trim();
@@ -23,12 +26,14 @@ export function normalizePdfDiaryMarkers(text: string): string {
     .replace(/\r/g, "")
     .replace(/\t/g, " ")
 
+    // Marcadores gerais do layout IS Processos / Outlook
     .replace(/C[oó]digo\s*:/gi, "Codigo:")
     .replace(/Código\s*:/gi, "Codigo:")
-
     .replace(/Informa(?:ç|c)[oõ]es\s*:/gi, "Informacoes:")
+    .replace(/Informações\s*:/gi, "Informacoes:")
     .replace(/Informa├º├Áes\s*:/gi, "Informacoes:")
 
+    // Marcadores internos DJN / SERDIJUL
     .replace(/Publica(?:c|ç)[aã]o\s+Processo\s*:/gi, "Publicacao Processo:")
     .replace(/\bOrg[aã]o\s*:/gi, "Orgao:")
     .replace(/Data\s+de\s+disponibiliza(?:c|ç)[aã]o\s*:/gi, "Data de disponibilizacao:")
@@ -41,59 +46,46 @@ export function normalizePdfDiaryMarkers(text: string): string {
     .replace(/Conte[uú]do\s*:/gi, "Conteudo:")
     .replace(/\|\s*comunicacao_id\s*:\s*/gi, "|comunicacao_id: ")
 
+    // Links
     .replace(/https:\s*\/\s*\/\s*/gi, "https://")
     .replace(/\/\s+/g, "/")
     .replace(/\s+\?/g, "?")
 
+    // Junta linhas para facilitar regex.
     .replace(/\n+/g, " ")
     .replace(/[ ]{2,}/g, " ")
     .trim();
 }
 
 export function removeSerdijulNoise(text: string): string {
-  return text
-    // Cabeçalho principal
+  return fixDiaryEncoding(text)
+    // Cabeçalhos SERDIJUL/TRT
     .replace(
-      /DIÁRIO DO TRIBUNAL REGIONAL DO TRABALHO DE SERGIPE\s*\(20ª\s*REGIÃO\)\s*-\s*DJN/gi,
+      /DI[ÁAÃ]RIO\s+DO\s+TRIBUNAL\s+REGIONAL\s+DO\s+TRABALHO\s+DE\s+SERGIPE\s*\(20ª\s+REGI[AÃ]O\)\s*-\s*DJN/gi,
       " "
     )
-    .replace(
-      /DIARIO DO TRIBUNAL REGIONAL DO TRABALHO DE SERGIPE\s*\(20ª\s*REGIAO\)\s*-\s*DJN/gi,
-      " "
-    )
-
-    // Cabeçalho de edição/publicação
-    .replace(/Edição\s*n[ºo]\s*Data\s+da\s+Divulgação:[\s\S]*?Data\s+da\s+Publicação:[^\n]+/gi, " ")
-    .replace(/Edicao\s*n[ºo]?\s*Data\s+da\s+Divulgacao:[\s\S]*?Data\s+da\s+Publicacao:[^\n]+/gi, " ")
-
-    // Palavra "Publicações" isolada
-    .replace(/\bPublicações\b/gi, " ")
-    .replace(/\bPublicacoes\b/gi, " ")
 
     // Rodapé SERDIJUL
-    .replace(/Rua\s+São\s+Cristovão,[\s\S]*?serdijul@globo\.com/gi, " ")
-    .replace(/Rua\s+Sao\s+Cristovao,[\s\S]*?serdijul@globo\.com/gi, " ")
+    .replace(/Rua\s+S[aã]o\s+Cristov[aã]o,[\s\S]*?serdijul@globo\.com/gi, " ")
     .replace(/Tel:\s*\(\d+\)\s*[\d-]+\s*-\s*Cel:\s*[\d-]+\s*-\s*[\d-]+\.?/gi, " ")
     .replace(/serdijulsergipe@gmail\.com\s*-\s*serdijul@globo\.com/gi, " ")
 
-    // Paginação
+    // Paginação segura, apenas padrão "x of y"
     .replace(/\s+\d+\s+of\s+\d+\s+/gi, " ")
-    .replace(/\n\s*\d+\s*\n/g, "\n")
 
-    // Espaços
     .replace(/[ ]{2,}/g, " ")
     .replace(/\n{2,}/g, "\n")
     .trim();
 }
 
 export function extractPdfDiaryMetadata(text: string): PdfDiaryMetadata {
-  const fixedText = fixDiaryEncoding(text);
+  const fixed = fixDiaryEncoding(text);
 
   return {
-    jornal: extractPdfDiaryJornal(fixedText),
-    tribunal: extractPdfDiaryTribunal(fixedText),
-    dataDivulgacao: extractPdfDiaryDataDivulgacao(fixedText),
-    dataPublicacao: extractPdfDiaryDataPublicacao(fixedText)
+    jornal: extractPdfDiaryJornal(fixed),
+    tribunal: extractPdfDiaryTribunal(fixed),
+    dataDivulgacao: extractPdfDiaryDataDivulgacao(fixed),
+    dataPublicacao: extractPdfDiaryDataPublicacao(fixed)
   };
 }
 
@@ -103,9 +95,9 @@ function extractPdfDiaryJornal(text: string): string | undefined {
     .replace(/\n+/g, " ")
     .replace(/[ ]{2,}/g, " ");
 
-  const match = fixed.match(
-    /(DI[ÁA]RIO\s+DO\s+TRIBUNAL[\s\S]*?\(20ª\s+REGIÃO\)\s*-\s*DJN)/i
-  );
+  const match =
+    fixed.match(/(DI[ÁAÃ]RIO\s+DO\s+TRIBUNAL[\s\S]*?DJN)/i) ??
+    fixed.match(/(DIARIO\s+DO\s+TRIBUNAL[\s\S]*?DJN)/i);
 
   return cleanDiaryValue(match?.[1]);
 }
@@ -116,7 +108,8 @@ function extractPdfDiaryTribunal(text: string): string | undefined {
   if (!jornal) return undefined;
 
   const tribunal = jornal
-    .replace(/^DI[ÁA]RIO\s+DO\s+/i, "")
+    .replace(/^DI[ÁAÃ]RIO\s+DO\s+/i, "")
+    .replace(/^DIARIO\s+DO\s+/i, "")
     .replace(/\s*-\s*DJN$/i, "")
     .trim();
 
@@ -125,7 +118,7 @@ function extractPdfDiaryTribunal(text: string): string | undefined {
 
 function extractPdfDiaryDataDivulgacao(text: string): string | undefined {
   const match = text.match(
-    /Data\s+da\s+Divulga[cç][aã]o:\s*([^\n]+)/i
+    /Data\s+da\s+Divulga(?:ç|c)[aã]o:\s*([^\n]+)/i
   );
 
   return cleanDiaryValue(match?.[1]);
@@ -133,7 +126,7 @@ function extractPdfDiaryDataDivulgacao(text: string): string | undefined {
 
 function extractPdfDiaryDataPublicacao(text: string): string | undefined {
   const match = text.match(
-    /Data\s+da\s+Publica[cç][aã]o:\s*([^\n]+)/i
+    /Data\s+da\s+Publica(?:ç|c)[aã]o:\s*([^\n]+)/i
   );
 
   return cleanDiaryValue(match?.[1]);

@@ -32,8 +32,8 @@ function parseOutlookIsProcessosRecords(
     .map(block => block.trim())
     .filter(block =>
       /^Data\s*:\s*\d{2}\/\d{2}\/\d{4}/i.test(block) &&
-      /C[oó]digo\s*:/i.test(block) &&
-      /Informa(?:ç|c)[oõ]es\s*:/i.test(block)
+      /Codigo\s*:/i.test(block) &&
+      /Informacoes\s*:/i.test(block)
     );
 
   return blocks
@@ -47,7 +47,7 @@ function parseOutlookIsProcessosRecord(
 ): DiaryRecord {
   const informacoes = extractValue(
     block,
-    /Informa(?:ç|c)[oõ]es\s*:\s*([\s\S]*)$/i
+    /Informacoes\s*:\s*([\s\S]*)$/i
   );
 
   const data = extractValue(
@@ -63,7 +63,7 @@ function parseOutlookIsProcessosRecord(
 
     codigo: extractValue(
       block,
-      /C[oó]digo\s*:\s*([\s\S]*?)\s+Nome\s+Pesquisado\s*:/i
+      /Codigo\s*:\s*([\s\S]*?)\s+Nome\s+Pesquisado\s*:/i
     ),
 
     nomePesquisado: extractValue(
@@ -72,20 +72,16 @@ function parseOutlookIsProcessosRecord(
     ),
 
     jornal:
-      extractValue(
-        block,
-        /Jornal\s*:\s*([\s\S]*?)\s+Tribunal\s*:/i
-      ) ?? metadata.jornal,
+      extractValue(block, /Jornal\s*:\s*([\s\S]*?)\s+Tribunal\s*:/i) ??
+      metadata.jornal,
 
     tribunal:
-      extractValue(
-        block,
-        /Tribunal\s*:\s*([\s\S]*?)\s+Vara\s*:/i
-      ) ?? metadata.tribunal,
+      extractValue(block, /Tribunal\s*:\s*([\s\S]*?)\s+Vara\s*:/i) ??
+      metadata.tribunal,
 
     vara: extractValue(
       block,
-      /Vara\s*:\s*([\s\S]*?)\s+Informa(?:ç|c)[oõ]es\s*:/i
+      /Vara\s*:\s*([\s\S]*?)\s+Informacoes\s*:/i
     ),
 
     informacoes,
@@ -120,10 +116,13 @@ function enrichRecordWithPublicacaoProcesso(
     /\|\s*comunicacao_id\s*:\s*([^|]+)\|/i
   );
 
+  const conteudo = extractValue(
+    informacoes,
+    /Conteudo\s*:\s*([\s\S]*?)(?=\s+\|\s*comunicacao_id\s*:|$)/i
+  );
+
   return {
     ...baseRecord,
-
-    layout: "DEFAULT",
 
     processo,
     processoCnj: processo,
@@ -156,14 +155,13 @@ function enrichRecordWithPublicacaoProcesso(
       /Classe\s*:\s*([\s\S]*?)\s+Conteudo\s*:/i
     ),
 
-    conteudo: extractValue(
-      informacoes,
-      /Conteudo\s*:\s*([\s\S]*?)(?=\s+\|\s*comunicacao_id\s*:|$)/i
-    ),
+    conteudo: cleanDiaryValue(conteudo),
 
     comunicacaoId,
 
-    informacoes: cleanDiaryValue(removeComunicacaoId(informacoes)),
+    informacoes: cleanDiaryValue(
+      removeComunicacaoId(informacoes)
+    ),
 
     partes: extractDiaryPartes(informacoes),
     advogados: extractDiaryAdvogados(informacoes)
@@ -216,17 +214,25 @@ function enrichRecordWithLegacyInformation(
 function isValidOutlookIsProcessosRecord(record: DiaryRecord): boolean {
   return Boolean(
     record.data &&
-    record.codigo &&
     record.informacoes
   );
 }
 
 function isOutlookIsProcessosLayout(text: string): boolean {
-  return /Data\s*:\s*\d{2}\/\d{2}\/\d{4}[\s\S]{0,80}C[oó]digo\s*:/i.test(text);
+  return (
+    /Data\s*:\s*\d{2}\/\d{2}\/\d{4}/i.test(text) &&
+    /Codigo\s*:/i.test(text) &&
+    /Informacoes\s*:/i.test(text)
+  );
 }
 
 function isSerdijulLayout(text: string): boolean {
-  return /Publicacao\s+Processo\s*:/i.test(text);
+  return (
+    /Publicacao\s+Processo\s*:/i.test(text) &&
+    !/Data\s*:\s*\d{2}\/\d{2}\/\d{4}/i.test(text) &&
+    !/Codigo\s*:/i.test(text) &&
+    !/Informacoes\s*:/i.test(text)
+  );
 }
 
 function parseSerdijulPdfDiaryRecords(
@@ -286,27 +292,22 @@ function parseSerdijulPdfDiaryRecord(
     /\|\s*comunicacao_id\s*:\s*([^|]+)\|/i
   );
 
-  const conteudo = cleanSerdijulExtractedText(
-    extractSerdijulConteudo(block),
-    orgao
-  );
-
   return {
     layout: "SERDIJUL",
 
     processo,
     processoCnj: processo,
 
-    orgao: cleanDiaryValue(orgao),
-    vara: cleanDiaryValue(orgao),
+    orgao,
+    vara: orgao,
 
     dataDisponibilizacao: extractValue(
       block,
       /Data\s+de\s+disponibilizacao\s*:\s*([\d\/-]+)/i
     ),
 
-    dataDivulgacao: cleanDiaryValue(metadata.dataDivulgacao),
-    dataPublicacao: cleanDiaryValue(metadata.dataPublicacao),
+    dataDivulgacao: metadata.dataDivulgacao,
+    dataPublicacao: metadata.dataPublicacao,
 
     tipoComunicacao: extractValue(
       block,
@@ -320,8 +321,9 @@ function parseSerdijulPdfDiaryRecord(
 
     inteiroTeor: extractSerdijulInteiroTeor(block),
 
-    classe: cleanDiaryValue(
-      extractValue(block, /Classe\s*:\s*([\s\S]*?)\s+Conteudo\s*:/i)
+    classe: extractValue(
+      block,
+      /Classe\s*:\s*([\s\S]*?)\s+Conteudo\s*:/i
     ),
 
     conteudo: cleanSerdijulExtractedText(
@@ -339,8 +341,8 @@ function parseSerdijulPdfDiaryRecord(
     partes: extractDiaryPartes(block),
     advogados: extractDiaryAdvogados(block),
 
-    jornal: cleanDiaryValue(metadata.jornal),
-    tribunal: cleanDiaryValue(metadata.tribunal)
+    jornal: metadata.jornal,
+    tribunal: metadata.tribunal
   };
 }
 
@@ -359,12 +361,10 @@ function extractSerdijulInteiroTeor(block: string): string | undefined {
 }
 
 function extractSerdijulConteudo(block: string): string | undefined {
-  const conteudo = extractValue(
+  return extractValue(
     block,
     /Conteudo\s*:\s*([\s\S]*?)(?=\s+Intimado\(s\)\s*\/\s*Citado\(s\)|\s+\|\s*comunicacao_id\s*:|$)/i
   );
-
-  return cleanDiaryValue(conteudo);
 }
 
 function isValidSerdijulPdfDiaryRecord(record: DiaryRecord): boolean {
@@ -380,10 +380,10 @@ function parseDefaultPdfDiaryRecords(
   metadata: PdfDiaryMetadata
 ): DiaryRecord[] {
   const blocks = text
-    .split(/(?=Data:\s*\d{2}\/\d{2}\/\d{4}\s+Código:)/gi)
+    .split(/(?=Data\s*:\s*\d{2}\/\d{2}\/\d{4})/gi)
     .map(block => block.trim())
     .filter(block =>
-      /^Data:\s*\d{2}\/\d{2}\/\d{4}\s+Código:/i.test(block)
+      /^Data\s*:\s*\d{2}\/\d{2}\/\d{4}/i.test(block)
     );
 
   return blocks
@@ -395,40 +395,49 @@ function parseDefaultPdfDiaryRecord(
   block: string,
   metadata: PdfDiaryMetadata
 ): DiaryRecord {
-  const informacoes = extractValue(block, /Informações:\s*([\s\S]*)$/i);
+  const informacoes = extractValue(
+    block,
+    /Informacoes\s*:\s*([\s\S]*)$/i
+  );
 
   return {
     layout: "DEFAULT",
 
-    data: extractValue(block, /Data:\s*(\d{2}\/\d{2}\/\d{4})/i),
+    data: extractValue(
+      block,
+      /Data\s*:\s*(\d{2}\/\d{2}\/\d{4})/i
+    ),
+
+    dataPublicacao: extractValue(
+      block,
+      /Data\s*:\s*(\d{2}\/\d{2}\/\d{4})/i
+    ),
 
     codigo: extractValue(
       block,
-      /Código:\s*([\s\S]*?)\s+Nome Pesquisado:/i
+      /Codigo\s*:\s*([\s\S]*?)\s+Nome\s+Pesquisado\s*:/i
     ),
 
     nomePesquisado: extractValue(
       block,
-      /Nome Pesquisado:\s*([\s\S]*?)\s+Jornal:/i
+      /Nome\s+Pesquisado\s*:\s*([\s\S]*?)\s+Jornal\s*:/i
     ),
 
     jornal:
-      extractValue(block, /Jornal:\s*([\s\S]*?)\s+Tribunal:/i) ??
+      extractValue(block, /Jornal\s*:\s*([\s\S]*?)\s+Tribunal\s*:/i) ??
       metadata.jornal,
 
     tribunal:
-      extractValue(block, /Tribunal:\s*([\s\S]*?)\s+Vara:/i) ??
+      extractValue(block, /Tribunal\s*:\s*([\s\S]*?)\s+Vara\s*:/i) ??
       metadata.tribunal,
 
     vara: extractValue(
       block,
-      /Vara:\s*([\s\S]*?)\s+Informações:/i
+      /Vara\s*:\s*([\s\S]*?)\s+Informacoes\s*:/i
     ),
 
-    dataDivulgacao: metadata.dataDivulgacao,
-    dataPublicacao: metadata.dataPublicacao,
-
     informacoes,
+
     partes: extractDiaryPartes(block),
     advogados: extractDiaryAdvogados(block)
   };
@@ -437,7 +446,6 @@ function parseDefaultPdfDiaryRecord(
 function isValidDefaultPdfDiaryRecord(record: DiaryRecord): boolean {
   return Boolean(
     record.data &&
-    record.codigo &&
     record.informacoes
   );
 }
@@ -448,7 +456,7 @@ function cleanSerdijulExtractedText(
 ): string | undefined {
   if (!value) return undefined;
 
-  let cleaned = value;
+  let cleaned = removeSerdijulNoise(value);
 
   if (orgao) {
     const escapedOrgao = escapeRegExp(orgao);

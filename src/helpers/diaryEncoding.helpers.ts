@@ -8,6 +8,33 @@ export function fixDiaryEncoding(text: string): string {
     .replace(/Âº/g, "º")
     .replace(/Â§/g, "§")
 
+    .replace(/┬¬/g, "ª")
+    .replace(/┬║/g, "º")
+    .replace(/┬º/g, "§")
+
+    .replace(/DIÃRIO/g, "DIÁRIO")
+    .replace(/DI├üRIO/g, "DIÁRIO")
+    .replace(/REGIÃƒO/g, "REGIÃO")
+    .replace(/REGI├âO/g, "REGIÃO")
+
+    .replace(/CIVEL/g, "CÍVEL")
+    .replace(/CiVEL/g, "CÍVEL")
+    .replace(/DECLARAcaO/g, "DECLARAÇÃO")
+    .replace(/AcaO/g, "AÇÃO")
+    .replace(/SUMARiSSIMO/g, "SUMARÍSSIMO")
+    .replace(/ORDINaRIO/g, "ORDINÁRIO")
+    .replace(/PuBLICA/g, "PÚBLICA")
+
+    .replace(/COMUNICAÇÃO_ID/g, "COMUNICACAO_ID")
+    .replace(/comunicação_id/gi, "comunicacao_id")
+    .replace(/├é┬¬/g, "ª")
+    .replace(/├é┬║/g, "º")
+    .replace(/├é┬º/g, "§")
+
+    .replace(/Âª/g, "ª")
+    .replace(/Âº/g, "º")
+    .replace(/Â§/g, "§")
+
     .replace(/(\d+)Âª/g, "$1ª")
     .replace(/(\d+)Âº/g, "$1º")
 

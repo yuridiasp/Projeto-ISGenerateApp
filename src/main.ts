@@ -9,6 +9,7 @@ import { iWindows } from "@models/windows/iWindows.models"
 import { loadDotEnv } from '@config/loadDotEnv.config'
 import { dayjsConfig } from '@config/dayjsConfig.config'
 import { readDiaryFromPdfController } from '@controllers/pdfDiaryReader.controllers';
+import { readDiaryFromWordController } from '@controllers/wordDiaryReader.controllers';
 
 dayjsConfig()
 
@@ -28,7 +29,9 @@ app?.whenReady().then(async () => {
     //createLoginWindowController(windows)
     await setHandlers(windows)
 
-    const registros = await readDiaryFromPdfController("./doc/TRT30092025 - Cadastrados.docx")
+    const registros = await readDiaryFromWordController("./doc/TRT30092025 - Cadastrados.docx");
+
+    //const registros = await readDiaryFromPdfController("./doc/IS JFSE 08052026.pdf")
     
     if (registros.length > 0) {
         console.dir(registros[0], {
