@@ -8,8 +8,7 @@ import { setHandlers } from "@channels/ipcHandlers.channels"
 import { iWindows } from "@models/windows/iWindows.models"
 import { loadDotEnv } from '@config/loadDotEnv.config'
 import { dayjsConfig } from '@config/dayjsConfig.config'
-import { readDiaryFromPdfController } from '@controllers/pdfDiaryReader.controllers';
-import { readDiaryFromWordController } from '@controllers/wordDiaryReader.controllers';
+import { readDiaryAutomaticallyController } from '@controllers/diaryAutoReader.controllers';
 
 dayjsConfig()
 
@@ -29,18 +28,24 @@ app?.whenReady().then(async () => {
     //createLoginWindowController(windows)
     await setHandlers(windows)
 
-    const registros = await readDiaryFromWordController("./doc/TRT30092025 - Cadastrados.docx");
-
     //const registros = await readDiaryFromPdfController("./doc/IS JFSE 08052026.pdf")
     
-    if (registros.length > 0) {
+    /* const filePath = "./doc/TRT30092025 - Cadastrados.docx";
+
+    try {
+        const registros = await readDiaryAutomaticallyController(filePath);
+
+        console.log("Total de registros:", registros.length);
+
+        if (registros.length > 0) {
         console.dir(registros[0], {
             depth: null,
             maxArrayLength: null
         });
-    } else {
-        console.log("Nenhum registro foi extraído.");
-    }
+        }
+    } catch (error) {
+        console.error("Erro ao ler documento:", error);
+    } */
 })
 
 app?.on('window-all-closed', () => {

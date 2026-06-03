@@ -15,10 +15,12 @@
     "paths": {
       "@channels/*": ["./src/channels/*"],
       "@config/*": ["./src/config/*"],
+      "@constants/*": ["./src/constants/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@helpers/*": ["./src/helpers/*"],
       "@infrastructure/*": ["./src/infrastructure/*"],
       "@middlewares/*": ["./src/middlewares/*"],
+      "@mappers/*": ["./src/mappers/*"],
       "@models/*": ["./src/models/*"],
       "@renderer/*": ["./src/renderer/*"],
       "@repositories/*": ["./src/repositories/*"],

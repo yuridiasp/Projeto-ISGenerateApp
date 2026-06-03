@@ -1,5 +1,3 @@
-// src/controllers/wordDiaryReader.controllers.ts
-
 import { createDocxTextReaderRepository } from "@repositories/docxTextReader/docxTextReader.repositories";
 import { createDiaryReaderService } from "@services/wordDiaryReader/wordDiaryReader.services";
 

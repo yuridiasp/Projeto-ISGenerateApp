@@ -16,6 +16,7 @@ import { iCompromissoBody } from "@models/compromissos"
 import { iCreateTarefa } from "@models/tarefas"
 import { AppError } from "@models/errors/appError.models"
 import { objectID } from "@utils/request/successfulCreationRequestValidation.utils"
+import { actionFunctionArgs } from "@middlewares/executeWithLogin.middlewares";
 
 export type tCreateTaskResult = {
     success: false,
@@ -40,11 +41,12 @@ export type tCreateTaskResult = {
 export type tHandleIntimation = {
     registered: tCreateTaskResult[],
     unregisteredCommitments: tCreateTaskResult[],
-    unregisteredTasks: tCreateTaskResult[]
+    unregisteredTasks: tCreateTaskResult[],
+    message?: string
 }
 
-export async function handleIntimationsRegistrationService(windows: iWindows, cookie: string, file: iFileData): Promise<Result<tHandleIntimation>> {
-    const result = await getObjectValidateIntimationsService(file)
+export async function handleIntimationsRegistrationService({ cookie, file, window }: actionFunctionArgs): Promise<Result<tHandleIntimation>> {
+    const result = await getObjectValidateIntimationsService(file as iFileData)
     
     if (result.success === false) {
         return {
@@ -53,7 +55,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
         }
     }
 
-    if(!result.data.file.length) {
+    if(!result.data?.file.length) {
         return {
             success: false,
             error: new EmptyFileError()
@@ -69,7 +71,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
                     return { success: false, error: resultCliente.error }
 
                 const resultCompromisso = await createCompromissoService(resultCliente.data.cliente, cookie)
-
+    
                 if (resultCompromisso.success === false) {
                     const error = resultCompromisso.error as createEntityKorbilError
                     return {
@@ -84,7 +86,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
                     }
                 }
 
-                resultCliente.data.cliente.compromisso.id = resultCompromisso.data.successfulRecordCount.registeredSuccessfully[0].id
+                resultCliente.data.cliente.compromisso.id = resultCompromisso.data?.successfulRecordCount.registeredSuccessfully[0].id
 
                 const listaTarefasCompromisso = getListaTarefasCompromissoJudicial(resultCliente.data.cliente)
 
@@ -101,7 +103,7 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
                         error: resultTarefa.error,
                         data: {
                             bodys: {
-                                compromisso: resultCompromisso.data.successfulRecordCount.registeredSuccessfully,
+                                compromisso: resultCompromisso.data?.successfulRecordCount.registeredSuccessfully,
                                 tarefas: error.data.failedRegistryTask
                             }
                         }
@@ -112,15 +114,15 @@ export async function handleIntimationsRegistrationService(windows: iWindows, co
                     success: true,
                     data: {
                         bodys: {
-                            compromisso: resultCompromisso.data.successfulRecordCount.registeredSuccessfully,
-                            tarefas: resultTarefa.data.registeredSuccessfully
+                            compromisso: resultCompromisso.data?.successfulRecordCount.registeredSuccessfully,
+                            tarefas: resultTarefa.data?.registeredSuccessfully
                         }
                     }
                 }
             })
             .then(resultadoCadastro => {
                 if (resultadoCadastro.success !== false) {
-                    updateViewRegistrationIntimations(resultadoCadastro, windows.mainWindow)
+                    updateViewRegistrationIntimations(resultadoCadastro, window.mainWindow)
                 }
 
                 return resultadoCadastro

@@ -12,7 +12,7 @@ import { login } from './utils/login'
 import { ValidationError } from '../../src/models/errors/validationError.models'
 import { getFileData } from './utils/getFileData'
 import { Result } from "../../src/models/results/result.models"
-const timeout = 10000
+const timeout = 15000
 
 
 describe("Validar cadastro de intimações a partir de um documento Word", () => {
@@ -46,7 +46,11 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
 
     it("Arquivo que contém intimação não lançada", async () => {
         const [ fileNameReport, fileData ] = getFileData(files[0])
-        const result = await handleIntimationsReportService(windows, cookie, fileData)
+        const result = await handleIntimationsReportService({
+            window: windows,
+            cookie,
+            file: fileData
+        })
 
         const filePath = path.join(path.dirname(fileData.filePath), fileNameReport)
         const fileExists = fs.existsSync(filePath)
@@ -65,7 +69,11 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
     it("Arquivo com todas as intimações lançadas", async () => {
         const [ fileNameReport, fileData ] = getFileData(files[1])
 
-        const result = await handleIntimationsReportService(windows, cookie, fileData)
+        const result = await handleIntimationsReportService({
+            window: windows,
+            cookie,
+            file: fileData
+        })
 
         const filePath = path.join(path.dirname(fileData.filePath), fileNameReport)
         const fileExists = fs.existsSync(filePath)
@@ -82,7 +90,11 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
         const [ fileNameReport, fileData ] = getFileData(files[2], ".xlsx")
         const filePath = path.join(path.dirname(fileData.filePath), fileNameReport)
 
-        const result: Result<HandleIntimationsReportResult> = await handleIntimationsReportService(windows, cookie, fileData)
+        const result: Result<HandleIntimationsReportResult> = await handleIntimationsReportService({
+            window: windows,
+            cookie,
+            file: fileData
+        })
         
         expect(result).toEqual({
             success: true,

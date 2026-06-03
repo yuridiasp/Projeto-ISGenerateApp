@@ -6,12 +6,12 @@ import { splitISService } from '@services/splitIS/splitIS.services'
 import { getDadosService, openPageGithubService } from '@services/appData'
 import { credential, getCookieLoginService } from '@services/login'
 import { iFileData } from '@services/validateIntimations'
-import { handleIntimationsReportService } from '@services/intimation'
-import { handleIntimationsRegistrationService } from '@services/intimation'
+import { handleIntimationsRegistrationService, handleIntimationsReportService } from '@services/intimation'
 import { executeWithLogin } from '@middlewares/executeWithLogin.middlewares'
 import { closeLoginWindowService, createLoginWindowService } from '@services/windows'
 import { sendCredenctialsService } from '@services/auth'
 import { copyToClipboardService } from '@services/clipboard/copyToClipboard.services'
+import { handleIntimationPublicationRegisterService } from '@services/intimation/handleIntimationsPublicationRegisterValidate';
 
 export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
     return openFileDialog(windows)
@@ -57,11 +57,15 @@ export async function sendCredenctialsController (credentials: credential, windo
 }
 
 export async function intimationsRegisterController(event: Electron.IpcMainInvokeEvent, file: iFileData, credentials: credential, windows: iWindows) {
-    return executeWithLogin(windows, handleIntimationsRegistrationService, credentials, file)
+    return executeWithLogin({ window: windows, action: handleIntimationsRegistrationService, credentials, file })
+}
+
+export async function intimationsPublicationRegisterController(event: Electron.IpcMainInvokeEvent, filePath: string, credentials: credential, windows: iWindows) {
+    return executeWithLogin({ window: windows, action: handleIntimationPublicationRegisterService, credentials, filePath })
 }
 
 export async function intimationsReportController(event: Electron.IpcMainInvokeEvent, file: iFileData, credentials: credential, windows: iWindows) {
-    return executeWithLogin(windows, handleIntimationsReportService, credentials, file)
+    return executeWithLogin({ window: windows, action: handleIntimationsReportService, credentials, file })
 }
 
 export function copyToClipboardController(text: string) {

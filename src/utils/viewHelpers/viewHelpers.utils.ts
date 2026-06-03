@@ -11,6 +11,8 @@ export function updateViewReportValidation(data: iValidationReport, win: Pick<Br
 }
 
 //TODO: Refatorar o resultado dessa função: Passar somente os dados necessários para alimentar a interface
-export function updateViewRegistrationIntimations(data: tCreateTaskResult, win: Pick<BrowserWindow, 'webContents'>) {
+export function updateViewRegistrationIntimations(data: tCreateTaskResult, win: BrowserWindow | null) {
+    if (!win)
+        return
     win.webContents.send('update-view-registration-intimations', data)
 }

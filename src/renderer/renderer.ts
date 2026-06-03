@@ -5,33 +5,58 @@ import { HandleIntimationsReportResult, tHandleIntimation } from "@services/inti
 import { credential } from "@services/login"
 import { iFileData } from "@services/validateIntimations"
 
-const splitISInput: HTMLInputElement = document.querySelector('#splitIS')
-const buttonsDivSplit = document.querySelector('#splitBtnsOptions')
-const registrationISInput: HTMLInputElement = document.querySelector('#registrationIS')
-const buttonsDivRegistrationIS: HTMLButtonElement = document.querySelector('#registrationISBtns')
-const btnConfirmRegistrationIS: HTMLButtonElement = document.querySelector('#btnConfirmregistrationIS')
-const btnCancelRegistrationIS: HTMLButtonElement = document.querySelector('#btnCancelregistrationIS')
-const validateIntimationsInput: HTMLInputElement = document.querySelector('#validateIntimationsIS')
-const buttonsDivValidateIntimations: HTMLButtonElement = document.querySelector('#validateIntimationsBtns')
-const btnConfirmValidateIntimations: HTMLButtonElement = document.querySelector('#btnConfirmValidateIntimations')
-const btnCancelValidateIntimations: HTMLButtonElement = document.querySelector('#btnCancelValidateIntimations')
+const splitISInput = document.querySelector('#splitIS') as HTMLInputElement
+const buttonsDivSplit = document.querySelector('#splitBtnsOptions') as HTMLElement
+const btnConfirmSplitOptionsXlsx = document.querySelector("#btnConfirmSplitOptionsXlsx")
+const btnConfirmSplitOptionsDocx = document.querySelector("#btnConfirmSplitOptionsDocx")
+const btnCancelSplitOptions = document.querySelector("#btnCancelSplitOptions") as HTMLButtonElement
+
+const registrationISInput = document.querySelector('#registrationIS') as HTMLInputElement
+const buttonsDivRegistrationIS = document.querySelector('#registrationISBtns') as HTMLButtonElement
+const btnConfirmRegistrationIS = document.querySelector('#btnConfirmregistrationIS') as HTMLButtonElement
+const btnCancelRegistrationIS = document.querySelector('#btnCancelregistrationIS') as HTMLButtonElement
+
+const validateIntimationsInput = document.querySelector('#validateIntimationRegister') as HTMLInputElement
+const buttonsDivValidateIntimations = document.querySelector('#validateIntimationRegisterBtns') as HTMLButtonElement
+const btnConfirmValidateIntimations = document.querySelector('#btnConfirmValidateIntimationRegister') as HTMLButtonElement
+const btnCancelValidateIntimations = document.querySelector('#btnCancelValidateIntimationRegister') as HTMLButtonElement
+
+const validateAnaliseRegisterInput = document.querySelector('#validateAnaliseRegister') as HTMLInputElement
+const buttonsDivValidateAnaliseRegister = document.querySelector('#validateAnaliseRegisterBtns') as HTMLButtonElement
+const btnConfirmValidateAnaliseRegister = document.querySelector('#btnConfirmvalidateAnaliseRegister') as HTMLButtonElement
+const btnCancelValidateAnaliseRegister = document.querySelector('#btnCancelvalidateAnaliseRegister') as HTMLButtonElement
+
 const loader = document.querySelector('#loader') as HTMLElement
 const content = document.querySelector('.content') as HTMLElement
 const reportContainer = document.querySelector("#report-container") as HTMLElement
 const reportContent = document.querySelector("#report-content") as HTMLElement
-const closeReportButton: HTMLButtonElement = document.querySelector('#closeReport')
-const btnConfirmSplitOptionsXlsx = document.querySelector("#btnConfirmSplitOptionsXlsx")
-const btnConfirmSplitOptionsDocx = document.querySelector("#btnConfirmSplitOptionsDocx")
-const btnCancelSplitOptions: HTMLButtonElement = document.querySelector("#btnCancelSplitOptions")
+const closeReportButton = document.querySelector('#closeReport') as HTMLButtonElement
 
-let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, credentials: credential, operation: operationsType
+const textMessages = {
+    success: {
+        successPtBr: "Sucesso!",
+        registerIntimation: "Intimações registradas com sucesso!",
+    },
+    error: {
+        errorPtBr: 'Erro',
+        emptyFile: 'Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar o processamento.',
+    }
+}
+
+let argsSplit: iFileData,
+    argsValidateRegister: iFileData = { fileName: "", filePath: "", isXlsx: false },
+    argsValidateIntimation: iFileData = { fileName: "", filePath: "", isXlsx: false },
+    argsRegister: iFileData = { fileName: "", filePath: "", isXlsx: false },
+    credentials: credential,
+    currentOperation: operationsType
 
 // API
 
     export interface iAPI {
         openFileDialogForFile(): Promise<{ filePaths: string[], canceled: boolean }>;
         intimationRegister(args: iFileData, credentials: credential): Promise<string>;
-        intimationValidate(args: iFileData, credentials: credential): Promise<string>;
+        validateAnaliseRegister(args: iFileData, credentials: credential): Promise<string>;
+        validateIntimationRegister(args: iFileData, credentials: credential): Promise<string>;
         splitFileIs(args: iFileData): Promise<any>;
         updateReportStatus(callback: (report: iValidationReport) => void): void;
         enableButtonCloseReport(callback: () => void): void;
@@ -51,7 +76,7 @@ let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, cred
     export function createObjectArgs(filePaths: string[]): iFileData {
         const pathArray = filePaths[0].split("\\")
         const nome = pathArray.pop()
-        return { fileName: nome, filePath: filePaths[0] }
+        return { fileName: nome as string, filePath: filePaths[0] }
     }
 
 // Operations
@@ -69,37 +94,12 @@ let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, cred
     }
 
     export const operations = {
-        "validateIntimations": validateIntimations,
-        "intimationRegister": intimationRegister,
+        "validateAnaliseRegister": () => validateOperationFunction(window.API.validateAnaliseRegister, "validateAnaliseRegister", argsValidateRegister, credentials),
+        "validateIntimationRegister": () => validateOperationFunction(window.API.validateIntimationRegister, "validateIntimationRegister", argsValidateIntimation, credentials),
+        "intimationRegister": () => validateOperationFunction(window.API.intimationRegister, "intimationRegister", argsRegister, credentials),
     }
 
     export type operationsType = keyof typeof operations
-
-    export async function intimationRegister () {
-        showLoader()
-        if (Object.keys(argsRegister).length) {
-            if(!credentials) {
-                operation = "intimationRegister"
-                window.API.abrirJanelaLogin()
-            } else {
-                const resultJSONText = await window.API.intimationRegister(argsRegister, credentials)
-                const result = JSON.parse(resultJSONText) as Result<tHandleIntimation>
-                if (result.success === true) {
-                    console.log('Sucesso')
-                    alert("Intimações registradas com sucesso!")
-                    console.log(result.data)
-                } else {
-                    console.log(result.error)
-                    alert(result.error.message)
-                }
-            }
-        }
-        else {
-            alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
-        }
-        hiddeLoader()
-        btnCancelRegistrationIS.click()
-    }
 
     export async function splitIS (typeDoc: { isXlsx: boolean }) {
         showLoader()
@@ -108,53 +108,76 @@ let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, cred
 
             const { msg, value } = result
             if (value) {
-                console.log('Sucesso')
+                console.log(textMessages.success.successPtBr)
             } else {
-                console.log('Erro')
+                console.log(textMessages.error.errorPtBr)
             }
             alert(msg)
         }
         else {
-            alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a separação.')
+            alert(textMessages.error.emptyFile)
         }
         hiddeLoader()
         btnCancelSplitOptions.click()
     }
 
-    export async function validateIntimations() {
-        hiddeContent()
-        showLoader()
-        if (Object.keys(argsValidate).length) {  
-            
-            if(!credentials) {
-                operation = 'validateIntimations'
-                window.API.abrirJanelaLogin()
-            } else {
-                const resultJSONText = await window.API.intimationValidate(argsValidate, credentials)
+    export async function processValidate(validateFunction: (args: iFileData, credentials: credential) => Promise<string>, args: iFileData, credentials: credential) {
+        const resultJSONText = await validateFunction(args, credentials)
                 
-                const result = JSON.parse(resultJSONText) as Result<HandleIntimationsReportResult>
-                if (result.success === true) {
-                    console.log('Sucesso')
-                    alert(result.data.message)
-                } else {
-                    const error = result.error as ValidationError
-                    showReportContainer()
-                    setReportFileName(argsValidate.fileName)
-                    setReportFilePath(argsValidate.filePath)
-                    if(!error.fileLength)
-                        insertSuccessMessageResponse(reportContent)
-                    alert(result.error.message)
-                }          
+        const result = JSON.parse(resultJSONText) as Result<HandleIntimationsReportResult | tHandleIntimation>
+
+        if (result.success === true) {
+            console.log(textMessages.success.successPtBr)
+            alert(result.data?.message || textMessages.success.registerIntimation)
+        } else {
+            const error = result.error as ValidationError
+
+            if(currentOperation !== "intimationRegister") {
+                hiddeContent()
+                showReportContainer()
+                setReportFileName(args.fileName)
+                setReportFilePath(args.filePath)
+
+                if(!error.fileLength)
+                    insertSuccessMessageResponse(reportContent)
             }
-        }
-        else {
-            alert('Erro: Não há arquivo selecionado! Selecione um arquivo antes de solicitar a validação.')
+
+            alert(result.error.message)
         }
     }
 
+    export async function validateOperationFunction(functionAPI: (args: iFileData, credentials: credential) => Promise<string>, operation: operationsType, args: iFileData, credentials: credential) {
+        if(currentOperation !== "intimationRegister") {
+            hiddeContent()
+        }
+
+        showLoader()
+        
+        if (Object.keys(args).length) {
+            
+            if(!credentials) {
+                currentOperation = operation
+                window.API.abrirJanelaLogin()
+            } else {
+                processValidate(functionAPI, args, credentials)
+            }
+        }
+        else {
+            alert(textMessages.error.emptyFile)
+        }
+
+        if (currentOperation === "intimationRegister") {
+            hiddeLoader()
+            btnCancelRegistrationIS.click()
+        }
+    }
+
+    /* 
+        Função invocada quando for necessário realizar login no sistema antes da execução.
+        Retoma execução da função.
+    */
     export function resumeOperation () {
-        debugger
-        return operations[operation]()
+        return operations[currentOperation]()
     }
 
 
@@ -167,22 +190,32 @@ let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, cred
                 element.classList.toggle("showMessageOneSecond")
             }, 1000)
         }
-        if(result)
-            toggleClassShow(document.querySelector("#messageCopySuccess"))
-        else
-            toggleClassShow(document.querySelector("#messageCopyError"))
+        if(result) {
+            const classNameSucess = document.querySelector("#messageCopySuccess") as HTMLInputElement
+
+            if (classNameSucess)
+                toggleClassShow(classNameSucess)
+        }
+        else {
+            const classNameError = document.querySelector("#messageCopyError") as HTMLInputElement
+
+            if (classNameError)
+                toggleClassShow(classNameError)
+        }
     }
 
     export function setReportFileName (fileName: string) {
         const fileNameTitle = document.querySelector("#fileName")
-
-        fileNameTitle.innerHTML = fileName
+        
+        if (fileNameTitle)
+            fileNameTitle.innerHTML = fileName
     }
 
     export function setReportFilePath(filePath: string) {
         const filePathTitle = document.querySelector("#filePath")
 
-        filePathTitle.innerHTML = filePath
+        if (filePathTitle)
+            filePathTitle.innerHTML = filePath
     }
 
     export function createElementReport(resultClass: 'success' | 'error', resultIcon: 'check' | 'times', processValue = "", publicationValue = "") {
@@ -247,7 +280,7 @@ let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, cred
             const p = document.createElement("p")
             p.classList.add("p-info-is")
             p.style.display = "none"
-            p.innerHTML = paragraph
+            p.innerHTML = paragraph as string
             reportContent.append(p)
 
             button.addEventListener("click", () => toogleEye(iButton, p))
@@ -308,6 +341,18 @@ let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, cred
         }
     }
 
+    export async function setFilePathArg(args: iFileData, div: HTMLElement) {
+        const { canceled, filePaths } = await window.API.openFileDialogForFile()
+
+        if (!canceled) {
+            args = createObjectArgs(filePaths)
+
+            div.classList.add('aparecer')
+        }
+
+        return args
+    }
+
 // Renderer
 
     closeReportButton.addEventListener('click', () => resetReport())
@@ -318,56 +363,39 @@ let argsSplit: iFileData, argsValidate: iFileData, argsRegister: iFileData, cred
         if (!canceled) {
             argsSplit = createObjectArgs(filePaths)
 
-            buttonsDivSplit.classList.add('aparecer')
+            buttonsDivSplit?.classList.add('aparecer')
         }
     })
 
-    btnConfirmSplitOptionsXlsx.addEventListener('click', () => splitIS({ isXlsx: true }))
+    btnConfirmSplitOptionsXlsx?.addEventListener('click', () => splitIS({ isXlsx: true }))
 
-    btnConfirmSplitOptionsDocx.addEventListener('click', () => splitIS({ isXlsx: false }))
+    btnConfirmSplitOptionsDocx?.addEventListener('click', () => splitIS({ isXlsx: false }))
 
     btnCancelSplitOptions.addEventListener('click', () => {
-        buttonsDivSplit.classList.remove('aparecer')
+        buttonsDivSplit?.classList.remove('aparecer')
     })
 
-    registrationISInput.addEventListener('click', async () => {
-        const { canceled, filePaths } = await window.API.openFileDialogForFile()
+    export function applyListenersRegisterOrValidateFunction(args: iFileData, div: HTMLElement, functionAPI: (args: iFileData, credentials: credential) => Promise<string>, currentOperation: operationsType, btnConfrm: HTMLButtonElement, btnCancel: HTMLButtonElement, validateInput: HTMLInputElement) {
+        validateInput.addEventListener('click', async () => setFilePathArg(args, div))
+    
+        btnConfrm.addEventListener('click', () => validateOperationFunction(functionAPI, currentOperation, args, credentials))
+    
+        btnCancel.addEventListener('click', () => {
+            div.classList.remove('aparecer')
+        })
+    }
 
-        if (!canceled) {
-            argsRegister = createObjectArgs(filePaths)
-        
-            buttonsDivRegistrationIS.classList.add('aparecer')
-        }
+    applyListenersRegisterOrValidateFunction(argsRegister, buttonsDivRegistrationIS, window.API.intimationRegister, "intimationRegister", btnConfirmRegistrationIS, btnCancelRegistrationIS, registrationISInput)
 
-    })
+    applyListenersRegisterOrValidateFunction(argsValidateIntimation, buttonsDivValidateIntimations, window.API.validateIntimationRegister, "validateIntimationRegister", btnConfirmValidateIntimations, btnCancelValidateIntimations, validateIntimationsInput)
 
-    btnConfirmRegistrationIS.addEventListener('click', () => intimationRegister())
-
-    btnCancelRegistrationIS.addEventListener('click', () => {
-        buttonsDivRegistrationIS.classList.remove('aparecer')
-    })
-
-    validateIntimationsInput.addEventListener('click', async () => {
-        const { canceled, filePaths } = await window.API.openFileDialogForFile()
-
-        if (!canceled) {
-            argsValidate = createObjectArgs(filePaths)
-
-            buttonsDivValidateIntimations.classList.add('aparecer')
-        }
-    })
-
-    btnConfirmValidateIntimations.addEventListener('click', () => validateIntimations())
-
-    btnCancelValidateIntimations.addEventListener('click', () => {
-        buttonsDivValidateIntimations.classList.remove('aparecer')
-    })
+    applyListenersRegisterOrValidateFunction(argsValidateRegister, buttonsDivValidateAnaliseRegister, window.API.validateAnaliseRegister, "validateAnaliseRegister", btnConfirmValidateAnaliseRegister, btnCancelValidateAnaliseRegister, validateAnaliseRegisterInput)
 
     window.API.updateReportStatus((report: iValidationReport) => {
         showReportContainer()
         hiddeContent()
-        setReportFileName(argsValidate.fileName)
-        setReportFilePath(argsValidate.filePath)
+        setReportFileName(argsValidateRegister.fileName)
+        setReportFilePath(argsValidateRegister.filePath)
         insertReportValidation(report, reportContent)
     })
 

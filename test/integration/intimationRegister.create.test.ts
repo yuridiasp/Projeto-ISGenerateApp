@@ -152,7 +152,11 @@ describe("handleIntimationsRegistrationService", () => {
     const { cliente, tarefas, compromisso, tarefasRegistradas } = arrangeSuccessfulCreation(mockSuccessSentenca)
     const [ , fileData ] = getFileData("PREV30092025 - Cadastrar Teste [SENTENCA]")
 
-    const result: Result<tHandleIntimation> = await handleIntimationsRegistrationService(windows, cookie, fileData)
+    const result: Result<tHandleIntimation> = await handleIntimationsRegistrationService({
+      window: windows,
+      cookie,
+      file: fileData
+    })
 
     expect(result).toEqual({
       success: true,
@@ -185,7 +189,11 @@ describe("handleIntimationsRegistrationService", () => {
     arrangeSuccessfulCreation(mockSuccessPericia)
     const [ , fileData ] = getFileData("PREV30092025 - Cadastrar Teste [SENTENCA]")
 
-    const result: Result<tHandleIntimation> = await handleIntimationsRegistrationService(windows, cookie, fileData)
+    const result: Result<tHandleIntimation> = await handleIntimationsRegistrationService({
+      window: windows,
+      cookie,
+      file: fileData
+    })
 
     expect(result.success).toBeTruthy()
     expect(createClienteService).toHaveBeenCalledWith(
@@ -207,7 +215,11 @@ describe("handleIntimationsRegistrationService", () => {
     } as any)
 
     const [ , fileData ] = getFileData("PREV30092025 - Cadastrar Teste [SENTENCA]")
-    const result = await handleIntimationsRegistrationService(windows, cookie, fileData)
+    const result = await handleIntimationsRegistrationService({
+      window: windows,
+      cookie,
+      file: fileData
+    })
 
     expect(result.success).toBe(false)
     if (!result.success) {

@@ -1,113 +1,81 @@
-import { iWindows } from "@models/windows/iWindows.models"
-import { generateValidationReport } from "@infrastructure/reportGenerator/reportGenerator.infrastructure"
-import { iValidationReport } from "@models/validations"
-import { updateViewReportValidation, enableButtonCloseReport } from "@utils/viewHelpers/viewHelpers.utils"
-import { getObjectValidateIntimationsService, iFileData } from "@services/validateIntimations"
-import { ValidationError } from "@models/errors"
-import { Result } from "@models/results"
-import { intimationValidateService } from "@services/intimation"
-import { ISAnalysisDTO } from "@models/clientes"
-import { RecordResultsWithError } from "@models/errors"
-import { CellObject } from "xlsx-js-style"
-import { excelDateToJsDate } from "@utils/date/excelDateToJsDate.utils"
+import { generateValidationReport } from "@infrastructure/reportGenerator/reportGenerator.infrastructure";
+import { getObjectValidateIntimationsService, iFileData } from "@services/validateIntimations";
+import { enableButtonCloseReport } from "@utils/viewHelpers/viewHelpers.utils";
+import { ValidationError } from "@models/errors";
+import { Result } from "@models/results";
+import { actionFunctionArgs } from "@middlewares/executeWithLogin.middlewares";
+import {
+  HandleIntimationsReportResult,
+  MainWindowWebContents
+} from "@models/handleIntimationsReport/handleIntimationsReport.models";
+import { validateIntimationsAndNotifyView } from "./intimationValidationRunner.services";
+import { formatIntimationReportData } from "./intimationReportFormatter.services";
+import { buildUnregisteredIntimationsMessage } from "@helpers/reportMessage.helper";
 
-export type HandleIntimationsReportResult = { message: string; newFilePath: string }
+export async function handleIntimationsReportService({
+  cookie,
+  file,
+  window
+}: actionFunctionArgs): Promise<Result<HandleIntimationsReportResult>> {
+  const mainWindow = window.mainWindow as MainWindowWebContents;
 
-const cellStyle = {
-    title: {
-        fill: { fgColor: { rgb: "0F243E" } },
-        font: { color: { rgb: "FFFFFF"} },
-    },
-    success: {
-        fill: { fgColor: { rgb: "C6EFCE" } },
-        font: { color: { rgb: "006100" } }
-    },
-    fail: {
-        fill: { fgColor: { rgb: "FFC7CE" } },
-        font: { color: { rgb: "9C0006" } },
-    },
+  const resultFile = await getObjectValidateIntimationsService(file as iFileData);
+
+  if (resultFile.success === false) {
+    return {
+      success: false,
+      error: resultFile.error
+    };
+  }
+
+  const fileData = resultFile.data?.file ?? [];
+
+  const validations = await validateIntimationsAndNotifyView(
+    fileData,
+    cookie,
+    mainWindow
+  );
+
+  const isRecorte = hasRecorteFile(fileData);
+
+  const formattedReport = formatIntimationReportData(
+    validations,
+    isRecorte
+  );
+
+  enableButtonCloseReport(mainWindow);
+
+  const resultReport = generateValidationReport({
+    data: formattedReport.data,
+    file,
+    prefix: "RELATORIO-REGISTRO-INTIMACAO-",
+    isRecorte
+  });
+
+  if (resultReport.success === false) {
+    return {
+      success: false,
+      error: new ValidationError(
+        "Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.",
+        fileData.length
+      )
+    };
+  }
+
+  const newFilePath = resultReport.data?.newFilePath as string;
+
+  return {
+    success: true,
+    data: {
+      message: buildUnregisteredIntimationsMessage(
+        formattedReport.unregisteredCount,
+        newFilePath
+      ),
+      newFilePath
+    }
+  };
 }
 
-//TODO: Refatorar essa função e distribuir responsabilidades
-export async function handleIntimationsReportService (windows: iWindows, cookie: string, file: iFileData): Promise<Result<HandleIntimationsReportResult>> {
-    const mainWindow = windows.mainWindow as Pick<Electron.CrossProcessExports.BrowserWindow, 'webContents'>
-    const resultFile = await getObjectValidateIntimationsService(file)
-    let unregisteredCont = 0
-    
-    if (resultFile.success === false) {
-        return {
-            success: false,
-            error: resultFile.error
-        }
-    }
-    
-    const resultado = resultFile.data?.file.map(async (intimation: ISAnalysisDTO) => intimationValidateService(intimation, cookie).then(result => {
-        
-        if (result.success === true) {
-            updateViewReportValidation(result.data?.validationReport as iValidationReport, mainWindow)
-            return result.data?.validationReport
-        }
-        
-        
-        const error = result.error as RecordResultsWithError
-        const validationReport = error.data as iValidationReport
-        updateViewReportValidation(validationReport, mainWindow)
-
-        return validationReport
-    }))
-
-    const isRecorte = resultFile.data?.file.some(file => file.isRecorte)
-    //TODO: Refatorar essa função - Dividir responsabilidades
-    const validations = (await Promise.all(resultado).then(intimationsValidated => {
-        if(isRecorte) {
-            return intimationsValidated
-        }
-        
-        return intimationsValidated.filter((intimation: { isRegistered: boolean }) => !intimation.isRegistered)}
-    )).map((line) => {
-        if (!line.isRegistered) unregisteredCont++
-        if(isRecorte) {
-            return Object.keys(line.objectRecorte as Object).reduce((previous, current) => {
-                //const widths =  [ 15.57, 7.29, 10, 12.71, 71.43, 7.43, 23.71, 73.57, 6.86, 11.71, 8.43 ]
-                const isDataType = "DATA DISP" === current || current === "DATA PUBLIC"
-                const t = isDataType ? "d" : "s"
-                //const s = line.isRegistered ? {...cellStyle.success, } : {...cellStyle.fail}
-                let v:string = line.objectRecorte[current as keyof typeof line.objectRecorte]
-                
-                if (isDataType) {
-                    const date = excelDateToJsDate(line.objectRecorte[current as keyof typeof line.objectRecorte])
-                    // TODO: Propor nova solução para substituir esse acréscimo de 28 segundos
-                    v =  date.tz().hour(0).minute(0).second(28).millisecond(0).format("YYYY-MM-DD HH:mm:ss")
-                }
-                const s = line.isRegistered ? cellStyle.success : cellStyle.fail
-                previous.push({ v, t, s })
-                return previous
-            }, [] as CellObject[])
-        }
-        
-        return line
-    })
-
-    if(isRecorte) validations.unshift([...Object.keys(resultFile.data?.file[0].objectRecorte as Object).map(key => ({ v: key, t:"s", s: cellStyle.title }))] as CellObject[])
-
-    enableButtonCloseReport(mainWindow)
-    
-    const resultReport = generateValidationReport({ data: validations, file: file, prefix: 'RELATORIO-REGISTRO-INTIMACAO-', isRecorte })
-
-    if (resultReport.success === true) {
-        
-        const pluralOrSingularForIntimacao = unregisteredCont > 1 ? 'intimações' : 'intimação'
-        
-        const message =  `Encontrado ${unregisteredCont} ${pluralOrSingularForIntimacao} sem cadastro. Exportado relatório no caminho: ${resultReport.data?.newFilePath}`
-
-        return {
-            success: true,
-            data: { message, newFilePath: resultReport.data?.newFilePath as string }
-        }
-    }
-
-    return {
-        success: false,
-        error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.', resultFile.data?.file.length)
-    }
+function hasRecorteFile(fileData: Array<{ isRecorte?: boolean }>): boolean {
+  return fileData.some(item => item.isRecorte);
 }

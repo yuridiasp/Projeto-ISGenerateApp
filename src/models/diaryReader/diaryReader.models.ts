@@ -1,4 +1,23 @@
-export type DiarySourceLayout = "DEFAULT" | "SERDIJUL" | "WORD_CADASTRADO";
+export type DiaryFileType =
+  | "PDF"
+  | "DOCX"
+  | "DOC"
+  | "UNKNOWN";
+
+export type DiaryDocumentLayout =
+  | "WORD_CADASTRADO"
+  | "PDF_IS_PROCESSOS"
+  | "SERDIJUL"
+  | "PDF_DEFAULT"
+  | "UNKNOWN";
+
+export interface DiaryDocumentIdentification {
+  fileType: DiaryFileType;
+  layout: DiaryDocumentLayout;
+  extension: string;
+  confidence: "HIGH" | "MEDIUM" | "LOW";
+  reasons: string[];
+}
 
 export interface PdfDiaryMetadata {
   jornal?: string;
@@ -8,7 +27,7 @@ export interface PdfDiaryMetadata {
 }
 
 export interface DiaryRecord {
-  layout?: DiarySourceLayout;
+  layout?: DiaryDocumentLayout;
 
   comunicacaoId?: string;
 
