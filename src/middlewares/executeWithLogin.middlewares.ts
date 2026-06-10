@@ -1,7 +1,8 @@
+import { HandleIntimationsReportResult, ISAnalysisDTO } from "@models/handleIntimationsReport/handleIntimationsReport.models";
 import { Result } from "@models/results/result.models"
 import { iWindows } from "@models/windows/iWindows.models"
-import { tHandleIntimation, tHandlePublication } from "@services/intimation/handleIntimationsRegistration.services";
-import { HandleIntimationsReportResult } from "@services/intimation/handleIntimationsReport.services";
+import { tHandlePublication } from "@services/intimation";
+import { tHandleIntimation } from "@services/intimation/handleIntimationsRegistration.services";
 import { Cookie, credential, getCookieLoginService } from "@services/login"
 import { iFileData } from "@services/validateIntimations/validateIntimations.services"
 
@@ -9,17 +10,19 @@ export type tActionReturn = Promise<Result<tHandleIntimation>> | Promise<Result<
 
 export type actionFunctionArgs = {
     window: iWindows,
-    cookie: string,
-    file?: iFileData,
-    filePath?: string
+    cookie?: string,
+    file: iFileData,
+    filePath?: string,
+    funcValObj: (file: iFileData) => Promise<Result<{ file: ISAnalysisDTO[] }>>
 }
 
-export async function executeWithLogin({ window, action, credentials, file, filePath }:{
+export async function executeWithLogin({ window, action, credentials, file, filePath, funcValObj }: {
     window: iWindows,
     action: (args: actionFunctionArgs) => tActionReturn,
     credentials?: credential,
-    file?: iFileData,
-    filePath?: string
+    file: iFileData,
+    filePath?: string,
+    funcValObj: (file: iFileData) => Promise<Result<{ file: ISAnalysisDTO[] }>>
 }){
     console.log('Realizando login...')
 
@@ -28,7 +31,7 @@ export async function executeWithLogin({ window, action, credentials, file, file
 
     if (result.success) {
         console.log('Login realizado!')
-        const response = await action({ window, cookie: result.data?.cookie, file, filePath })
+        const response = await action({ window, cookie: result.data?.cookie, file, filePath, funcValObj })
 
         return JSON.stringify(response)
     }

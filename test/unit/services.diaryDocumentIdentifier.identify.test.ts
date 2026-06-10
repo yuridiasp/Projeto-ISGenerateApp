@@ -4,6 +4,7 @@ import { createDiaryDocumentIdentifierService } from "../../src/services/diaryDo
 
 describe("createDiaryDocumentIdentifierService", () => {
     test("le texto de PDF usando o repositorio de PDF", async () => {
+        const file = { filePath: "entrada.PDF", fileName: "entrada" }
         const pdfRepository = {
             readText: jest.fn(async () => `
                 Data : 01/06/2026 Codigo: COD123 Nome Pesquisado: CLIENTE
@@ -19,16 +20,17 @@ describe("createDiaryDocumentIdentifierService", () => {
             docxTextReaderRepository: docxRepository
         })
 
-        const result = await service.identify("entrada.PDF")
+        const result = await service.identify(file)
 
         expect(result.layout).toBe("PDF_IS_PROCESSOS")
-        expect(pdfRepository.readText).toHaveBeenCalledWith("entrada.PDF")
+        expect(pdfRepository.readText).toHaveBeenCalledWith(file)
         expect(docxRepository.readText).not.toHaveBeenCalled()
     })
 
     test.each(["diario.docx", "diario.DOC"])(
         "le texto de %s usando o repositorio de Word",
         async filePath => {
+            const file = { filePath, fileName: filePath }
             const pdfRepository = {
                 readText: jest.fn(async () => "")
             }
@@ -49,10 +51,10 @@ describe("createDiaryDocumentIdentifierService", () => {
                 docxTextReaderRepository: docxRepository
             })
 
-            const result = await service.identify(filePath)
+            const result = await service.identify(file)
 
             expect(result.layout).toBe("WORD_CADASTRADO")
-            expect(docxRepository.readText).toHaveBeenCalledWith(filePath)
+            expect(docxRepository.readText).toHaveBeenCalledWith(file)
             expect(pdfRepository.readText).not.toHaveBeenCalled()
         }
     )
@@ -63,7 +65,7 @@ describe("createDiaryDocumentIdentifierService", () => {
             docxTextReaderRepository: { readText: jest.fn(async () => "") }
         })
 
-        await expect(service.identify("entrada.txt"))
+        await expect(service.identify({ filePath: "entrada.txt", fileName: "entrada" }))
             .rejects
             .toThrow(/Tipo de arquivo/)
     })

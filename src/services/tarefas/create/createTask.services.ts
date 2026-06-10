@@ -34,7 +34,7 @@ export async function createTaskService(cliente: Cliente, cookie: string): Promi
             previous.successfulRecordCount++
             previous.registeredSuccessfully.push(current.data)
         } else {
-            previous.failedRegistryTask.push(current.body)
+            previous.failedRegistryTask?.push(current.body)
         }
         return previous
     }, successfulRecordCountInit)

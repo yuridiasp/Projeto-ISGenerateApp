@@ -1,3 +1,5 @@
+// src\services\diaryParser\wordDiaryParser.services.ts
+
 import { DiaryRecord } from "@models/diaryReader/diaryReader.models";
 import { extractValue, extractRawValue } from "@helpers/diaryRegex.helpers";
 import {

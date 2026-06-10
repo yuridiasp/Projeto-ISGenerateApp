@@ -5,27 +5,34 @@ import dotEnv from 'dotenv'
 import { getCadastroProcessoService } from '@services/processos/index'
 import { loggedPostRequest } from '@utils/request/postRequest.utils'
 import { iValidationReport } from "@models/validations"
-import { ISAnalysisDTO } from "@models/clientes/Cliente.models"
 import { RequestValidationURL } from "@utils/request/requestValidation.utils"
 import { Result } from "@models/results"
-import { RecordResultsWithError } from "@models/errors"
+import { RecordResultsWithError, ValidationError } from "@models/errors"
 import { calculatePreviousBusinessDay } from "@utils/prazos/calculatePreviousBusinessDay.utils"
 import { dateTimeFormat } from "@helpers/dateTimeFormat.helpers"
 import { timezone } from "@helpers/timezone.helpers"
+import { ISAnalysisDTO } from "@models/handleIntimationsReport/handleIntimationsReport.models";
 
 const { JSDOM } = jsdom
 
 dotEnv.config()
 
 //TODO: Refatorar essa função
-export async function intimationValidateService({ case_number, description, publication_date, paragraph, availability_date, isRecorte, objectRecorte }: ISAnalysisDTO, cookie: string): Promise<Result<{ validationReport: iValidationReport }>> {
-    //console.log(processo, case_number, description, publicacao, publication_date, expediente)
-    let isRegistered = false, reason = null
+export async function intimationValidateService({ case_number, description, publication_date, paragraph, availability_date, validateMode, objectRecorte }: ISAnalysisDTO, cookie: string): Promise<Result<{ validationReport: iValidationReport }>> {
+    
+    let isRegistered = false, reason = ""
     const { URL_COMPROMISSOS_SISTEMFR } = process.env
     const body = {
         bsAdvCompromissos: 's',
         bsAdvCompromissosProcesso: case_number,
         filtrar: 'Filtrar'
+    }
+    
+    if (!URL_COMPROMISSOS_SISTEMFR) {
+        return {
+            success: false,
+            error: new ValidationError("URL_COMPROMISSOS_SISTEMFR ausente nas variáveis de ambiente.")
+        }
     }
 
     const response = await loggedPostRequest({url: URL_COMPROMISSOS_SISTEMFR, body, cookie })
@@ -39,8 +46,8 @@ export async function intimationValidateService({ case_number, description, publ
                 case_number: case_number,
                 description,
                 publicacao: publication_date.tz(timezone).format(dateTimeFormat),
-                isRegistered: null,
-                reason: result.error.code,
+                isRegistered: undefined,
+                reason: result.error?.code || "",
                 paragraph,
                 objectRecorte
             }, "Houve um erro para validar registro dessa intimação.")
@@ -53,19 +60,29 @@ export async function intimationValidateService({ case_number, description, publ
     const hasTD = !compromissosElementHTML[0].textContent.includes('Nenhum registro até o momento.')
     
     if (hasTD) {
-        const previousBusinessDateDispRecorte = calculatePreviousBusinessDay(availability_date)
+
+        if ((validateMode === "RECORTE" || validateMode === "PUB_VAL") && !availability_date) {
+            return {
+                success: false,
+                error: new ValidationError("availability_date ausente no argumento da função intimationValidateService.")
+            }
+        }
+
+        const previousBusinessDateDispRecorte = availability_date
+            ? calculatePreviousBusinessDay(availability_date)
+            : publication_date
 
         isRegistered = Array.from(compromissosElementHTML).some(compromissoElementHTML => {
             const publicationLocaleDateString = publication_date.tz(timezone).format(dateTimeFormat)
-            const descriptionHTML = compromissoElementHTML.querySelector('td:nth-child(3)').innerHTML.split('<br>')[0].trim()
-            const publicationHTML = compromissoElementHTML.querySelector('td:nth-child(6)').textContent //DD/MM/YYYY
+            const descriptionHTML = compromissoElementHTML.querySelector('td:nth-child(3)')?.innerHTML.split('<br>')[0].trim()
+            const publicationHTML = compromissoElementHTML.querySelector('td:nth-child(6)')?.textContent //DD/MM/YYYY
             
-            if (description)
+            if (description && validateMode !== "RECORTE" && validateMode !== "PUB_VAL")
                 return descriptionHTML === description && publicationHTML === publicationLocaleDateString
 
-            if (isRecorte) {
+            if (validateMode === "RECORTE" || validateMode === "PUB_VAL") {
                 const datePubPage = dayjs.tz(publicationHTML, dateTimeFormat, timezone)
-
+                
                 return datePubPage.isBetween(previousBusinessDateDispRecorte, publication_date, "day", "[]")
             }
 
@@ -83,7 +100,7 @@ export async function intimationValidateService({ case_number, description, publ
                     case_number: case_number,
                     description,
                     publicacao: publication_date.tz(timezone, true).format(dateTimeFormat),
-                    isRegistered: null,
+                    isRegistered: undefined,
                     reason: resultRegisterProcess.error.code,
                     paragraph,
                     objectRecorte
@@ -91,7 +108,7 @@ export async function intimationValidateService({ case_number, description, publ
             }
         }
 
-        reason = resultRegisterProcess.data.reason
+        reason = resultRegisterProcess.data?.reason || ""
     }
     
     return {

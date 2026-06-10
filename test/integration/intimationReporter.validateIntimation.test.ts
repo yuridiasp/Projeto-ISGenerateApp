@@ -1,42 +1,50 @@
-import path from 'path'
-import { describe, expect, it, beforeAll, jest, afterAll } from '@jest/globals'
-import fs from 'fs'
+import path from "path"
+import fs from "fs"
+import { afterAll, beforeAll, describe, expect, it, jest } from "@jest/globals"
 
-import { dayjsConfig } from '../../src/config/dayjsConfig.config'
+import { dayjsConfig } from "../../src/config/dayjsConfig.config"
+import {
+    HandleIntimationsReportResult,
+    handleIntimationsReportService
+} from "../../src/services/intimation/handleIntimationsReport.services"
+import { iWindows } from "../../src/models/windows/iWindows.models"
+import { Result } from "../../src/models/results/result.models"
+import { getObjectValidateIntimationsService } from "../../src/services/validateIntimations/validateIntimations.services"
+import { getFileData } from "./utils/getFileData"
+import { login } from "./utils/login"
 
 dayjsConfig()
 
-import { HandleIntimationsReportResult, handleIntimationsReportService } from '../../src/services/intimation/handleIntimationsReport.services'
-import { iWindows } from "../../src/models/windows/iWindows.models"
-import { login } from './utils/login'
-import { ValidationError } from '../../src/models/errors/validationError.models'
-import { getFileData } from './utils/getFileData'
-import { Result } from "../../src/models/results/result.models"
 const timeout = 15000
 
-
-describe("Validar cadastro de intimações a partir de um documento Word", () => {
-    const files = ["PREV30092025", "PREV30092025 - Cadastrados", "RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025"]
-    const send = jest.fn();
+describe("Validar cadastro de intimacoes a partir de um documento Word", () => {
+    const files = [
+        "PREV30092025",
+        "PREV30092025 - Cadastrados",
+        "RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025"
+    ]
+    const send = jest.fn()
     const windows: iWindows = {
         mainWindow: { webContents: { send } } as any,
         sobreWindow: null,
         loginWindow: null
     }
+    const createdReportPaths: string[] = []
 
     let cookie: string
-    
-    beforeAll(async () => { jest.clearAllMocks(); cookie = await login() }, timeout)
+
+    beforeAll(async () => {
+        jest.clearAllMocks()
+        cookie = await login()
+    }, timeout)
 
     afterAll(() => {
-        files.forEach(file => {
-            const [ fileNameReport, fileData ] = getFileData(file)
-            const filePath = path.join(path.dirname(fileData.filePath), fileNameReport)
+        createdReportPaths.forEach(filePath => {
             const fileExists = fs.existsSync(filePath)
-    
-            if(fileExists) {
+
+            if (fileExists) {
                 try {
-                    ///fs.unlinkSync(filePath)
+                    fs.unlinkSync(filePath)
                 } catch (error) {
                     console.log("Erro ao remover arquivo: ", error)
                 }
@@ -44,64 +52,61 @@ describe("Validar cadastro de intimações a partir de um documento Word", () =>
         })
     })
 
-    it("Arquivo que contém intimação não lançada", async () => {
-        const [ fileNameReport, fileData ] = getFileData(files[0])
+    it("Arquivo que contem intimacao nao lancada", async () => {
+        const [fileNameReport, fileData] = getFileData(files[0])
         const result = await handleIntimationsReportService({
             window: windows,
             cookie,
-            file: fileData
+            file: fileData,
+            funcValObj: getObjectValidateIntimationsService
         })
 
-        const filePath = path.join(path.dirname(fileData.filePath), fileNameReport)
-        const fileExists = fs.existsSync(filePath)
+        const newFilePath = result.data?.newFilePath as string
+        createdReportPaths.push(newFilePath)
 
-        expect(fileExists).toBeTruthy()
         expect(windows.mainWindow?.webContents.send).toHaveBeenCalled()
-        expect(result).toEqual({
-            success: true,
-            data: {
-                message: `Encontrado 5 intimações sem cadastro. Exportado relatório no caminho: ${filePath}`,
-                newFilePath: filePath
-            }
-        })
+        expect(result.success).toBe(true)
+        expect(fs.existsSync(newFilePath)).toBeTruthy()
+        expect(path.dirname(newFilePath)).toBe(path.dirname(fileData.filePath))
+        expect(path.basename(newFilePath)).toContain(fileNameReport.replace(".xlsx", ""))
+        expect(result.data?.message).toContain("Encontrado 5")
+        expect(result.data?.message).toContain(newFilePath)
     }, timeout)
 
-    it("Arquivo com todas as intimações lançadas", async () => {
-        const [ fileNameReport, fileData ] = getFileData(files[1])
+    it("Arquivo com todas as intimacoes lancadas", async () => {
+        const [, fileData] = getFileData(files[1])
 
         const result = await handleIntimationsReportService({
             window: windows,
             cookie,
-            file: fileData
+            file: fileData,
+            funcValObj: getObjectValidateIntimationsService
         })
-
-        const filePath = path.join(path.dirname(fileData.filePath), fileNameReport)
-        const fileExists = fs.existsSync(filePath)
 
         expect(windows.mainWindow?.webContents.send).toHaveBeenCalled()
-        expect(fileExists).toBeFalsy()
-        expect(result).toEqual({
-            success: false,
-            error: new ValidationError('Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.', 5)
-        })
+        expect(result.success).toBe(true)
+        expect(result.data?.message).toContain("Todas as")
+        expect(result.data?.newFilePath).toBeUndefined()
     }, timeout)
 
-    it("Arquivo de relatório do Recorte Digital", async () => {
-        const [ fileNameReport, fileData ] = getFileData(files[2], ".xlsx")
-        const filePath = path.join(path.dirname(fileData.filePath), fileNameReport)
+    it("Arquivo de relatorio do Recorte Digital", async () => {
+        const [fileNameReport, fileData] = getFileData(files[2], ".xlsx")
 
         const result: Result<HandleIntimationsReportResult> = await handleIntimationsReportService({
             window: windows,
             cookie,
-            file: fileData
+            file: fileData,
+            funcValObj: getObjectValidateIntimationsService
         })
-        
-        expect(result).toEqual({
-            success: true,
-            data: {
-                message: `Encontrado 2 intimações sem cadastro. Exportado relatório no caminho: ${filePath}`,
-                newFilePath: filePath
-            }
-        })
+
+        const newFilePath = result.data?.newFilePath as string
+        createdReportPaths.push(newFilePath)
+
+        expect(result.success).toBe(true)
+        expect(fs.existsSync(newFilePath)).toBeTruthy()
+        expect(path.dirname(newFilePath)).toBe(path.dirname(fileData.filePath))
+        expect(path.basename(newFilePath)).toContain(fileNameReport.replace(".xlsx", ""))
+        expect(result.data?.message).toContain("Encontrado 2")
+        expect(result.data?.message).toContain(newFilePath)
     }, timeout)
 })

@@ -37,6 +37,11 @@ describe("Dividir arquivos de IS por natureza a partir de um único arquivo de I
             expect(fileExists).toBeTruthy()
         })
 
-        expect(result).toEqual({ msg: 'Arquivos gerados com sucesso! Acesse a pasta do arquivo original.', value: true })
+        expect(result).toEqual({
+            success: true,
+            data: {
+                message: 'Arquivos gerados com sucesso! Acesse a pasta do arquivo original.'
+            }
+        })
     }, 20000)
 })

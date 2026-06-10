@@ -1,9 +1,8 @@
 import { intimationValidateService } from "@services/intimation";
 import { updateViewReportValidation } from "@utils/viewHelpers/viewHelpers.utils";
-import { ISAnalysisDTO } from "@models/clientes";
 import { iValidationReport } from "@models/validations";
 import { RecordResultsWithError } from "@models/errors";
-import { MainWindowWebContents } from "@models/handleIntimationsReport/handleIntimationsReport.models";
+import { ISAnalysisDTO, MainWindowWebContents } from "@models/handleIntimationsReport/handleIntimationsReport.models";
 
 export async function validateIntimationsAndNotifyView(
   intimations: ISAnalysisDTO[],

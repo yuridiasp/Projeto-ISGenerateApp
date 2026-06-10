@@ -6,7 +6,7 @@ export interface iValidationReport {
     description: string;
     publicacao?: string;
     publication_date?: string,
-    isRegistered: boolean;
+    isRegistered?: boolean;
     reason: string;
     paragraph?: string,
     objectRecorte?: lineXlsxIS

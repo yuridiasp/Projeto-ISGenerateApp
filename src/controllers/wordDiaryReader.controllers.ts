@@ -1,4 +1,5 @@
 import { createDocxTextReaderRepository } from "@repositories/docxTextReader/docxTextReader.repositories";
+import { iFileData } from "@services/validateIntimations";
 import { createDiaryReaderService } from "@services/wordDiaryReader/wordDiaryReader.services";
 
 const textReaderRepository = createDocxTextReaderRepository();
@@ -12,6 +13,6 @@ const wordDiaryReaderService = createDiaryReaderService({
   }
 });
 
-export async function readDiaryFromWordController(filePath: string) {
-  return wordDiaryReaderService.read(filePath);
+export async function readDiaryFromWordController(file: iFileData) {
+  return wordDiaryReaderService.read(file);
 }

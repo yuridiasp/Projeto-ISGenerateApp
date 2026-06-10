@@ -27,6 +27,7 @@ describe("readDiaryAutomatically", () => {
     })
 
     test("roteia documento Word cadastrado para o leitor Word", async () => {
+        const file = { filePath: "diario.docx", fileName: "diario" }
         const records = [{ partes: ["CLIENTE"], advogados: [], layout: "WORD_CADASTRADO" }]
 
         identifyMock.mockResolvedValueOnce({
@@ -38,15 +39,17 @@ describe("readDiaryAutomatically", () => {
         })
         readWordMock.mockResolvedValueOnce(records)
 
-        await expect(readDiaryAutomatically("diario.docx")).resolves.toBe(records)
+        await expect(readDiaryAutomatically(file)).resolves.toBe(records)
 
-        expect(readWordMock).toHaveBeenCalledWith("diario.docx")
+        expect(identifyMock).toHaveBeenCalledWith(file)
+        expect(readWordMock).toHaveBeenCalledWith(file)
         expect(readPdfMock).not.toHaveBeenCalled()
     })
 
     test.each(["PDF_IS_PROCESSOS", "SERDIJUL", "PDF_DEFAULT"] as const)(
         "roteia layout %s para o leitor PDF",
         async layout => {
+            const file = { filePath: "diario.pdf", fileName: "diario" }
             const records = [{ partes: [], advogados: [], layout }]
 
             identifyMock.mockResolvedValueOnce({
@@ -58,14 +61,17 @@ describe("readDiaryAutomatically", () => {
             })
             readPdfMock.mockResolvedValueOnce(records)
 
-            await expect(readDiaryAutomatically("diario.pdf")).resolves.toBe(records)
+            await expect(readDiaryAutomatically(file)).resolves.toBe(records)
 
-            expect(readPdfMock).toHaveBeenCalledWith("diario.pdf")
+            expect(identifyMock).toHaveBeenCalledWith(file)
+            expect(readPdfMock).toHaveBeenCalledWith(file)
             expect(readWordMock).not.toHaveBeenCalled()
         }
     )
 
     test("falha quando o layout nao pode ser identificado", async () => {
+        const file = { filePath: "entrada.txt", fileName: "entrada" }
+
         identifyMock.mockResolvedValueOnce({
             fileType: "UNKNOWN",
             layout: "UNKNOWN",
@@ -74,7 +80,7 @@ describe("readDiaryAutomatically", () => {
             reasons: []
         })
 
-        await expect(readDiaryAutomatically("entrada.txt"))
+        await expect(readDiaryAutomatically(file))
             .rejects
             .toThrow(/layout do documento/)
     })

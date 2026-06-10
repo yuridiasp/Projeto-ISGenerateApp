@@ -2,32 +2,11 @@ import { iCompromisso } from "@models/compromissos"
 import { iProcesso } from "@models/processos"
 import { iDataCliente } from "@models/clientes"
 import { validaTipoCompromisso } from "@utils/compromissos/validarTipoCompromisso.utils";
-import { lineXlsxIS } from "@repositories/xlsx/excelISFile.repositories";
 import { excelDateToJsDate } from "@utils/date/excelDateToJsDate.utils";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { timezone } from "@helpers/timezone.helpers";
 import { dateTimeFormat } from "@helpers/dateTimeFormat.helpers";
-
-export interface ISAnalysisDTO {
-    availability_date?: Dayjs;
-    publication_date: Dayjs;
-    case_number: string;
-    related_case_number: string;
-    description: string;
-    internal_deadline: string;
-    fatal_deadline: string;
-    time: string;
-    expert_or_defendant: string;
-    local_adress: string;
-    dataCliente: iDataCliente;
-    dataProcesso: iProcesso;
-    executor: string;
-    separate_task: string;
-    justification: string;
-    paragraph?: string;
-    isRecorte?: boolean;
-    objectRecorte?: lineXlsxIS;
-}
+import { ISAnalysisDTO } from "@models/handleIntimationsReport/handleIntimationsReport.models";
 
 export class Cliente {
     id: string

@@ -3,8 +3,8 @@ import { extractRawTextFromDocx } from "@infrastructure/mammoth/mammoth.infrastr
 
 export function createDocxTextReaderRepository(): TextReaderRepository {
   return {
-    async readText(filePath: string): Promise<string> {
-      return extractRawTextFromDocx(filePath);
+    async readText(file): Promise<string> {
+      return extractRawTextFromDocx(file);
     }
   };
 }

@@ -61,7 +61,7 @@ label {
     background: var(--bg-main-menu-btn);
     color: var(--text-main-menu-btn);
     width: 80vw;
-    height: 20vh;
+    height: 10vh;
     font-weight: bold;
     gap: 3vw;
     font-size: 5vw;
@@ -108,7 +108,7 @@ label:hover, .btn:hover {
     flex-direction: column;
 }
 
-#splitBtnsOptions {
+#buttonsDivClassifyPublicationsByDepartment {
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -125,13 +125,13 @@ label:hover, .btn:hover {
     padding: 10px;
 }
 
-#btnConfirmSplitOptionsDocx {
+#confirmButtonClassifyPublicationsByDepartmentDOCX {
     color: var(--word-color-btn);
     background: var(--word-background-btn);
     border: 0.1em solid var(--word-color-btn);
 }
 
-#btnConfirmSplitOptionsXlsx {
+#confirmButtonClassifyPublicationsByDepartmentXLSX {
     color: var(--excel-color-btn);
     background: var(--excel-background-btn);
     border: 0.1em solid var(--excel-color-btn);

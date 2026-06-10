@@ -20,15 +20,20 @@ export async function loginService(username: string | undefined, password: strin
 export function retrieveCredentialsService() {
     const result = retrieveCredentials()
 
-    if (result.success) {
+    if (result.success === true) {
+
+        if (!result.data?.encryptedPassword) {
+            return null
+        }
+
         const decryptedPassword = decrypt(result.data.encryptedPassword)
 
-        return { login: result.data.login, senha: decryptedPassword }
+        return { login: result.data?.login, senha: decryptedPassword }
     }
     
     return null
 }
 
 export function sendCredenctialsService(credentials: credential, windows: iWindows) {
-    windows.mainWindow.webContents.send("receive-credentials", JSON.stringify(credentials))
+    windows.mainWindow?.webContents.send("receive-credentials", JSON.stringify(credentials))
 }

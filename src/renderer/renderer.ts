@@ -1,30 +1,86 @@
 import { ValidationError } from "@models/errors"
 import { Result } from "@models/results"
 import { iValidationReport } from "@models/validations/iValidationReport.models"
-import { HandleIntimationsReportResult, tHandleIntimation } from "@services/intimation"
+import { tHandleIntimation } from "@services/intimation"
+import { HandleIntimationsReportResult } from "@models/handleIntimationsReport/handleIntimationsReport.models"
 import { credential } from "@services/login"
 import { iFileData } from "@services/validateIntimations"
 
-const splitISInput = document.querySelector('#splitIS') as HTMLInputElement
-const buttonsDivSplit = document.querySelector('#splitBtnsOptions') as HTMLElement
-const btnConfirmSplitOptionsXlsx = document.querySelector("#btnConfirmSplitOptionsXlsx")
-const btnConfirmSplitOptionsDocx = document.querySelector("#btnConfirmSplitOptionsDocx")
-const btnCancelSplitOptions = document.querySelector("#btnCancelSplitOptions") as HTMLButtonElement
+/**
+ * 1. classifyPublicationsByDepartment
+ * 
+ * Classifies the extracted publications by the responsible department.
+ *
+ * This function receives the publications extracted from DOCX, XLSX or PDF files
+ * and applies the defined classification rules to determine which department
+ * should handle each publication.
+ *
+ * The classification may consider information such as case number, court,
+ * publication content, type of lawsuit, keywords, procedural class or any other
+ * criteria used internally to identify the correct department.
+ *
+ * The result of this process allows the publications to be organized and routed
+ * to the appropriate workflow, queue or team before reconciliation or registration
+ * in the system.
+ */
+const inputClassifyPublicationsByDepartment = document.querySelector('#inputClassifyPublicationsByDepartment') as HTMLInputElement
+const buttonsDivClassifyPublicationsByDepartment = document.querySelector('#buttonsDivClassifyPublicationsByDepartment') as HTMLElement
+const confirmButtonClassifyPublicationsByDepartmentXLSX = document.querySelector("#confirmButtonClassifyPublicationsByDepartmentXLSX") as HTMLButtonElement
+const confirmButtonClassifyPublicationsByDepartmentDOCX = document.querySelector("#confirmButtonClassifyPublicationsByDepartmentDOCX") as HTMLButtonElement
+const cancelButtonClassifyPublicationsByDepartment = document.querySelector("#cancelButtonClassifyPublicationsByDepartment") as HTMLButtonElement
 
-const registrationISInput = document.querySelector('#registrationIS') as HTMLInputElement
-const buttonsDivRegistrationIS = document.querySelector('#registrationISBtns') as HTMLButtonElement
-const btnConfirmRegistrationIS = document.querySelector('#btnConfirmregistrationIS') as HTMLButtonElement
-const btnCancelRegistrationIS = document.querySelector('#btnCancelregistrationIS') as HTMLButtonElement
+/**
+ * 1. registerIntimationsFromAnalyses
+ * 
+ * Automatically registers intimations in the system based on the analyses
+ * extracted from the document.
+ *
+ * This function should be used after the document has been read and the analyst
+ * annotations have been extracted, since not every publication found in the file
+ * must necessarily be registered.
+ *
+ * The registration process should consider only the intimations that were analyzed
+ * and identified as requiring system registration, using the relevant information
+ * such as case number, publication date, summary, deadline and assigned executor.
+ */
+const inputRegisterIntimationsFromAnalyses = document.querySelector('#inputRegisterIntimationsFromAnalyses') as HTMLInputElement
+const buttonsDivregisterIntimationsFromAnalyses = document.querySelector('#buttonsDivregisterIntimationsFromAnalyses') as HTMLButtonElement
+const confirmButtonRegisterIntimationsFromAnalyses = document.querySelector('#confirmButtonRegisterIntimationsFromAnalyses') as HTMLButtonElement
+const cancelButtonRegisterIntimationsFromAnalyses = document.querySelector('#cancelButtonRegisterIntimationsFromAnalyses') as HTMLButtonElement
 
-const validateIntimationsInput = document.querySelector('#validateIntimationRegister') as HTMLInputElement
-const buttonsDivValidateIntimations = document.querySelector('#validateIntimationRegisterBtns') as HTMLButtonElement
-const btnConfirmValidateIntimations = document.querySelector('#btnConfirmValidateIntimationRegister') as HTMLButtonElement
-const btnCancelValidateIntimations = document.querySelector('#btnCancelValidateIntimationRegister') as HTMLButtonElement
+/**
+ * Realiza a conciliação entre as informações extraídas do documento e os registros existentes no sistema.
+ *
+ * Existem duas validações semelhantes, mas com finalidades diferentes:
+ *
+ * 1. Conciliação das publicações (reconcilePublicationsWithSystem):
+ *    Verifica se as publicações constantes nas tabelas dos arquivos DOCX, XLSX ou PDF
+ *    foram cadastradas no sistema, utilizando como critério de comparação o número
+ *    do processo e a data de publicação.
+ *
+ * 2. Conciliação das análises (reconcileAnalysesWithSystem):
+ *    Verifica se as análises feitas pelos analistas, geralmente localizadas fora das tabelas
+ *    do documento e contendo informações como resumo, prazo e executor da intimação,
+ *    foram efetivamente cadastradas no sistema.
+ *
+ * Essa separação é necessária porque nem toda publicação encontrada no documento
+ * deve ser registrada no sistema. Portanto, a conciliação das análises permite validar
+ * se aquilo que foi analisado e deveria ter sido lançado foi realmente cadastrado,
+ * enquanto a conciliação das publicações permite identificar quais publicações não
+ * foram cadastradas e possibilita investigar o motivo da ausência do registro.
+ */
 
-const validateAnaliseRegisterInput = document.querySelector('#validateAnaliseRegister') as HTMLInputElement
-const buttonsDivValidateAnaliseRegister = document.querySelector('#validateAnaliseRegisterBtns') as HTMLButtonElement
-const btnConfirmValidateAnaliseRegister = document.querySelector('#btnConfirmvalidateAnaliseRegister') as HTMLButtonElement
-const btnCancelValidateAnaliseRegister = document.querySelector('#btnCancelvalidateAnaliseRegister') as HTMLButtonElement
+/* Conciliação das análises */
+const inputReconcileAnalysesWithSystem = document.querySelector('#inputReconcileAnalysesWithSystem') as HTMLInputElement
+const buttonsDivReconcileAnalysesWithSystem = document.querySelector('#buttonsDivReconcileAnalysesWithSystem') as HTMLButtonElement
+const confirmButtonReconcileAnalysesWithSystem = document.querySelector('#confirmButtonReconcileAnalysesWithSystem') as HTMLButtonElement
+const cancelButtonReconcileAnalysesWithSystem = document.querySelector('#cancelButtonReconcileAnalysesWithSystem') as HTMLButtonElement
+
+/* Conciliação das publicações */
+const inputReconcilePublicationsWithSystem = document.querySelector('#inputReconcilePublicationsWithSystem') as HTMLInputElement
+const buttonsDivReconcilePublicationsWithSystem = document.querySelector('#buttonsDivReconcilePublicationsWithSystem') as HTMLButtonElement
+const confirmButtonReconcilePublicationsWithSystem = document.querySelector('#confirmButtonReconcilePublicationsWithSystem') as HTMLButtonElement
+const cancelButtonReconcilePublicationsWithSystem = document.querySelector('#cancelButtonReconcilePublicationsWithSystem') as HTMLButtonElement
 
 const loader = document.querySelector('#loader') as HTMLElement
 const content = document.querySelector('.content') as HTMLElement
@@ -43,22 +99,40 @@ const textMessages = {
     }
 }
 
-let argsSplit: iFileData,
-    argsValidateRegister: iFileData = { fileName: "", filePath: "", isXlsx: false },
-    argsValidateIntimation: iFileData = { fileName: "", filePath: "", isXlsx: false },
-    argsRegister: iFileData = { fileName: "", filePath: "", isXlsx: false },
-    credentials: credential,
-    currentOperation: operationsType
+type tOperationArgs = {
+    classifyPublicationsByDepartment: iFileData,
+    reconcileAnalysesWithSystem: iFileData,
+    reconcilePublicationsWithSystem: iFileData,
+    registerIntimationsFromAnalyses: iFileData,
+}
+
+const operationArgs: tOperationArgs = {
+    classifyPublicationsByDepartment: { fileName: "", filePath: "", isXlsx: false },
+    reconcileAnalysesWithSystem: { fileName: "", filePath: "", isXlsx: false },
+    reconcilePublicationsWithSystem: { fileName: "", filePath: "", isXlsx: false },
+    registerIntimationsFromAnalyses: { fileName: "", filePath: "", isXlsx: false }
+}
+
+let credentials: credential | undefined
+let currentOperation: operationsType | undefined
 
 // API
 
+    type ApiResult = Result<HandleIntimationsReportResult | tHandleIntimation>
+
+    type GenericApiFunction = (
+        args: iFileData,
+        credentials?: credential,
+        currentOperation?: operationsType
+    ) => Promise<string | ApiResult>
+
     export interface iAPI {
         openFileDialogForFile(): Promise<{ filePaths: string[], canceled: boolean }>;
-        intimationRegister(args: iFileData, credentials: credential): Promise<string>;
-        validateAnaliseRegister(args: iFileData, credentials: credential): Promise<string>;
-        validateIntimationRegister(args: iFileData, credentials: credential): Promise<string>;
-        splitFileIs(args: iFileData): Promise<any>;
-        updateReportStatus(callback: (report: iValidationReport) => void): void;
+        registerIntimationsFromAnalyses: GenericApiFunction;
+        reconcilePublicationsWithSystem: GenericApiFunction;
+        reconcileAnalysesWithSystem: GenericApiFunction;
+        classifyPublicationsByDepartment: GenericApiFunction;
+        updateReportStatus(callback: (report: iValidationReport, operation?: operationsType) => void): void;
         enableButtonCloseReport(callback: () => void): void;
         abrirJanelaLogin(): void;
         receiveCredentials(callback: (credentials: string) => void): void;
@@ -74,9 +148,24 @@ let argsSplit: iFileData,
 // FileManager
 
     export function createObjectArgs(filePaths: string[]): iFileData {
-        const pathArray = filePaths[0].split("\\")
-        const nome = pathArray.pop()
-        return { fileName: nome as string, filePath: filePaths[0] }
+        const filePath = filePaths[0]
+
+        if (!filePath) {
+            return { fileName: "", filePath: "", isXlsx: false }
+        }
+
+        const pathArray = filePath.split("\\")
+        const fileName = pathArray.pop() ?? ""
+
+        return {
+            fileName,
+            filePath,
+            isXlsx: false
+        }
+    }
+
+    function hasSelectedFile(args: iFileData): boolean {
+        return Boolean(args.filePath && args.fileName)
     }
 
 // Operations
@@ -86,89 +175,140 @@ let argsSplit: iFileData,
         operation: operationsType
         loader: HTMLElement
         content: HTMLElement
-        argsRegister?: iFileData
-        btnCancelRegistrationIS?: HTMLButtonElement
+        args?: iFileData
+        cancelButtonRegisterIntimationsFromAnalyses?: HTMLButtonElement
         reportContainer?: HTMLElement
         reportContent?: HTMLElement
         argsValidate?: iFileData
     }
 
     export const operations = {
-        "validateAnaliseRegister": () => validateOperationFunction(window.API.validateAnaliseRegister, "validateAnaliseRegister", argsValidateRegister, credentials),
-        "validateIntimationRegister": () => validateOperationFunction(window.API.validateIntimationRegister, "validateIntimationRegister", argsValidateIntimation, credentials),
-        "intimationRegister": () => validateOperationFunction(window.API.intimationRegister, "intimationRegister", argsRegister, credentials),
+        reconcilePublicationsWithSystem: async () => {
+            return validateOperationFunction(
+                window.API.reconcilePublicationsWithSystem,
+                "reconcilePublicationsWithSystem",
+                operationArgs.reconcilePublicationsWithSystem,
+                credentials
+            )
+        },
+
+        reconcileAnalysesWithSystem: async () => {
+            return validateOperationFunction(
+                window.API.reconcileAnalysesWithSystem,
+                "reconcileAnalysesWithSystem",
+                operationArgs.reconcileAnalysesWithSystem,
+                credentials
+            )
+        },
+
+        registerIntimationsFromAnalyses: async () => {
+            return validateOperationFunction(
+                window.API.registerIntimationsFromAnalyses,
+                "registerIntimationsFromAnalyses",
+                operationArgs.registerIntimationsFromAnalyses,
+                credentials
+            )
+        },
+
+        classifyPublicationsByDepartment: async (typeDoc?: { isXlsx: boolean }) => {
+            return validateOperationFunction(
+                window.API.classifyPublicationsByDepartment,
+                "classifyPublicationsByDepartment",
+                operationArgs.classifyPublicationsByDepartment,
+                undefined,
+                typeDoc
+            )
+        }
     }
 
     export type operationsType = keyof typeof operations
 
-    export async function splitIS (typeDoc: { isXlsx: boolean }) {
-        showLoader()
-        if (Object.keys(argsSplit).length) {
-            const result = await window.API.splitFileIs({ ...argsSplit, ...typeDoc })
-
-            const { msg, value } = result
-            if (value) {
-                console.log(textMessages.success.successPtBr)
-            } else {
-                console.log(textMessages.error.errorPtBr)
-            }
-            alert(msg)
-        }
-        else {
-            alert(textMessages.error.emptyFile)
-        }
-        hiddeLoader()
-        btnCancelSplitOptions.click()
+    function operationRequiresLogin(operation: operationsType): boolean {
+        return operation !== "classifyPublicationsByDepartment"
     }
 
-    export async function processValidate(validateFunction: (args: iFileData, credentials: credential) => Promise<string>, args: iFileData, credentials: credential) {
-        const resultJSONText = await validateFunction(args, credentials)
-                
-        const result = JSON.parse(resultJSONText) as Result<HandleIntimationsReportResult | tHandleIntimation>
+    export async function processValidate(
+        validateFunction: GenericApiFunction,
+        args: iFileData,
+        operation: operationsType,
+        credentials?: credential
+    ): Promise<void> {
+        const response = await validateFunction(args, credentials, operation)
+
+        const result = typeof response === "string"
+            ? JSON.parse(response) as ApiResult
+            : response
 
         if (result.success === true) {
             console.log(textMessages.success.successPtBr)
-            alert(result.data?.message || textMessages.success.registerIntimation)
-        } else {
+
+            const data = result.data as Partial<{ message: string; msg: string }>
+
+            alert(data.message ?? data.msg ?? textMessages.success.registerIntimation)
+            return
+        }
+
+        if (operation !== "registerIntimationsFromAnalyses" && operation !== "classifyPublicationsByDepartment") {
             const error = result.error as ValidationError
 
-            if(currentOperation !== "intimationRegister") {
-                hiddeContent()
-                showReportContainer()
-                setReportFileName(args.fileName)
-                setReportFilePath(args.filePath)
+            hideMainMenuContent()
+            showReportContainer()
+            setReportFileName(args.fileName)
+            setReportFilePath(args.filePath)
 
-                if(!error.fileLength)
-                    insertSuccessMessageResponse(reportContent)
+            if (!error.fileLength) {
+                insertSuccessMessageResponse(reportContent)
             }
-
-            alert(result.error.message)
         }
+
+        alert(result.error.toString())
     }
 
-    export async function validateOperationFunction(functionAPI: (args: iFileData, credentials: credential) => Promise<string>, operation: operationsType, args: iFileData, credentials: credential) {
-        if(currentOperation !== "intimationRegister") {
-            hiddeContent()
+    export async function validateOperationFunction(
+        functionAPI: GenericApiFunction,
+        operation: operationsType,
+        args: iFileData,
+        credentials?: credential,
+        typeDoc?: { isXlsx: boolean }
+    ): Promise<void> {
+        currentOperation = operation
+        
+        if (typeDoc) {
+            args.isXlsx = typeDoc.isXlsx
+        }
+
+        if (!hasSelectedFile(args)) {
+            alert(textMessages.error.emptyFile)
+            return
+        }
+
+        if (operation !== "registerIntimationsFromAnalyses") {
+            hideMainMenuContent()
         }
 
         showLoader()
-        
-        if (Object.keys(args).length) {
-            
-            if(!credentials) {
-                currentOperation = operation
-                window.API.abrirJanelaLogin()
-            } else {
-                processValidate(functionAPI, args, credentials)
-            }
-        }
-        else {
-            alert(textMessages.error.emptyFile)
-        }
 
-        if (currentOperation === "intimationRegister") {
-            hiddeLoader()
-            btnCancelRegistrationIS.click()
+        try {
+            const requiresLogin = operationRequiresLogin(operation)
+
+            if (requiresLogin && !credentials) {
+                window.API.abrirJanelaLogin()
+                return
+            }
+
+            await processValidate(functionAPI, args, operation, credentials)
+        } catch (error) {
+            console.error(error)
+            alert("Erro inesperado ao processar a operação.")
+        } finally {
+            if (operation === "registerIntimationsFromAnalyses") {
+                cancelButtonRegisterIntimationsFromAnalyses.click()
+            }
+
+            if (operation === "classifyPublicationsByDepartment") {
+                cancelButtonClassifyPublicationsByDepartment.click()
+                hideLoader()
+            }
         }
     }
 
@@ -176,7 +316,12 @@ let argsSplit: iFileData,
         Função invocada quando for necessário realizar login no sistema antes da execução.
         Retoma execução da função.
     */
-    export function resumeOperation () {
+    export function resumeOperation(): Promise<void> | undefined {
+        if (!currentOperation) {
+            alert("Nenhuma operação pendente para retomar.")
+            return
+        }
+
         return operations[currentOperation]()
     }
 
@@ -252,49 +397,64 @@ let argsSplit: iFileData,
         reportContent.append(container)
     }
 
-    export function insertReportValidation({ processo, case_number, publicacao, publication_date, isRegistered, reason = '', paragraph }: iValidationReport, reportContent: HTMLElement) {
-        const processValue = processo || case_number
-        const publicationValue = publicacao || publication_date
+    export function insertReportValidation(
+    { processo, case_number, publicacao, publication_date, isRegistered, reason = '', paragraph }: iValidationReport,
+        reportContent: HTMLElement
+    ) {
+        const processValue = processo || case_number || ""
+        const publicationValue = publicacao || publication_date || ""
         const resultClass = isRegistered ? 'success' : 'error'
         const resultIcon = isRegistered ? 'check' : 'times'
 
-        const [ container, spanCaseNumber, content ] = createElementReport(resultClass, resultIcon, processValue, publicationValue)
+        const [container, spanCaseNumber, content] = createElementReport(
+            resultClass,
+            resultIcon,
+            processValue,
+            publicationValue
+        )
+
         reportContent.append(container)
 
         spanCaseNumber.addEventListener("click", async () => {
-            const result = await window.API.copyToClipboard(spanCaseNumber.textContent)
-            
+            const result = await window.API.copyToClipboard(spanCaseNumber.textContent ?? "")
             showMessageCopy(result)
         })
-        
-        if(!isRegistered) {
+
+        if (!isRegistered) {
             const button = document.createElement("button")
             button.classList.add("show-information")
             content.append(button)
-            
+
             const iButton = document.createElement("i")
             iButton.classList.add("fa", "fa-eye")
             iButton.ariaHidden = "true"
             button.append(iButton)
-            
+
             const p = document.createElement("p")
             p.classList.add("p-info-is")
             p.style.display = "none"
-            p.innerHTML = paragraph as string
+            p.innerHTML = paragraph ?? reason
             reportContent.append(p)
 
-            button.addEventListener("click", () => toogleEye(iButton, p))
+            button.addEventListener("click", () => toggleEye(iButton, p))
         }
     }
 
+    function hideAllOperationButtons(): void {
+        buttonsDivClassifyPublicationsByDepartment.classList.remove('aparecer')
+        buttonsDivregisterIntimationsFromAnalyses.classList.remove('aparecer')
+        buttonsDivReconcileAnalysesWithSystem.classList.remove('aparecer')
+        buttonsDivReconcilePublicationsWithSystem.classList.remove('aparecer')
+    }
+
     export function resetReport() {
-        hiddeLoader()
-        showContent()
-        hiddeReportContainer()
+        hideLoader()
+        showMainMenuContent()
+        hideReportContainer()
         setReportFileName('')
         setReportFilePath('')
         reportContent.innerHTML = ''
-        btnCancelValidateIntimations.click()
+        hideAllOperationButtons()
     }
 
     export function showReportContainer() {
@@ -302,32 +462,32 @@ let argsSplit: iFileData,
         reportContainer.classList.add('show')
     }
 
-    export function showContent() {
+    export function showMainMenuContent() {
         content.classList.remove('hidder')
         content.classList.add('show')
     }
 
     export function showLoader() {
         loader.classList.add('c-loader', 'show')
-        hiddeContent()
+        hideMainMenuContent()
     }
 
-    export function hiddeContent() {
+    export function hideMainMenuContent() {
         content.classList.add('hidder')
         content.classList.remove('show')
     }
 
-    export function hiddeReportContainer() {
+    export function hideReportContainer() {
         reportContainer.classList.add('hidder')
         reportContainer.classList.remove('show')
     }
 
-    export function hiddeLoader() {
+    export function hideLoader() {
         loader.classList.remove('c-loader', 'show')
-        showContent()
+        showMainMenuContent()
     }
 
-    export function toogleEye (i: HTMLElement, p: HTMLElement) {
+    export function toggleEye (i: HTMLElement, p: HTMLElement) {
         if (i.classList.contains("fa-eye-slash")) {
             i.classList.remove("fa-eye-slash")
             i.classList.add("fa-eye")
@@ -341,61 +501,131 @@ let argsSplit: iFileData,
         }
     }
 
-    export async function setFilePathArg(args: iFileData, div: HTMLElement) {
+    export async function setFilePathArg(
+        operation: operationsType,
+        div: HTMLElement
+    ): Promise<void> {
         const { canceled, filePaths } = await window.API.openFileDialogForFile()
 
         if (!canceled) {
-            args = createObjectArgs(filePaths)
-
+            operationArgs[operation] = createObjectArgs(filePaths)
             div.classList.add('aparecer')
         }
-
-        return args
     }
 
 // Renderer
 
     closeReportButton.addEventListener('click', () => resetReport())
 
-    splitISInput.addEventListener('click', async () => {
+    inputClassifyPublicationsByDepartment.addEventListener('click', async () => {
         const { canceled, filePaths } = await window.API.openFileDialogForFile()
         
         if (!canceled) {
-            argsSplit = createObjectArgs(filePaths)
+            operationArgs.classifyPublicationsByDepartment = createObjectArgs(filePaths)
 
-            buttonsDivSplit?.classList.add('aparecer')
+            buttonsDivClassifyPublicationsByDepartment?.classList.add('aparecer')
         }
     })
 
-    btnConfirmSplitOptionsXlsx?.addEventListener('click', () => splitIS({ isXlsx: true }))
-
-    btnConfirmSplitOptionsDocx?.addEventListener('click', () => splitIS({ isXlsx: false }))
-
-    btnCancelSplitOptions.addEventListener('click', () => {
-        buttonsDivSplit?.classList.remove('aparecer')
+    confirmButtonClassifyPublicationsByDepartmentXLSX?.addEventListener('click', () => {
+        operations.classifyPublicationsByDepartment({ isXlsx: true })
     })
 
-    export function applyListenersRegisterOrValidateFunction(args: iFileData, div: HTMLElement, functionAPI: (args: iFileData, credentials: credential) => Promise<string>, currentOperation: operationsType, btnConfrm: HTMLButtonElement, btnCancel: HTMLButtonElement, validateInput: HTMLInputElement) {
-        validateInput.addEventListener('click', async () => setFilePathArg(args, div))
-    
-        btnConfrm.addEventListener('click', () => validateOperationFunction(functionAPI, currentOperation, args, credentials))
-    
+    confirmButtonClassifyPublicationsByDepartmentDOCX?.addEventListener('click', () => {
+        operations.classifyPublicationsByDepartment({ isXlsx: false })
+    })
+
+    cancelButtonClassifyPublicationsByDepartment.addEventListener('click', () => {
+        buttonsDivClassifyPublicationsByDepartment?.classList.remove('aparecer')
+    })
+
+    export function applyListenersRegisterOrValidateFunction(
+        operation: operationsType,
+        div: HTMLElement,
+        functionAPI: GenericApiFunction,
+        btnConfirm: HTMLButtonElement,
+        btnCancel: HTMLButtonElement,
+        validateInput: HTMLInputElement
+    ): void {
+        validateInput.addEventListener('click', async () => {
+            await setFilePathArg(operation, div)
+        })
+
+        btnConfirm.addEventListener('click', () => {
+            validateOperationFunction(
+                functionAPI,
+                operation,
+                operationArgs[operation],
+                credentials
+            )
+        })
+
         btnCancel.addEventListener('click', () => {
             div.classList.remove('aparecer')
         })
     }
 
-    applyListenersRegisterOrValidateFunction(argsRegister, buttonsDivRegistrationIS, window.API.intimationRegister, "intimationRegister", btnConfirmRegistrationIS, btnCancelRegistrationIS, registrationISInput)
+    applyListenersRegisterOrValidateFunction(
+        "registerIntimationsFromAnalyses",
+        buttonsDivregisterIntimationsFromAnalyses,
+        window.API.registerIntimationsFromAnalyses,
+        confirmButtonRegisterIntimationsFromAnalyses,
+        cancelButtonRegisterIntimationsFromAnalyses,
+        inputRegisterIntimationsFromAnalyses
+    )
 
-    applyListenersRegisterOrValidateFunction(argsValidateIntimation, buttonsDivValidateIntimations, window.API.validateIntimationRegister, "validateIntimationRegister", btnConfirmValidateIntimations, btnCancelValidateIntimations, validateIntimationsInput)
+    applyListenersRegisterOrValidateFunction(
+        "reconcileAnalysesWithSystem",
+        buttonsDivReconcileAnalysesWithSystem,
+        window.API.reconcileAnalysesWithSystem,
+        confirmButtonReconcileAnalysesWithSystem,
+        cancelButtonReconcileAnalysesWithSystem,
+        inputReconcileAnalysesWithSystem
+    )
 
-    applyListenersRegisterOrValidateFunction(argsValidateRegister, buttonsDivValidateAnaliseRegister, window.API.validateAnaliseRegister, "validateAnaliseRegister", btnConfirmValidateAnaliseRegister, btnCancelValidateAnaliseRegister, validateAnaliseRegisterInput)
+    applyListenersRegisterOrValidateFunction(
+        "reconcilePublicationsWithSystem",
+        buttonsDivReconcilePublicationsWithSystem,
+        window.API.reconcilePublicationsWithSystem,
+        confirmButtonReconcilePublicationsWithSystem,
+        cancelButtonReconcilePublicationsWithSystem,
+        inputReconcilePublicationsWithSystem
+    )
 
-    window.API.updateReportStatus((report: iValidationReport) => {
+    window.API.updateReportStatus((report: iValidationReport, operation?: operationsType) => {
+        const reportOperation = operation ?? currentOperation
+
+        if (!reportOperation) {
+            console.error("Não foi possível identificar a operação do relatório.", {
+                report,
+                operation,
+                currentOperation
+            })
+
+            return
+        }
+
+        if (reportOperation === "classifyPublicationsByDepartment") {
+            return
+        }
+
+        const args = operationArgs[reportOperation]
+
+        if (!args) {
+            console.error("Operação inválida recebida no relatório.", {
+                reportOperation,
+                operation,
+                currentOperation,
+                report
+            })
+
+            return
+        }
+
         showReportContainer()
-        hiddeContent()
-        setReportFileName(argsValidateRegister.fileName)
-        setReportFilePath(argsValidateRegister.filePath)
+        hideMainMenuContent()
+        setReportFileName(args.fileName)
+        setReportFilePath(args.filePath)
         insertReportValidation(report, reportContent)
     })
 

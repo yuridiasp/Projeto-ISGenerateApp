@@ -1,11 +1,11 @@
 import { generateValidationReport } from "@infrastructure/reportGenerator/reportGenerator.infrastructure";
-import { getObjectValidateIntimationsService, iFileData } from "@services/validateIntimations";
 import { enableButtonCloseReport } from "@utils/viewHelpers/viewHelpers.utils";
 import { ValidationError } from "@models/errors";
 import { Result } from "@models/results";
 import { actionFunctionArgs } from "@middlewares/executeWithLogin.middlewares";
 import {
   HandleIntimationsReportResult,
+  ISAnalysisDTO,
   MainWindowWebContents
 } from "@models/handleIntimationsReport/handleIntimationsReport.models";
 import { validateIntimationsAndNotifyView } from "./intimationValidationRunner.services";
@@ -15,13 +15,24 @@ import { buildUnregisteredIntimationsMessage } from "@helpers/reportMessage.help
 export async function handleIntimationsReportService({
   cookie,
   file,
-  window
+  window,
+  funcValObj
 }: actionFunctionArgs): Promise<Result<HandleIntimationsReportResult>> {
+
+  if (!cookie)
+    return {
+      success: false,
+      error: new ValidationError("Cookie ausente.")
+    }
+
   const mainWindow = window.mainWindow as MainWindowWebContents;
 
-  const resultFile = await getObjectValidateIntimationsService(file as iFileData);
-
+  const resultFile = await funcValObj(file);
+  
   if (resultFile.success === false) {
+
+    enableButtonCloseReport(mainWindow);
+
     return {
       success: false,
       error: resultFile.error
@@ -54,11 +65,10 @@ export async function handleIntimationsReportService({
 
   if (resultReport.success === false) {
     return {
-      success: false,
-      error: new ValidationError(
-        "Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado.",
-        fileData.length
-      )
+      success: true,
+      data: {
+        message: "Todas as intimações foram cadastradas! Nenhum arquivo de relatório gerado."
+      }
     };
   }
 
@@ -76,6 +86,6 @@ export async function handleIntimationsReportService({
   };
 }
 
-function hasRecorteFile(fileData: Array<{ isRecorte?: boolean }>): boolean {
-  return fileData.some(item => item.isRecorte);
+function hasRecorteFile(fileData: ISAnalysisDTO[]): boolean {
+  return fileData.some(item => item.validateMode === "RECORTE");
 }

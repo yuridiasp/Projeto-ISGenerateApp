@@ -1,6 +1,7 @@
 import { createPdfTextReaderRepository } from "@repositories/pdfTextReader/pdfTextReader.repositories";
 import { createDocxTextReaderRepository } from "@repositories/docxTextReader/docxTextReader.repositories";
 import { createDiaryDocumentIdentifierService } from "@services/diaryDocumentIdentifier/diaryDocumentIdentifier.services";
+import { iFileData } from "@services/validateIntimations";
 
 const pdfTextReaderRepository = createPdfTextReaderRepository();
 const docxTextReaderRepository = createDocxTextReaderRepository();
@@ -10,6 +11,6 @@ const diaryDocumentIdentifierService = createDiaryDocumentIdentifierService({
   docxTextReaderRepository
 });
 
-export async function identifyDiaryDocumentController(filePath: string) {
-  return diaryDocumentIdentifierService.identify(filePath);
+export async function identifyDiaryDocumentController(file: iFileData) {
+  return diaryDocumentIdentifierService.identify(file);
 }

@@ -1,5 +1,6 @@
 import { DiaryDocumentIdentification, TextReaderRepository } from "@models/diaryReader/diaryReader.models";
 import { identifyDiaryDocument } from "@helpers/diaryDocumentIdentifier.helpers";
+import { iFileData } from "@services/validateIntimations";
 
 interface CreateDiaryDocumentIdentifierServiceParams {
   pdfTextReaderRepository: TextReaderRepository;
@@ -11,33 +12,33 @@ export function createDiaryDocumentIdentifierService({
   docxTextReaderRepository
 }: CreateDiaryDocumentIdentifierServiceParams) {
   return {
-    async identify(filePath: string): Promise<DiaryDocumentIdentification> {
-      const extension = getExtension(filePath);
-
+    async identify(file: iFileData): Promise<DiaryDocumentIdentification> {
+      const extension = getExtension(file.filePath);
+      
       const rawText = await readRawTextByExtension(
-        filePath,
+        file,
         extension,
         pdfTextReaderRepository,
         docxTextReaderRepository
       );
 
-      return identifyDiaryDocument(filePath, rawText);
+      return identifyDiaryDocument(file.filePath, rawText);
     }
   };
 }
 
 async function readRawTextByExtension(
-  filePath: string,
+  file: iFileData,
   extension: string,
   pdfTextReaderRepository: TextReaderRepository,
   docxTextReaderRepository: TextReaderRepository
 ): Promise<string> {
   if (extension === ".pdf") {
-    return pdfTextReaderRepository.readText(filePath);
+    return pdfTextReaderRepository.readText(file);
   }
 
   if (extension === ".docx" || extension === ".doc") {
-    return docxTextReaderRepository.readText(filePath);
+    return docxTextReaderRepository.readText(file);
   }
 
   throw new Error(`Tipo de arquivo não suportado: ${extension}`);

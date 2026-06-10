@@ -21,13 +21,16 @@ export function encrypt(text: string) {
 }
 
 export function decrypt(text: string) {
-    const secretKey = Buffer.from(getKey("SECRETKEY"), 'hex')
-    const algorithm = getKey("ALGORITHM")
-    const parts = text.split(':')
-    const iv = Buffer.from(parts.shift()!, 'hex')
-    const encryptedText = Buffer.from(parts.join(':'), 'hex')
-    const decipher = crypto.createDecipheriv(algorithm, Buffer.from(secretKey), iv)
-    let decrypted = decipher.update(encryptedText)
-    decrypted = Buffer.concat([decrypted, decipher.final()])
-    return decrypted.toString()
+  if (!text) {
+    return null
+  }
+  const secretKey = Buffer.from(getKey("SECRETKEY"), 'hex')
+  const algorithm = getKey("ALGORITHM")
+  const parts = text.split(':')
+  const iv = Buffer.from(parts.shift()!, 'hex')
+  const encryptedText = Buffer.from(parts.join(':'), 'hex')
+  const decipher = crypto.createDecipheriv(algorithm, Buffer.from(secretKey), iv)
+  let decrypted = decipher.update(encryptedText)
+  decrypted = Buffer.concat([decrypted, decipher.final()])
+  return decrypted.toString()
 }

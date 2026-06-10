@@ -8,7 +8,7 @@ import { setHandlers } from "@channels/ipcHandlers.channels"
 import { iWindows } from "@models/windows/iWindows.models"
 import { loadDotEnv } from '@config/loadDotEnv.config'
 import { dayjsConfig } from '@config/dayjsConfig.config'
-import { readDiaryAutomaticallyController } from '@controllers/diaryAutoReader.controllers';
+//import { readDiaryAutomaticallyController } from '@controllers/diaryAutoReader.controllers';
 
 dayjsConfig()
 
@@ -30,9 +30,10 @@ app?.whenReady().then(async () => {
 
     //const registros = await readDiaryFromPdfController("./doc/IS JFSE 08052026.pdf")
     
-    /* const filePath = "./doc/TRT30092025 - Cadastrados.docx";
+    //const filePath = "./doc/TRT30092025 - Cadastrados.docx";
+    //const filePath = "./doc/IS JFSE 08052026.pdf";
 
-    try {
+    /* try {
         const registros = await readDiaryAutomaticallyController(filePath);
 
         console.log("Total de registros:", registros.length);

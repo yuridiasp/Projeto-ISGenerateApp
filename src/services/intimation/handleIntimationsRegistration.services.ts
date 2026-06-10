@@ -1,11 +1,9 @@
-import { iWindows } from "@models/windows"
 import { createClienteService } from "@services/clientes"
 import { createCompromissoService } from "@services/compromissos"
 import { updateViewRegistrationIntimations } from "@utils/viewHelpers/viewHelpers.utils"
-import { ISAnalysisDTO } from "@models/clientes/Cliente.models"
 import { getObjectValidateIntimationsService, iFileData } from "@services/validateIntimations"
 import { createTaskService, tSuccessfulRecordCount } from "@services/tarefas"
-import { createEntityKorbilError, EmptyFileError } from "@models/errors"
+import { createEntityKorbilError, EmptyFileError, ValidationError } from "@models/errors"
 import { getSelectsTask } from "@services/seletores"
 import { taskFactory } from "@services/tarefas"
 import { getListaTarefasCompromissoJudicial } from "@services/tarefas"
@@ -17,6 +15,7 @@ import { iCreateTarefa } from "@models/tarefas"
 import { AppError } from "@models/errors/appError.models"
 import { objectID } from "@utils/request/successfulCreationRequestValidation.utils"
 import { actionFunctionArgs } from "@middlewares/executeWithLogin.middlewares";
+import { ISAnalysisDTO } from "@models/handleIntimationsReport/handleIntimationsReport.models";
 
 export type tCreateTaskResult = {
     success: false,
@@ -47,6 +46,13 @@ export type tHandleIntimation = {
 
 export async function handleIntimationsRegistrationService({ cookie, file, window }: actionFunctionArgs): Promise<Result<tHandleIntimation>> {
     const result = await getObjectValidateIntimationsService(file as iFileData)
+
+    if (!cookie) {
+        return {
+            success: false,
+            error: new ValidationError("Cookie is missing.")
+        }
+    }
     
     if (result.success === false) {
         return {
@@ -80,7 +86,7 @@ export async function handleIntimationsRegistrationService({ cookie, file, windo
                         data: {
                             bodys: {
                                 failedCompromisso: error.data.failedRegistryCommitment,
-                                tarefas: null
+                                tarefas: []
                             }
                         }
                     }

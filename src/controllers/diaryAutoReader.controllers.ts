@@ -4,6 +4,7 @@ import { createDocxTextReaderRepository } from "@repositories/docxTextReader/doc
 import { createDiaryDocumentIdentifierService } from "@services/diaryDocumentIdentifier/diaryDocumentIdentifier.services";
 import { createDiaryReaderService } from "@services/wordDiaryReader/wordDiaryReader.services";
 import { createPdfDiaryReaderService } from "@services/pdfDiaryReader/pdfDiaryReader.services";
+import { iFileData } from "@services/validateIntimations";
 
 const pdfTextReaderRepository = createPdfTextReaderRepository();
 const docxTextReaderRepository = createDocxTextReaderRepository();
@@ -31,19 +32,19 @@ const pdfDiaryReaderService = createPdfDiaryReaderService({
   }
 });
 
-export async function readDiaryAutomaticallyController(filePath: string) {
-  const identification = await diaryDocumentIdentifierService.identify(filePath);
+export async function readDiaryAutomaticallyController(file: iFileData) {
+  const identification = await diaryDocumentIdentifierService.identify(file.filePath);
 
   console.log("Documento identificado:", identification);
 
   switch (identification.layout) {
     case "WORD_CADASTRADO":
-      return wordDiaryReaderService.read(filePath);
+      return wordDiaryReaderService.read(file);
 
     case "PDF_IS_PROCESSOS":
     case "SERDIJUL":
     case "PDF_DEFAULT":
-      return pdfDiaryReaderService.read(filePath);
+      return pdfDiaryReaderService.read(file);
 
     default:
       throw new Error(

@@ -49,6 +49,41 @@ function detectHtmlCharset(htmlHead: string): string {
   return "utf-8"; // padrão razoável
 }
 
+
+function normalizePathForComparison(filePath: string): string {
+    return path.resolve(filePath).toLowerCase()
+}
+
+function buildSafeOutputPath(
+    directory: string,
+    desiredFileName: string,
+    extension: string,
+    protectedPaths: string[] = []
+): string {
+    const safeExtension = extension.startsWith(".") ? extension : `.${extension}`
+    const baseName = path.basename(desiredFileName, path.extname(desiredFileName)) || "arquivo"
+
+    const protectedPathSet = new Set(
+        protectedPaths
+            .filter(Boolean)
+            .map(normalizePathForComparison)
+    )
+
+    let counter = 0
+    let candidatePath = ""
+
+    do {
+        const suffix = counter === 0 ? "" : ` (${counter})`
+        candidatePath = path.resolve(directory, `${baseName}${suffix}${safeExtension}`)
+        counter++
+    } while (
+        protectedPathSet.has(normalizePathForComparison(candidatePath)) ||
+        fs.existsSync(candidatePath)
+    )
+
+    return candidatePath
+}
+
 export async function getDocFromWord(endereco: string, fileName: string) {
 
   const caminho = path.resolve(endereco.replace(new RegExp("\\" + fileName, "g"), ""));
@@ -216,6 +251,12 @@ export async function writeWordFileRepository(wordFileObjects: {
     fileName: string;
     fileBuffer: ArrayBuffer | Blob;
 }[], endereco: string, originalName: string) {
+    const outputDirectory = path.dirname(endereco)
+    const originalFilePath = path.resolve(endereco)
+    const originalFileNamePath = originalName
+        ? path.resolve(outputDirectory, originalName)
+        : ""
+
     return await Promise.all(wordFileObjects.map(async ({ fileName, fileBuffer })=> {
         const resultBuffer =  await converterBuffer(fileBuffer)
 
@@ -226,16 +267,21 @@ export async function writeWordFileRepository(wordFileObjects: {
             }
         }
 
-        const filePath = path.resolve(path.dirname(endereco), fileName +'.docx')
+        const filePath = buildSafeOutputPath(
+            outputDirectory,
+            fileName,
+            ".docx",
+            [originalFilePath, originalFileNamePath]
+        )
 
         try {
-            fs.writeFileSync(filePath, resultBuffer.data as Uint8Array)
+            fs.writeFileSync(filePath, resultBuffer.data as Uint8Array, { flag: "wx" })
             return true
         } catch (error) {
-            console.log('File ' + fileName +'.docx creation failed')
+            console.log(`File ${path.basename(filePath)} creation failed`)
             console.log("Erro:" + error)
         }
-        
+
         return false
     }))
 }

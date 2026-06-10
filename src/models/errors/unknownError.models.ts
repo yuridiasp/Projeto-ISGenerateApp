@@ -2,7 +2,7 @@ import { errorsCodeList } from "@helpers/errorsCode.helpers";
 import { AppError } from "./appError.models";
 
 export class UnknownError extends AppError {
-    constructor() {
-        super("Houve um erro desconhecido.", errorsCodeList.unkownError)
+    constructor(error?: string) {
+        super("Houve um erro desconhecido. --- " + error, errorsCodeList.unkownError)
     }
 }

@@ -1,3 +1,5 @@
+//src/services/pdfDiaryParser/pdfDiaryParser.services.ts
+
 import { DiaryRecord, PdfDiaryMetadata } from "@models/diaryReader/diaryReader.models";
 import { extractValue } from "@helpers/diaryRegex.helpers";
 import { normalizePdfDiaryMarkers } from "@helpers/pdfDiaryText.helpers";
@@ -5,6 +7,34 @@ import { extractDiaryPartes } from "@helpers/diaryPartes.helpers";
 import { extractDiaryAdvogados } from "@helpers/diaryAdvogados.helpers";
 import { cleanDiaryValue, removeComunicacaoId } from "@helpers/diaryText.helpers";
 import { removeSerdijulNoise } from "@helpers/pdfDiaryText.helpers";
+import { resolveMainProcessNumber } from "@services/diaryParser/diaryPublicationParser.services";
+
+function extractMainTJSEProcessNumber(informacoes: string): string | undefined {
+  return (
+    extractValue(
+      informacoes,
+      /(?:NRO\.?|Nº|N°|NUMERO|NÚMERO)\s*(?:DO\s+)?PROCESSO\.*\s*:\s*([0-9]{8,})/i
+    ) ??
+    extractValue(
+      informacoes,
+      /PROCESSO\.*\s*:\s*([0-9]{8,})(?![-.\d])/i
+    )
+  );
+}
+
+function extractCNJProcessNumber(informacoes: string): string | undefined {
+  return (
+    extractValue(informacoes, /NUMERO\s+UNICO\s*:\s*([0-9.-]+)/i) ??
+    extractValue(informacoes, /NÚMERO\s+ÚNICO\s*:\s*([0-9.-]+)/i)
+  );
+}
+
+function extractOriginProcessNumber(informacoes: string): string | undefined {
+  return extractValue(
+    informacoes,
+    /PROCESSO\s+ORIGEM\.*\s*:\s*([0-9A-Z./-]+)/i
+  );
+}
 
 export function parsePdfDiaryRecords(
   text: string,
@@ -101,10 +131,7 @@ function enrichRecordWithPublicacaoProcesso(
   baseRecord: DiaryRecord,
   informacoes: string
 ): DiaryRecord {
-  const processo = extractValue(
-    informacoes,
-    /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i
-  );
+  const processo = resolveMainProcessNumber(informacoes);
 
   const orgao = extractValue(
     informacoes,
@@ -172,25 +199,15 @@ function enrichRecordWithLegacyInformation(
   baseRecord: DiaryRecord,
   informacoes: string
 ): DiaryRecord {
-  const processoCnj =
-    extractValue(informacoes, /NUMERO\s+UNICO\s*:\s*([0-9.-]+)/i) ??
-    extractValue(informacoes, /NÚMERO\s+ÚNICO\s*:\s*([0-9.-]+)/i);
-
-  const processo =
-    processoCnj ??
-    extractValue(informacoes, /NRO\.\s*PROCESSO\.*\s*:\s*([0-9]+)/i) ??
-    extractValue(informacoes, /PROCESSO\.*\s*:\s*([0-9]+)/i);
+  const processo = resolveMainProcessNumber(informacoes);
 
   return {
     ...baseRecord,
 
     processo,
-    processoCnj,
+    processoCnj: processo,
 
-    processoOrigem: extractValue(
-      informacoes,
-      /PROCESSO\s+ORIGEM\.*\s*:\s*([0-9A-Z./-]+)/i
-    ),
+    processoOrigem: extractOriginProcessNumber(informacoes),
 
     orgao: extractValue(
       informacoes,

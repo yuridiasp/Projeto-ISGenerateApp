@@ -69,7 +69,7 @@ export async function getCookieLoginService(credentials?: credential): Promise<s
     const resultCookie = await setCookieLoginForm()
 
     if (resultCookie.success === true) {
-        const resultLogin = await login(resultCookie.data.cookie, credentials)
+        const resultLogin = await login(resultCookie.data?.cookie, credentials)
 
         if (resultLogin.success === false)
             return JSON.stringify(resultLogin)

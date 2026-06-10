@@ -1,6 +1,7 @@
 import { DiaryRecord, TextReaderRepository } from "@models/diaryReader/diaryReader.models";
 import { normalizeDiaryText } from "@helpers/diaryText.helpers";
 import { parseWordDiaryRecords } from "../diaryParser/wordDiaryParser.services";
+import { iFileData } from "@services/validateIntimations";
 
 interface CreateDiaryReaderServiceParams {
   textReaderRepository: TextReaderRepository;
@@ -14,8 +15,8 @@ export function createDiaryReaderService({
   logger
 }: CreateDiaryReaderServiceParams) {
   return {
-    async read(filePath: string): Promise<DiaryRecord[]> {
-      const rawText = await textReaderRepository.readText(filePath);
+    async read(file: iFileData): Promise<DiaryRecord[]> {
+      const rawText = await textReaderRepository.readText(file);
 
       const normalizedText = normalizeDiaryText(rawText);
 

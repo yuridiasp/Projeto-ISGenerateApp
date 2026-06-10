@@ -19,7 +19,7 @@ import { splitISController,
 } from '@controllers/controllers'
 
 export async function setHandlers (windows: iWindows) {
-    ipcMain.handle('validate-intimation-register', (event: Electron.IpcMainInvokeEvent, filePath: string, credentials: credential) => intimationsPublicationRegisterController(event, filePath, credentials, windows))
+    ipcMain.handle('validate-intimation-register', (event: Electron.IpcMainInvokeEvent, data: iFileData, credentials: credential) => intimationsPublicationRegisterController(event, data, credentials, windows))
     ipcMain.handle('validate-analise-register', (event: Electron.IpcMainInvokeEvent, data: iFileData, credentials: credential) => intimationsReportController(event, data, credentials, windows))
     ipcMain.handle('intimation-register', (event: Electron.IpcMainInvokeEvent, data: iFileData, credentials: credential) => intimationsRegisterController(event, data, credentials, windows))
     ipcMain.handle('split-is', splitISController)

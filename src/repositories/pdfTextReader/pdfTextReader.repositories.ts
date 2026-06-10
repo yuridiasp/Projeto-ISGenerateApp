@@ -3,8 +3,8 @@ import { extractRawTextFromPdf } from "@infrastructure/pdfParse/pdfParse.infrast
 
 export function createPdfTextReaderRepository(): TextReaderRepository {
   return {
-    async readText(filePath: string): Promise<string> {
-      return extractRawTextFromPdf(filePath);
+    async readText(file): Promise<string> {
+      return extractRawTextFromPdf(file);
     }
   };
 }

@@ -19,12 +19,16 @@ type readMode = 'PDF' | 'DOCX'
 function extractTextWithProjectReader(fileName: string, mode: readMode) {
   const root = path.resolve(__dirname, "..", "..")
   const filePath = docPath(fileName)
+  const fileData = {
+    filePath,
+    fileName: path.basename(filePath)
+  }
   const tsxCli = path.join(root, "node_modules", "tsx", "dist", "cli.mjs")
   const script = mode === 'PDF' as readMode ? `
     import { extractRawTextFromPdf } from "./src/infrastructure/pdfParse/pdfParse.infrastructure.ts";
 
     (async () => {
-      const text = await extractRawTextFromPdf(${JSON.stringify(filePath)});
+      const text = await extractRawTextFromPdf(${JSON.stringify(fileData)});
       process.stdout.write(JSON.stringify({ text }));
     })().catch(error => {
       console.error(error);
@@ -34,7 +38,7 @@ function extractTextWithProjectReader(fileName: string, mode: readMode) {
     import { extractRawTextFromDocx } from "./src/infrastructure/mammoth/mammoth.infrastructure.ts";
 
     (async () => {
-      const text = await extractRawTextFromDocx(${JSON.stringify(filePath)});
+      const text = await extractRawTextFromDocx(${JSON.stringify(fileData)});
       process.stdout.write(JSON.stringify({ text }));
     })().catch(error => {
       console.error(error);

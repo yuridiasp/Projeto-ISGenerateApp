@@ -1,3 +1,5 @@
+import { iFileData } from "@services/validateIntimations";
+
 export type DiaryFileType =
   | "PDF"
   | "DOCX"
@@ -70,5 +72,5 @@ export interface DiaryTask {
 }
 
 export interface TextReaderRepository {
-  readText(filePath: string): Promise<string>;
+  readText(file: iFileData): Promise<string>;
 }
