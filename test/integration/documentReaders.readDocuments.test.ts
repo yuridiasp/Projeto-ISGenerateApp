@@ -101,7 +101,7 @@ describe("leitura de documentos reais da pasta doc", () => {
           case_number: expect.stringMatching(/^\d+$/),
           publication_date: expect.any(Object),
           availability_date: expect.any(Object),
-          isRecorte: true,
+          validateMode: "RECORTE",
           objectRecorte: expect.objectContaining({
             "NRO. PROCESSO": expect.any(String)
           })
@@ -139,7 +139,7 @@ describe("leitura de documentos reais da pasta doc", () => {
       expect.arrayContaining([
         expect.objectContaining({
           layout: "DEFAULT",
-          processo: expect.stringMatching(/^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/),
+          processo: expect.stringMatching(/^\d{20}$/),
           orgao: expect.any(String),
           dataDisponibilizacao: expect.any(String),
           conteudo: expect.any(String)
@@ -156,7 +156,7 @@ describe("leitura de documentos reais da pasta doc", () => {
       expect.arrayContaining([
         expect.objectContaining({
           layout: "WORD_CADASTRADO",
-          processo: expect.stringMatching(/^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/),
+          processo: expect.stringMatching(/^\d{20}$/),
           orgao: expect.any(String),
           dataDisponibilizacao: expect.any(String),
           conteudo: expect.any(String)
