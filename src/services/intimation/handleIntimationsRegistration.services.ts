@@ -73,8 +73,19 @@ export async function handleIntimationsRegistrationService({ cookie, file, windo
     const createTaskResult: tCreateTaskResult[] = await Promise.all(result.data.file.map((intimation: ISAnalysisDTO) =>
         createClienteService({ ...intimation }, cookie)
             .then(async (resultCliente): Promise<tCreateTaskResult> => {
-                if (resultCliente.success === false)
-                    return { success: false, error: resultCliente.error }
+                if (resultCliente.success === false) {
+                    return {
+                        success: false,
+                        error: resultCliente.error
+                    }
+                }
+
+                if (!resultCliente.data) {
+                    return {
+                        success: false,
+                        error: new ValidationError("Parametro Data ausente no objeto resultCliente")
+                    }
+                }
 
                 const resultCompromisso = await createCompromissoService(resultCliente.data.cliente, cookie)
     
@@ -92,7 +103,7 @@ export async function handleIntimationsRegistrationService({ cookie, file, windo
                     }
                 }
 
-                resultCliente.data.cliente.compromisso.id = resultCompromisso.data?.successfulRecordCount.registeredSuccessfully[0].id
+                resultCliente.data.cliente.compromisso.id = resultCompromisso.data?.successfulRecordCount.registeredSuccessfully[0].id ?? ""
 
                 const listaTarefasCompromisso = getListaTarefasCompromissoJudicial(resultCliente.data.cliente)
 
@@ -102,8 +113,23 @@ export async function handleIntimationsRegistrationService({ cookie, file, windo
 
                 const resultTarefa = await createTaskService(resultCliente.data.cliente, cookie) as Result<tSuccessfulRecordCount>
 
+                if (!resultCompromisso.data?.successfulRecordCount.registeredSuccessfully) {
+                    return {
+                        success: false,
+                        error: new ValidationError("registeredSuccessfully ausente no objeto resultCompromisso")
+                    }
+                }
+                
                 if(resultTarefa.success === false) {
                     const error = resultTarefa.error as createEntityKorbilError
+
+                    if (!error.data.failedRegistryTask) {
+                        return {
+                            success: false,
+                            error: new ValidationError("failedRegistryTask ausente no objeto error")
+                        }
+                    }
+
                     return {
                         success: false,
                         error: resultTarefa.error,
@@ -113,6 +139,13 @@ export async function handleIntimationsRegistrationService({ cookie, file, windo
                                 tarefas: error.data.failedRegistryTask
                             }
                         }
+                    }
+                }
+
+                if (!resultTarefa.data?.registeredSuccessfully) {
+                    return {
+                        success: false,
+                        error: new ValidationError("registeredSuccessfully ausente no objeto resultTarefa")
                     }
                 }
 

@@ -234,10 +234,13 @@ let currentOperation: operationsType | undefined
         credentials?: credential
     ): Promise<void> {
         const response = await validateFunction(args, credentials, operation)
+        const emptyFileMessage = "Não há intimações a analisar."
 
         const result = typeof response === "string"
             ? JSON.parse(response) as ApiResult
             : response
+            
+        console.log(response, result)
 
         if (result.success === true) {
             console.log(textMessages.success.successPtBr)
@@ -245,6 +248,12 @@ let currentOperation: operationsType | undefined
             const data = result.data as Partial<{ message: string; msg: string }>
 
             alert(data.message ?? data.msg ?? textMessages.success.registerIntimation)
+
+            if (data.message === emptyFileMessage) {
+                hideAllOperationButtons()
+                hideLoader()
+            }
+
             return
         }
 

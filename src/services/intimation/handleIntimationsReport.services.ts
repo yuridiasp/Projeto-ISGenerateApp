@@ -47,6 +47,15 @@ export async function handleIntimationsReportService({
     mainWindow
   );
 
+  if(!validations.length) {
+    return {
+      success: true,
+      data: {
+        message: "Não há intimações a analisar."
+      }
+    }
+  }
+
   const isRecorte = hasRecorteFile(fileData);
 
   const formattedReport = formatIntimationReportData(

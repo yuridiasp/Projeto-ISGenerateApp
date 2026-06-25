@@ -4,7 +4,7 @@ import { encrypt, decrypt } from '@utils/crypto/cryptoUtils.utils'
 import { Cookie, credential, getCookieLoginService } from '@services/login'
 import { iWindows } from '@models/windows'
 
-export async function loginService(username: string | undefined, password: string | undefined): Promise<Result<Cookie>> {
+export async function loginService(username: string, password: string): Promise<Result<Cookie>> {
     
     const result = JSON.parse(await getCookieLoginService({ login: username, senha: password }))
 

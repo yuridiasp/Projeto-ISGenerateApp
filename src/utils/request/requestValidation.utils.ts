@@ -1,7 +1,8 @@
 import { UnknownError } from "@models/errors/unknownError.models"
+import { Result } from "@models/results";
 import { isSessionExpired } from "@utils/auth/checkSessionExpiration.utils"
 
-export function RequestValidationURL(url: string, validURL: string) {
+export function RequestValidationURL(url: string, validURL: string): Result<{ url: string }> {
    //console.log(url, validURL)
     if (url.includes(validURL)) {
         return {

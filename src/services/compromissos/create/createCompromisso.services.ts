@@ -32,7 +32,7 @@ export async function createCompromissoService (cliente: Cliente, cookie: string
     const compromissoResult =  isCompromissoSuccessfullyCreated(result)
 
     const successfulRecordCountInit: tSuccessfulRecordCount = {
-        failedRegistryCommitment: null,
+        failedRegistryCommitment: undefined,
         registeredSuccessfully: [],
         successfulRecordCount: 0
     }
@@ -43,7 +43,10 @@ export async function createCompromissoService (cliente: Cliente, cookie: string
             error: new createEntityKorbilError("Houve um erro para registrar o compromisso.", errorsCodeList.createCompromissoError, successfulRecordCountInit)
         }
     } else {
-        successfulRecordCountInit.registeredSuccessfully.push(compromissoResult.data)
+
+        if (compromissoResult.data)
+            successfulRecordCountInit.registeredSuccessfully.push(compromissoResult.data)
+
         return {
             success: true,
             data: {

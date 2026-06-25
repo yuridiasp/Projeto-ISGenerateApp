@@ -14,27 +14,39 @@ import { copyToClipboardService } from '@services/clipboard/copyToClipboard.serv
 import { ValidationError } from '@models/errors';
 
 export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
+    if (!windows || !Object.keys(windows).length) {
+        return {
+            success: false,
+            error: new ValidationError("Janela do evento ausente.")
+        }
+    }
     return openFileDialog(windows)
 }
 
 export async function loginController(credentials: credential) {
+    if (!credentials || !Object.keys(credentials).length) {
+        return {
+            success: false,
+            error: new ValidationError("Credenciais de login ausentes.")
+        }
+    }
     return await getCookieLoginService(credentials)
 }
 
 export function createSobreWindowController (windows: iWindows) {
-    createSobreWindowService(windows)
+    return createSobreWindowService(windows)
 }
 
 export function createLoginWindowController (windows: iWindows) {
-    createLoginWindowService(windows)
+    return createLoginWindowService(windows)
 }
 
 export function createMainWindowController(windows: iWindows) {
-    createMainWindowService(windows)
+    return createMainWindowService(windows)
 }
 
 export async function githubController () {
-    openPageGithubService()
+    return openPageGithubService()
 }
 
 export async function getVersionsController() {
@@ -42,17 +54,40 @@ export async function getVersionsController() {
 }
 
 export function closeSobreWindowController (windows: iWindows) {
-    closeSobreWindowService(windows)
+    return closeSobreWindowService(windows)
 }
 
 export function closeLoginWindowController (windows: iWindows) {
-    closeLoginWindowService(windows)
+    return closeLoginWindowService(windows)
 }
 
 export async function splitISController (event: Electron.IpcMainInvokeEvent, file: iFileData) {
+    if (!file || !Object.keys(file).length) {
+        return {
+            success: false,
+            error: new ValidationError("Dados do arquivo ausentes.")
+        }
+    }
     return splitISService(file)
 }
 export async function sendCredenctialsController (credentials: credential, windows: iWindows) {
+    const errors: string[] = []
+
+    if (!credentials || !Object.keys(credentials).length) {
+        errors.push("Credenciais de login ausentes.")
+    }
+
+    if (!windows || !Object.keys(windows).length) {
+        errors.push("Janela do evento ausente.")
+    }
+
+    if (errors.length) {
+        return {
+            success: false,
+            error: new ValidationError(errors.join(";"))
+        }
+    }
+
     return sendCredenctialsService(credentials, windows)
 }
 
@@ -107,6 +142,27 @@ export async function intimationsPublicationRegisterController(event: Electron.I
 }
 
 export async function intimationsReportController(event: Electron.IpcMainInvokeEvent, file: iFileData, credentials: credential, windows: iWindows) {
+    const errors: string[] = []
+
+    if (!file || !Object.keys(file).length) {
+        errors.push("Dados do arquivo ausentes.")
+    }
+
+    if (!credentials || !Object.keys(credentials).length) {
+        errors.push("Credenciais de login ausentes.")
+    }
+
+    if (!windows || !Object.keys(windows).length) {
+        errors.push("Janela do evento ausente.")
+    }
+
+    if (errors.length) {
+        return {
+            success: false,
+            error: new ValidationError(errors.join(";"))
+        }
+    }
+
     return executeWithLogin({ window: windows, action: handleIntimationsReportService, credentials, file, funcValObj: getObjectValidateIntimationsService })
 }
 
