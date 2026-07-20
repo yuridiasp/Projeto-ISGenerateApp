@@ -4,6 +4,7 @@ import { iValidationReport } from "@models/validations/iValidationReport.models"
 import { credential } from '@services/login/login.services'
 import { iFileData } from '@services/validateIntimations/validateIntimations.services'
 import { operationsType } from '@renderer/renderer';
+import type { FolderIntimationCounterInput } from '@services/folderIntimationCounter';
 
 type callbackUpdateReportStatus = (value: iValidationReport, operation: operationsType) => void
 type callbackEnableButtonCloseReport = () => void
@@ -11,7 +12,9 @@ type callbackreceiveCredentials = (credentials: credential) => credential
 
 contextBridge.exposeInMainWorld('API', {
     openFileDialogForFile: async () => await ipcRenderer.invoke('open-file-dialog-for-file'),
+    openFolderDialogForFolder: async () => await ipcRenderer.invoke('open-folder-dialog-for-folder'),
     classifyPublicationsByDepartment: async (data: iFileData) => await ipcRenderer.invoke('split-is', data),
+    countIntimationsByFolder: async (data: FolderIntimationCounterInput) => await ipcRenderer.invoke('count-intimations-by-folder', data),
     getVersions: async () => await ipcRenderer.invoke('get-versions'),
     fecharJanelaSobre: () => ipcRenderer.send('fechar-janela-sobre'),
     abrirJanelaLogin: () => ipcRenderer.send('abrir-janela-login'),

@@ -15,7 +15,9 @@ import { splitISController,
     closeLoginWindowController,
     sendCredenctialsController,
     copyToClipboardController,
-    intimationsPublicationRegisterController
+    intimationsPublicationRegisterController,
+    openFolderDialogForFolder,
+    countIntimationsByFolderController
 } from '@controllers/controllers'
 
 export async function setHandlers (windows: iWindows) {
@@ -23,6 +25,7 @@ export async function setHandlers (windows: iWindows) {
     ipcMain.handle('validate-analise-register', (event: Electron.IpcMainInvokeEvent, data: iFileData, credentials: credential) => intimationsReportController(event, data, credentials, windows))
     ipcMain.handle('intimation-register', (event: Electron.IpcMainInvokeEvent, data: iFileData, credentials: credential) => intimationsRegisterController(event, data, credentials, windows))
     ipcMain.handle('split-is', splitISController)
+    ipcMain.handle('count-intimations-by-folder', countIntimationsByFolderController)
     ipcMain.handle('get-versions', getVersionsController)
     ipcMain.on('open-github', githubController)
     ipcMain.on('fechar-janela-sobre', () => closeSobreWindowController(windows))
@@ -30,6 +33,7 @@ export async function setHandlers (windows: iWindows) {
     ipcMain.on('fechar-janela-login', () => closeLoginWindowController(windows))
     ipcMain.on('send-credencials-to-renderer', (event, credencials: credential) => sendCredenctialsController(credencials, windows))
     ipcMain.handle('open-file-dialog-for-file', (event) => openFileDialogForFile(event, windows))
+    ipcMain.handle('open-folder-dialog-for-folder', (event) => openFolderDialogForFolder(event, windows))
     ipcMain.handle('login-korbil', (event, credential: credential) => loginController(credential))
     ipcMain.handle('clopy-to-clip', (event, text) => copyToClipboardController(text))
 }

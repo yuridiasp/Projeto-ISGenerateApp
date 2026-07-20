@@ -5,6 +5,11 @@ import { tHandleIntimation } from "@services/intimation"
 import { HandleIntimationsReportResult } from "@models/handleIntimationsReport/handleIntimationsReport.models"
 import { credential } from "@services/login"
 import { iFileData } from "@services/validateIntimations"
+import type {
+    FolderIntimationCountResult,
+    FolderIntimationCounterInput,
+    FolderIntimationFileCount
+} from "@services/folderIntimationCounter"
 
 /**
  * 1. classifyPublicationsByDepartment
@@ -82,6 +87,11 @@ const buttonsDivReconcilePublicationsWithSystem = document.querySelector('#butto
 const confirmButtonReconcilePublicationsWithSystem = document.querySelector('#confirmButtonReconcilePublicationsWithSystem') as HTMLButtonElement
 const cancelButtonReconcilePublicationsWithSystem = document.querySelector('#cancelButtonReconcilePublicationsWithSystem') as HTMLButtonElement
 
+const inputCountIntimationsByFolder = document.querySelector('#inputCountIntimationsByFolder') as HTMLInputElement
+const buttonsDivCountIntimationsByFolder = document.querySelector('#buttonsDivCountIntimationsByFolder') as HTMLButtonElement
+const confirmButtonCountIntimationsByFolder = document.querySelector('#confirmButtonCountIntimationsByFolder') as HTMLButtonElement
+const cancelButtonCountIntimationsByFolder = document.querySelector('#cancelButtonCountIntimationsByFolder') as HTMLButtonElement
+
 const loader = document.querySelector('#loader') as HTMLElement
 const content = document.querySelector('.content') as HTMLElement
 const reportContainer = document.querySelector("#report-container") as HTMLElement
@@ -106,6 +116,11 @@ type tOperationArgs = {
     registerIntimationsFromAnalyses: iFileData,
 }
 
+const folderCounterArgs: FolderIntimationCounterInput = {
+    folderPath: "",
+    folderName: ""
+}
+
 const operationArgs: tOperationArgs = {
     classifyPublicationsByDepartment: { fileName: "", filePath: "", isXlsx: false },
     reconcileAnalysesWithSystem: { fileName: "", filePath: "", isXlsx: false },
@@ -119,6 +134,7 @@ let currentOperation: operationsType | undefined
 // API
 
     type ApiResult = Result<HandleIntimationsReportResult | tHandleIntimation>
+    type FolderCounterApiResult = Result<FolderIntimationCountResult>
 
     type GenericApiFunction = (
         args: iFileData,
@@ -128,10 +144,12 @@ let currentOperation: operationsType | undefined
 
     export interface iAPI {
         openFileDialogForFile(): Promise<{ filePaths: string[], canceled: boolean }>;
+        openFolderDialogForFolder(): Promise<{ filePaths: string[], canceled: boolean }>;
         registerIntimationsFromAnalyses: GenericApiFunction;
         reconcilePublicationsWithSystem: GenericApiFunction;
         reconcileAnalysesWithSystem: GenericApiFunction;
         classifyPublicationsByDepartment: GenericApiFunction;
+        countIntimationsByFolder(data: FolderIntimationCounterInput): Promise<FolderCounterApiResult>;
         updateReportStatus(callback: (report: iValidationReport, operation?: operationsType) => void): void;
         enableButtonCloseReport(callback: () => void): void;
         abrirJanelaLogin(): void;
@@ -166,6 +184,26 @@ let currentOperation: operationsType | undefined
 
     function hasSelectedFile(args: iFileData): boolean {
         return Boolean(args.filePath && args.fileName)
+    }
+
+    export function createFolderArgs(filePaths: string[]): FolderIntimationCounterInput {
+        const folderPath = filePaths[0]
+
+        if (!folderPath) {
+            return { folderName: "", folderPath: "" }
+        }
+
+        const pathArray = folderPath.split("\\")
+        const folderName = pathArray.pop() ?? folderPath
+
+        return {
+            folderName,
+            folderPath
+        }
+    }
+
+    function hasSelectedFolder(args: FolderIntimationCounterInput): boolean {
+        return Boolean(args.folderPath && args.folderName)
     }
 
 // Operations
@@ -271,6 +309,41 @@ let currentOperation: operationsType | undefined
         }
 
         alert(result.error.toString())
+    }
+
+    export async function processCountIntimationsByFolder(
+        args: FolderIntimationCounterInput
+    ): Promise<void> {
+        if (!hasSelectedFolder(args)) {
+            alert("Erro: Nao ha pasta selecionada.")
+            return
+        }
+
+        showLoader()
+
+        try {
+            const result = await window.API.countIntimationsByFolder(args)
+
+            if (result.success === false) {
+                alert(result.error.toString())
+                hideLoader()
+                return
+            }
+
+            hideLoaderOnly()
+            hideMainMenuContent()
+            showReportContainer()
+            closeReportButton.disabled = false
+            setReportFileName(args.folderName ?? "Pasta")
+            setReportFilePath(args.folderPath)
+            insertFolderIntimationCountReport(result.data as FolderIntimationCountResult)
+        } catch (error) {
+            console.error(error)
+            alert("Erro inesperado ao contar intimacoes da pasta.")
+            hideLoader()
+        } finally {
+            buttonsDivCountIntimationsByFolder.classList.remove('aparecer')
+        }
     }
 
     export async function validateOperationFunction(
@@ -449,11 +522,56 @@ let currentOperation: operationsType | undefined
         }
     }
 
+    function insertFolderIntimationCountFile(file: FolderIntimationFileCount) {
+        const isCounted = file.status === "COUNTED"
+        const resultClass = isCounted ? "success" : "error"
+        const resultIcon = isCounted ? "check" : "times"
+        const countText = isCounted
+            ? `${file.intimationCount} intimacoes`
+            : file.status
+
+        const [container, spanFileName, content] = createElementReport(
+            resultClass,
+            resultIcon,
+            file.fileName,
+            countText
+        )
+
+        reportContent.append(container)
+
+        spanFileName.addEventListener("click", async () => {
+            const result = await window.API.copyToClipboard(file.filePath)
+            showMessageCopy(result)
+        })
+
+        if (file.error) {
+            const p = document.createElement("p")
+            p.classList.add("p-info-is")
+            p.innerHTML = file.error
+            reportContent.append(p)
+        }
+    }
+
+    function insertFolderIntimationCountReport(result: FolderIntimationCountResult) {
+        reportContent.innerHTML = ""
+
+        const [summary] = createElementReport(
+            "success",
+            "check",
+            `${result.totalIntimations} intimacoes`,
+            `${result.countedFiles}/${result.totalFiles} arquivos lidos`
+        )
+
+        reportContent.append(summary)
+        result.files.forEach(insertFolderIntimationCountFile)
+    }
+
     function hideAllOperationButtons(): void {
         buttonsDivClassifyPublicationsByDepartment.classList.remove('aparecer')
         buttonsDivregisterIntimationsFromAnalyses.classList.remove('aparecer')
         buttonsDivReconcileAnalysesWithSystem.classList.remove('aparecer')
         buttonsDivReconcilePublicationsWithSystem.classList.remove('aparecer')
+        buttonsDivCountIntimationsByFolder.classList.remove('aparecer')
     }
 
     export function resetReport() {
@@ -494,6 +612,10 @@ let currentOperation: operationsType | undefined
     export function hideLoader() {
         loader.classList.remove('c-loader', 'show')
         showMainMenuContent()
+    }
+
+    function hideLoaderOnly() {
+        loader.classList.remove('c-loader', 'show')
     }
 
     export function toggleEye (i: HTMLElement, p: HTMLElement) {
@@ -546,6 +668,26 @@ let currentOperation: operationsType | undefined
 
     cancelButtonClassifyPublicationsByDepartment.addEventListener('click', () => {
         buttonsDivClassifyPublicationsByDepartment?.classList.remove('aparecer')
+    })
+
+    inputCountIntimationsByFolder.addEventListener('click', async () => {
+        const { canceled, filePaths } = await window.API.openFolderDialogForFolder()
+
+        if (!canceled) {
+            const selectedFolder = createFolderArgs(filePaths)
+            folderCounterArgs.folderPath = selectedFolder.folderPath
+            folderCounterArgs.folderName = selectedFolder.folderName
+
+            buttonsDivCountIntimationsByFolder?.classList.add('aparecer')
+        }
+    })
+
+    confirmButtonCountIntimationsByFolder.addEventListener('click', () => {
+        processCountIntimationsByFolder(folderCounterArgs)
+    })
+
+    cancelButtonCountIntimationsByFolder.addEventListener('click', () => {
+        buttonsDivCountIntimationsByFolder?.classList.remove('aparecer')
     })
 
     export function applyListenersRegisterOrValidateFunction(

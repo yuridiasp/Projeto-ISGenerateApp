@@ -1,5 +1,5 @@
 import { iWindows } from '@models/windows'
-import { openFileDialog } from '@infrastructure/dialog/openFile.infrastructure'
+import { openFileDialog, openFolderDialog } from '@infrastructure/dialog/openFile.infrastructure'
 import { closeSobreWindowService, createSobreWindowService } from '@services/windows'
 import { createMainWindowService } from '@services/windows'
 import { splitISService } from '@services/splitIS/splitIS.services'
@@ -12,6 +12,8 @@ import { closeLoginWindowService, createLoginWindowService } from '@services/win
 import { sendCredenctialsService } from '@services/auth'
 import { copyToClipboardService } from '@services/clipboard/copyToClipboard.services'
 import { ValidationError } from '@models/errors';
+import { countIntimationsByFolder } from '@services/folderIntimationCounter'
+import type { FolderIntimationCounterInput } from '@services/folderIntimationCounter'
 
 export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
     if (!windows || !Object.keys(windows).length) {
@@ -21,6 +23,17 @@ export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, window
         }
     }
     return openFileDialog(windows)
+}
+
+export function openFolderDialogForFolder(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
+    if (!windows || !Object.keys(windows).length) {
+        return {
+            success: false,
+            error: new ValidationError("Janela do evento ausente.")
+        }
+    }
+
+    return openFolderDialog(windows)
 }
 
 export async function loginController(credentials: credential) {
@@ -70,6 +83,21 @@ export async function splitISController (event: Electron.IpcMainInvokeEvent, fil
     }
     return splitISService(file)
 }
+
+export async function countIntimationsByFolderController(
+    event: Electron.IpcMainInvokeEvent,
+    folder: FolderIntimationCounterInput
+) {
+    if (!folder?.folderPath) {
+        return {
+            success: false,
+            error: new ValidationError("Dados da pasta ausentes.")
+        }
+    }
+
+    return countIntimationsByFolder(folder.folderPath)
+}
+
 export async function sendCredenctialsController (credentials: credential, windows: iWindows) {
     const errors: string[] = []
 
