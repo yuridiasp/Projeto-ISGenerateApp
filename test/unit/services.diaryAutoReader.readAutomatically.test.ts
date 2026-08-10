@@ -1,87 +1,296 @@
-import { describe, expect, jest, test, beforeEach } from "@jest/globals"
+import {
+    beforeEach,
+    describe,
+    expect,
+    jest,
+    test
+} from "@jest/globals"
 
-import { identifyDiaryDocumentController } from "../../src/controllers/diaryDocumentIdentifier.controllers"
-import { readDiaryFromWordController } from "../../src/controllers/wordDiaryReader.controllers"
-import { readDiaryFromPdfController } from "../../src/controllers/pdfDiaryReader.controllers"
-import { readDiaryAutomatically } from "../../src/services/diaryAutoReader/diaryAutoReader.services"
+import {
+    DiaryDocumentInspection
+} from "../../src/models/diaryReader/diaryReader.models"
+import {
+    iFileData
+} from "../../src/services/validateIntimations/validateIntimations.services"
 
-jest.mock("../../src/controllers/diaryDocumentIdentifier.controllers", () => ({
-    identifyDiaryDocumentController: jest.fn()
-}))
+const mockInspect = jest.fn<(_file: iFileData) => Promise<DiaryDocumentInspection>>()
 
-jest.mock("../../src/controllers/wordDiaryReader.controllers", () => ({
-    readDiaryFromWordController: jest.fn()
-}))
+const mockWordParseText = jest.fn()
+const mockWordRead = jest.fn()
 
-jest.mock("../../src/controllers/pdfDiaryReader.controllers", () => ({
-    readDiaryFromPdfController: jest.fn()
-}))
+const mockPdfParseText = jest.fn()
+const mockPdfRead = jest.fn()
 
-describe("readDiaryAutomatically", () => {
-    const identifyMock = jest.mocked(identifyDiaryDocumentController)
-    const readWordMock = jest.mocked(readDiaryFromWordController)
-    const readPdfMock = jest.mocked(readDiaryFromPdfController)
 
-    beforeEach(() => {
-        jest.clearAllMocks()
-    })
-
-    test("roteia documento Word cadastrado para o leitor Word", async () => {
-        const file = { filePath: "diario.docx", fileName: "diario" }
-        const records = [{ partes: ["CLIENTE"], advogados: [], layout: "WORD_CADASTRADO" }]
-
-        identifyMock.mockResolvedValueOnce({
-            fileType: "DOCX",
-            layout: "WORD_CADASTRADO",
-            extension: ".docx",
-            confidence: "HIGH",
-            reasons: []
+jest.mock(
+    "../../src/repositories/pdfTextReader/pdfTextReader.repositories",
+    () => ({
+        createPdfTextReaderRepository: () => ({
+            readText: jest.fn()
         })
-        readWordMock.mockResolvedValueOnce(records)
-
-        await expect(readDiaryAutomatically(file)).resolves.toBe(records)
-
-        expect(identifyMock).toHaveBeenCalledWith(file)
-        expect(readWordMock).toHaveBeenCalledWith(file)
-        expect(readPdfMock).not.toHaveBeenCalled()
     })
+)
 
-    test.each(["PDF_IS_PROCESSOS", "SERDIJUL", "PDF_DEFAULT"] as const)(
-        "roteia layout %s para o leitor PDF",
-        async layout => {
-            const file = { filePath: "diario.pdf", fileName: "diario" }
-            const records = [{ partes: [], advogados: [], layout }]
 
-            identifyMock.mockResolvedValueOnce({
-                fileType: "PDF",
-                layout,
-                extension: ".pdf",
-                confidence: "HIGH",
-                reasons: []
-            })
-            readPdfMock.mockResolvedValueOnce(records)
+jest.mock(
+    "../../src/repositories/docxTextReader/docxTextReader.repositories",
+    () => ({
+        createDocxTextReaderRepository: () => ({
+            readText: jest.fn()
+        })
+    })
+)
 
-            await expect(readDiaryAutomatically(file)).resolves.toBe(records)
 
-            expect(identifyMock).toHaveBeenCalledWith(file)
-            expect(readPdfMock).toHaveBeenCalledWith(file)
-            expect(readWordMock).not.toHaveBeenCalled()
-        }
-    )
+jest.mock(
+    "../../src/services/diaryDocumentIdentifier/diaryDocumentIdentifier.services",
+    () => ({
+        createDiaryDocumentIdentifierService: () => ({
+            inspect: (file: iFileData) =>
+                mockInspect(file)
+        })
+    })
+)
 
-    test("falha quando o layout nao pode ser identificado", async () => {
-        const file = { filePath: "entrada.txt", fileName: "entrada" }
 
-        identifyMock.mockResolvedValueOnce({
-            fileType: "UNKNOWN",
-            layout: "UNKNOWN",
-            extension: ".txt",
-            confidence: "LOW",
-            reasons: []
+jest.mock(
+    "../../src/services/wordDiaryReader/wordDiaryReader.services",
+    () => ({
+        createDiaryReaderService: () => ({
+            read: (...args: unknown[]) =>
+                mockWordRead(...args),
+
+            parseText: (...args: unknown[]) =>
+                mockWordParseText(...args)
+        })
+    })
+)
+
+
+jest.mock(
+    "../../src/services/pdfDiaryReader/pdfDiaryReader.services",
+    () => ({
+        createPdfDiaryReaderService: () => ({
+            read: (...args: unknown[]) =>
+                mockPdfRead(...args),
+
+            parseText: (...args: unknown[]) =>
+                mockPdfParseText(...args)
+        })
+    })
+)
+
+
+import {
+    readDiaryAutomatically
+} from "../../src/services/diaryAutoReader/diaryAutoReader.services"
+
+
+describe(
+    "readDiaryAutomatically",
+    () => {
+
+        beforeEach(() => {
+            jest.clearAllMocks()
         })
 
-        await expect(readDiaryAutomatically(file))
-            .rejects
-            .toThrow(/layout do documento/)
-    })
-})
+
+        test(
+            "reutiliza rawText identificado para documento Word sem reler o arquivo",
+            async () => {
+
+                const file = {
+                    filePath: "diario.docx",
+                    fileName: "diario.docx"
+                }
+
+                const rawText =
+                    "TEXTO BRUTO DO DOCUMENTO WORD"
+
+                const records = [
+                    {
+                        partes: ["CLIENTE"],
+                        advogados: [],
+                        layout:
+                            "WORD_CADASTRADO" as const
+                    }
+                ]
+
+                mockInspect.mockResolvedValueOnce({
+                    identification: {
+                        fileType: "DOCX",
+                        layout: "WORD_CADASTRADO",
+                        extension: ".docx",
+                        confidence: "HIGH",
+                        reasons: []
+                    },
+
+                    rawText
+                })
+
+                mockWordParseText
+                    .mockReturnValueOnce(records)
+
+                const result =
+                    await readDiaryAutomatically(file)
+
+                expect(result).toBe(records)
+
+                expect(
+                    mockInspect
+                ).toHaveBeenCalledTimes(1)
+
+                expect(
+                    mockInspect
+                ).toHaveBeenCalledWith(file)
+
+                expect(
+                    mockWordParseText
+                ).toHaveBeenCalledTimes(1)
+
+                expect(
+                    mockWordParseText
+                ).toHaveBeenCalledWith(rawText)
+
+                /*
+                 * O ponto principal:
+                 * depois de inspect(), o reader não
+                 * deve abrir o arquivo novamente.
+                 */
+                expect(
+                    mockWordRead
+                ).not.toHaveBeenCalled()
+
+                expect(
+                    mockPdfRead
+                ).not.toHaveBeenCalled()
+
+                expect(
+                    mockPdfParseText
+                ).not.toHaveBeenCalled()
+            }
+        )
+
+
+        test.each([
+            "PDF_IS_PROCESSOS",
+            "SERDIJUL",
+            "PDF_DEFAULT"
+        ] as const)(
+            "reutiliza rawText e roteia layout %s para o parser PDF",
+            async layout => {
+
+                const file = {
+                    filePath: "diario.pdf",
+                    fileName: "diario.pdf"
+                }
+
+                const rawText =
+                    `TEXTO PDF ${layout}`
+
+                const records = [
+                    {
+                        partes: [],
+                        advogados: [],
+                        layout
+                    }
+                ]
+
+                mockInspect.mockResolvedValueOnce({
+                    identification: {
+                        fileType: "PDF",
+                        layout,
+                        extension: ".pdf",
+                        confidence: "HIGH",
+                        reasons: []
+                    },
+
+                    rawText
+                })
+
+                mockPdfParseText
+                    .mockReturnValueOnce(records)
+
+                const result =
+                    await readDiaryAutomatically(file)
+
+                expect(result).toBe(records)
+
+                expect(
+                    mockInspect
+                ).toHaveBeenCalledTimes(1)
+
+                expect(
+                    mockPdfParseText
+                ).toHaveBeenCalledTimes(1)
+
+                expect(
+                    mockPdfParseText
+                ).toHaveBeenCalledWith(rawText)
+
+                /*
+                 * read(file) faria uma segunda
+                 * extração do documento.
+                 */
+                expect(
+                    mockPdfRead
+                ).not.toHaveBeenCalled()
+
+                expect(
+                    mockWordRead
+                ).not.toHaveBeenCalled()
+
+                expect(
+                    mockWordParseText
+                ).not.toHaveBeenCalled()
+            }
+        )
+
+
+        test(
+            "falha quando o layout nao pode ser identificado",
+            async () => {
+
+                const file = {
+                    filePath: "entrada.pdf",
+                    fileName: "entrada.pdf"
+                }
+
+                mockInspect.mockResolvedValueOnce({
+                    identification: {
+                        fileType: "PDF",
+                        layout: "UNKNOWN",
+                        extension: ".pdf",
+                        confidence: "LOW",
+                        reasons: []
+                    },
+
+                    rawText: "texto desconhecido"
+                })
+
+                await expect(
+                    readDiaryAutomatically(file)
+                )
+                    .rejects
+                    .toThrow(/layout do documento/i)
+
+                expect(
+                    mockWordParseText
+                ).not.toHaveBeenCalled()
+
+                expect(
+                    mockPdfParseText
+                ).not.toHaveBeenCalled()
+
+                expect(
+                    mockWordRead
+                ).not.toHaveBeenCalled()
+
+                expect(
+                    mockPdfRead
+                ).not.toHaveBeenCalled()
+            }
+        )
+
+    }
+)

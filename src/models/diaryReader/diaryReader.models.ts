@@ -71,6 +71,11 @@ export interface DiaryTask {
   raw: string;
 }
 
+export interface DiaryDocumentInspection {
+  identification: DiaryDocumentIdentification;
+  rawText: string;
+}
+
 export interface TextReaderRepository {
   readText(file: iFileData): Promise<string>;
 }

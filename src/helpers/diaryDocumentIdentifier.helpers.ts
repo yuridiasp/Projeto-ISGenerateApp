@@ -56,19 +56,31 @@ function identifyDocumentLayout(
   fileType: DiaryFileType,
   text: string
 ): DiaryDocumentLayout {
-  if (isWordCadastradoLayout(text)) {
+  if (
+    (fileType === "DOCX" || fileType === "DOC") &&
+    isWordCadastradoLayout(text)
+  ) {
     return "WORD_CADASTRADO";
   }
 
-  if (fileType === "PDF" && isPdfIsProcessosLayout(text)) {
+  if (
+    fileType === "PDF" &&
+    isPdfIsProcessosLayout(text)
+  ) {
     return "PDF_IS_PROCESSOS";
   }
 
-  if (fileType === "PDF" && isSerdijulLayout(text)) {
+  if (
+    fileType === "PDF" &&
+    isSerdijulLayout(text)
+  ) {
     return "SERDIJUL";
   }
 
-  if (fileType === "PDF" && isPdfDefaultLayout(text)) {
+  if (
+    fileType === "PDF" &&
+    isPdfDefaultLayout(text)
+  ) {
     return "PDF_DEFAULT";
   }
 

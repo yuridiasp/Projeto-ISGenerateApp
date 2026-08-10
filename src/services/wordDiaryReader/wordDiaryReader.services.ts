@@ -1,32 +1,68 @@
-import { DiaryRecord, TextReaderRepository } from "@models/diaryReader/diaryReader.models";
-import { normalizeDiaryText } from "@helpers/diaryText.helpers";
-import { parseWordDiaryRecords } from "../diaryParser/wordDiaryParser.services";
-import { iFileData } from "@services/validateIntimations";
+import {
+    DiaryRecord,
+    TextReaderRepository
+} from "@models/diaryReader/diaryReader.models"
+
+import {
+    normalizeDiaryText
+} from "@helpers/diaryText.helpers"
+
+import {
+    parseWordDiaryRecords
+} from "../diaryParser/wordDiaryParser.services"
+
+import {
+    iFileData
+} from "@services/validateIntimations"
+
 
 interface CreateDiaryReaderServiceParams {
-  textReaderRepository: TextReaderRepository;
-  logger?: {
-    info(message: string, data?: unknown): void;
-  };
+    textReaderRepository: TextReaderRepository
+
+    logger?: {
+        info(
+            message: string,
+            data?: unknown
+        ): void
+    }
 }
 
+
 export function createDiaryReaderService({
-  textReaderRepository,
-  logger
+    textReaderRepository,
+    logger
 }: CreateDiaryReaderServiceParams) {
-  return {
-    async read(file: iFileData): Promise<DiaryRecord[]> {
-      const rawText = await textReaderRepository.readText(file);
 
-      const normalizedText = normalizeDiaryText(rawText);
+    function parseText(
+        rawText: string
+    ): DiaryRecord[] {
 
-      const records = parseWordDiaryRecords(normalizedText);
+        const normalizedText =
+            normalizeDiaryText(rawText)
 
-      logger?.info("Blocos encontrados no Word", {
-        total: records.length
-      });
+        const records =
+            parseWordDiaryRecords(
+                normalizedText
+            )
 
-      return records;
+        logger?.info(
+            "Blocos encontrados no Word",
+            {
+                total: records.length
+            }
+        )
+
+        return records
     }
-  };
+
+    return {
+        async read(
+            file: iFileData
+        ): Promise<DiaryRecord[]> {
+            const rawText =
+                await textReaderRepository
+                    .readText(file)
+
+            return parseText(rawText)
+        }, parseText }
 }
