@@ -1,4 +1,8 @@
 import path from "path";
+
+import {
+  isSerdijulPjeListText
+} from "./pdfDiaryText.helpers";
 import { DiaryDocumentIdentification, DiaryDocumentLayout, DiaryFileType } from "@models/diaryReader/diaryReader.models";
 import { fixDiaryEncoding } from "./diaryEncoding.helpers";
 
@@ -111,9 +115,15 @@ function isPdfIsProcessosLayout(text: string): boolean {
   );
 }
 
-function isSerdijulLayout(text: string): boolean {
+function isSerdijulLayout(
+  text: string
+): boolean {
   const hasPublicacaoProcesso =
-    /Publicacao\s+Processo\s*:/i.test(text);
+    /Publicacao\s+Processo\s*:/i
+      .test(text);
+
+  const hasPjeList =
+    isSerdijulPjeListText(text);
 
   const hasExternalWordStructure =
     /Data\s+Disponibilizacao\s*:/i.test(text) &&
@@ -130,7 +140,10 @@ function isSerdijulLayout(text: string): boolean {
     /Tribunal\s*:/i.test(text);
 
   return (
-    hasPublicacaoProcesso &&
+    (
+      hasPublicacaoProcesso ||
+      hasPjeList
+    ) &&
     !hasExternalWordStructure &&
     !hasExternalPdfIsProcessosStructure
   );
@@ -191,6 +204,10 @@ function getIdentificationReasons(
 
   if (/Publicacao\s+Processo\s*:/i.test(text)) {
     reasons.push("Encontrado marcador interno: Publicação Processo");
+  }
+
+  if (isSerdijulPjeListText(text)) {
+    reasons.push("Encontrada estrutura SERDIJUL/PJe com NPU");
   }
 
   reasons.push(`Layout identificado: ${layout}`);

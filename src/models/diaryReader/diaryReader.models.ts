@@ -7,6 +7,7 @@ export type DiaryFileType =
   | "UNKNOWN";
 
 export type DiaryDocumentLayout =
+  | "DEFAULT"
   | "WORD_CADASTRADO"
   | "PDF_IS_PROCESSOS"
   | "SERDIJUL"

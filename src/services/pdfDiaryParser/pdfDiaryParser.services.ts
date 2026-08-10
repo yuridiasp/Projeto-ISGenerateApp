@@ -8,6 +8,16 @@ import { extractDiaryAdvogados } from "@helpers/diaryAdvogados.helpers";
 import { cleanDiaryValue, removeComunicacaoId } from "@helpers/diaryText.helpers";
 import { removeSerdijulNoise } from "@helpers/pdfDiaryText.helpers";
 import { resolveMainProcessNumber } from "@services/diaryParser/diaryPublicationParser.services";
+import {
+  extractPdfDiaryMetadataAtPosition,
+  findSerdijulPjeListBlockStarts,
+  isSerdijulPjeListText
+} from "@helpers/pdfDiaryText.helpers";
+
+import {
+  isValidSerdijulPjeListRecord,
+  parseSerdijulPjeListRecord
+} from "./serdijulPjeListParser.services";
 
 function extractMainTJSEProcessNumber(informacoes: string): string | undefined {
   return (
@@ -40,17 +50,35 @@ export function parsePdfDiaryRecords(
   text: string,
   metadata: PdfDiaryMetadata = {}
 ): DiaryRecord[] {
-  const normalized = normalizePdfDiaryMarkers(text);
+  const normalized =
+    normalizePdfDiaryMarkers(text);
 
-  if (isOutlookIsProcessosLayout(normalized)) {
-    return parseOutlookIsProcessosRecords(normalized, metadata);
+  if (
+    isOutlookIsProcessosLayout(
+      normalized
+    )
+  ) {
+    return parseOutlookIsProcessosRecords(
+      normalized,
+      metadata
+    );
   }
 
-  if (isSerdijulLayout(normalized)) {
-    return parseSerdijulPdfDiaryRecords(normalized, metadata);
+  if (
+    isSerdijulLayout(
+      normalized
+    )
+  ) {
+    return parseSerdijulPdfDiaryRecords(
+      normalized,
+      metadata
+    );
   }
 
-  return parseDefaultPdfDiaryRecords(normalized, metadata);
+  return parseDefaultPdfDiaryRecords(
+    normalized,
+    metadata
+  );
 }
 
 function parseOutlookIsProcessosRecords(
@@ -235,56 +263,197 @@ function isValidOutlookIsProcessosRecord(record: DiaryRecord): boolean {
   );
 }
 
-function isOutlookIsProcessosLayout(text: string): boolean {
+function isOutlookIsProcessosLayout(
+  text: string
+): boolean {
+  const blockPattern =
+    /Data\s*:\s*\d{2}\/\d{2}\/\d{4}[\s\S]{0,500}?Codigo\s*:[\s\S]{0,500}?Nome\s+Pesquisado\s*:[\s\S]{0,500}?Jornal\s*:[\s\S]{0,500}?Tribunal\s*:[\s\S]{0,500}?Vara\s*:[\s\S]{0,500}?Informacoes\s*:/i;
+
+  return blockPattern.test(text);
+}
+
+function isSerdijulLayout(
+  text: string
+): boolean {
+  const hasTraditionalLayout =
+    /Publicacao\s+Processo\s*:/i
+      .test(text);
+
+  const hasPjeListLayout =
+    isSerdijulPjeListText(text);
+
   return (
-    /Data\s*:\s*\d{2}\/\d{2}\/\d{4}/i.test(text) &&
-    /Codigo\s*:/i.test(text) &&
-    /Informacoes\s*:/i.test(text)
+    hasTraditionalLayout ||
+    hasPjeListLayout
   );
 }
 
-function isSerdijulLayout(text: string): boolean {
-  return (
-    /Publicacao\s+Processo\s*:/i.test(text) &&
-    !/Data\s*:\s*\d{2}\/\d{2}\/\d{4}/i.test(text) &&
-    !/Codigo\s*:/i.test(text) &&
-    !/Informacoes\s*:/i.test(text)
-  );
+type SerdijulBlockKind =
+  | "PUBLICACAO_PROCESSO"
+  | "PJE_LIST";
+
+
+interface SerdijulBlock {
+  kind: SerdijulBlockKind;
+  start: number;
+  text: string;
 }
+
 
 function parseSerdijulPdfDiaryRecords(
   text: string,
   metadata: PdfDiaryMetadata
 ): DiaryRecord[] {
-  const blocks = extractSerdijulBlocks(text);
+  const blocks =
+    extractSerdijulBlocks(text);
 
-  return blocks
-    .map(block => parseSerdijulPdfDiaryRecord(block, metadata))
-    .filter(isValidSerdijulPdfDiaryRecord);
+  const records:
+    DiaryRecord[] = [];
+
+  for (
+    const block of blocks
+  ) {
+    const localMetadata =
+      extractPdfDiaryMetadataAtPosition(
+        text,
+        block.start,
+        metadata
+      );
+
+    if (
+      block.kind ===
+      "PJE_LIST"
+    ) {
+      const record =
+        parseSerdijulPjeListRecord(
+          block.text,
+          localMetadata
+        );
+
+      if (
+        isValidSerdijulPjeListRecord(
+          record
+        )
+      ) {
+        records.push(record);
+      }
+
+      continue;
+    }
+
+    const record =
+      parseSerdijulPdfDiaryRecord(
+        block.text,
+        localMetadata
+      );
+
+    if (
+      isValidSerdijulPdfDiaryRecord(
+        record
+      )
+    ) {
+      records.push(record);
+    }
+  }
+
+  return records;
 }
 
-function extractSerdijulBlocks(text: string): string[] {
-  const startRegex = /Publicacao\s+Processo\s*:/gi;
 
-  const starts = [...text.matchAll(startRegex)]
-    .map(match => match.index ?? -1)
-    .filter(index => index >= 0);
+function extractSerdijulBlocks(
+  text: string
+): SerdijulBlock[] {
+  const publicationStarts =
+    [
+      ...text.matchAll(
+        /Publicacao\s+Processo\s*:/gi
+      )
+    ]
+      .map(match => ({
+        kind:
+          "PUBLICACAO_PROCESSO",
 
-  if (!starts.length) return [];
+        start:
+          match.index ?? -1
+      }))
+      .filter(
+        item =>
+          item.start >= 0
+      );
 
-  const blocks: string[] = [];
+  const pjeStarts =
+    findSerdijulPjeListBlockStarts(
+      text
+    )
+      .map(start => ({
+        kind:
+          "PJE_LIST",
+        start
+      }));
 
-  for (let i = 0; i < starts.length; i++) {
-    const start = starts[i];
-    const nextStart = starts[i + 1] ?? text.length;
-
-    const block = removeSerdijulNoise(
-      text.slice(start, nextStart).trim()
+  const starts = [
+    ...publicationStarts,
+    ...pjeStarts
+  ]
+    .sort(
+      (a, b) =>
+        a.start - b.start
+    )
+    .filter(
+      (
+        item,
+        index,
+        array
+      ) =>
+        index === 0 ||
+        item.start !==
+          array[index - 1].start
     );
 
-    if (block) {
-      blocks.push(block);
+  const blocks:
+    SerdijulBlock[] = [];
+
+  for (
+    let index = 0;
+    index < starts.length;
+    index++
+  ) {
+    const current =
+      starts[index];
+
+    const next =
+      starts[index + 1];
+
+    const end =
+      next?.start ??
+      text.length;
+
+    const rawBlock =
+      text
+        .slice(
+          current.start,
+          end
+        )
+        .trim();
+
+    if (!rawBlock) {
+      continue;
     }
+
+    blocks.push({
+      kind: current.kind as SerdijulBlockKind,
+
+      start:
+        current.start,
+
+      text:
+        current.kind ===
+        "PUBLICACAO_PROCESSO"
+          ? removeSerdijulNoise(
+              rawBlock
+            )
+          : rawBlock
+    });
   }
 
   return blocks;

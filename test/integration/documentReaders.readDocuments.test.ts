@@ -164,4 +164,87 @@ describe("leitura de documentos reais da pasta doc", () => {
       ])
     )
   }, 30000)
+
+  it("extrai registros de PDF SERDIJUL misto com listas PJe NPU", async () => {
+      const rawText =
+        extractTextWithProjectReader(
+          "SERDIJUL TST 07082026.pdf",
+          "PDF"
+        );
+
+      const metadata =
+        extractPdfDiaryMetadata(
+          rawText
+        );
+
+      const records =
+        parsePdfDiaryRecords(
+          normalizePdfDiaryText(
+            rawText
+          ),
+          metadata
+        );
+
+      /*
+      * Arquivo real:
+      * 7 blocos Publicacao Processo
+      * + 8 blocos NPU.
+      */
+      expect(records)
+        .toHaveLength(15);
+
+      const pjeRecord =
+        records.find(
+          record =>
+            record.processo ===
+            "1007562-86.2025.4.01.3400"
+        );
+
+      expect(pjeRecord)
+        .toBeDefined();
+
+      expect(pjeRecord)
+        .toMatchObject({
+          layout: "SERDIJUL",
+
+          processo:
+            "1007562-86.2025.4.01.3400",
+
+          orgao:
+            "25 Vara Federal de Juizado Especial Civel da SJDF",
+
+          dataDisponibilizacao:
+            "06/08/2026"
+        });
+
+      expect(
+        pjeRecord?.advogados
+      ).toContain(
+        "FABIO CORREA RIBEIRO"
+      );
+
+      expect(
+        pjeRecord?.tribunal
+      ).toMatch(
+        /TRIBUNAL REGIONAL FEDERAL DA 1/i
+      );
+
+      const trf2Record =
+        records.find(
+          record =>
+            record.processo ===
+            "5006818-28.2025.4.02.5006"
+        );
+
+      expect(trf2Record)
+        .toBeDefined();
+
+      expect(
+        trf2Record?.tribunal
+      ).toMatch(
+        /TRIBUNAL REGIONAL FEDERAL DA 2/i
+      );
+    },
+    30000
+  );
 })
