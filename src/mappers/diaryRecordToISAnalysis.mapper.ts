@@ -23,44 +23,187 @@ const acceptedDateFormats = [
     "DD-MM-YYYY",
     "YYYY-MM-DD",
     "YYYY/MM/DD",
+
+    "DD/MM/YY",
+    "DD-MM-YY",
+
     "DD/MM/YYYY HH:mm:ss",
     "DD-MM-YYYY HH:mm:ss",
     "YYYY-MM-DD HH:mm:ss",
+
     "DD/MM/YYYY HH:mm",
     "DD-MM-YYYY HH:mm",
-    "YYYY-MM-DD HH:mm"
+    "YYYY-MM-DD HH:mm",
+
+    "DD/MM/YY HH:mm",
+    "DD-MM-YY HH:mm"
 ]
+
+const brazilianMonths: Record<string, string> = {
+    janeiro: "01",
+    fevereiro: "02",
+    marco: "03",
+    março: "03",
+    abril: "04",
+    maio: "05",
+    junho: "06",
+    julho: "07",
+    agosto: "08",
+    setembro: "09",
+    outubro: "10",
+    novembro: "11",
+    dezembro: "12"
+}
+
+
+function normalizeBrazilianLongDate(
+    value: string
+): string | undefined {
+
+    const normalized = value
+        /*
+         * Remove "(sexta-feira)",
+         * "(quinta-feira)", etc.
+         */
+        .replace(/\([^)]*\)\s*$/, "")
+        .trim()
+
+    const match = normalized.match(
+        /^(\d{1,2})\s+de\s+([A-Za-zÀ-ÿ]+)\s+de\s+(\d{4})$/i
+    )
+
+    if (!match) {
+        return undefined
+    }
+
+    const [, day, monthName, year] = match
+
+    const normalizedMonthName = monthName
+        .toLowerCase()
+
+    const month =
+        brazilianMonths[normalizedMonthName]
+
+    if (!month) {
+        return undefined
+    }
+
+    return [
+        day.padStart(2, "0"),
+        month,
+        year
+    ].join("/")
+}
+
+
+function normalizeDiaryDateValue(
+    value: string
+): string {
+
+    const normalizedLongDate =
+        normalizeBrazilianLongDate(value)
+
+    if (normalizedLongDate) {
+        return normalizedLongDate
+    }
+
+    return value
+        /*
+         * PDFs podem extrair:
+         * 06/ 08/ 2026
+         */
+        .replace(/\s*\/\s*/g, "/")
+
+        .replace(/\s+/g, " ")
+
+        .trim()
+}
 
 function invalidDayjs(): Dayjs {
     return dayjs("")
 }
 
-export function parseDiaryDate(value?: string): Dayjs {
+export function parseDiaryDate(
+    value?: string
+): Dayjs {
+
     if (!value || !value.trim()) {
         return invalidDayjs()
     }
-    
-    const normalizedValue = value.trim()
+
+    const normalizedValue =
+        normalizeDiaryDateValue(value)
 
     for (const format of acceptedDateFormats) {
-        const parsedDate = dayjs.tz(
-            normalizedValue,
-            format,
-            timezone
-        )
 
-        if (parsedDate.isValid()) {
-            return parsedDate
+        /*
+         * Primeiro validamos SEM timezone.
+         *
+         * O terceiro argumento true ativa
+         * parsing estrito.
+         */
+        const parsedDate =
+            dayjs(
+                normalizedValue,
+                format,
+                true
+            )
+
+        if (!parsedDate.isValid()) {
+            continue
         }
+
+        /*
+         * Somente aplicamos timezone
+         * depois de confirmar que a data
+         * é válida.
+         *
+         * true preserva horário/data local.
+         */
+        return parsedDate.tz(
+            timezone,
+            true
+        )
     }
 
-    const fallbackDate = dayjs(normalizedValue)
+    /*
+     * Compatibilidade com algum formato
+     * que Dayjs consiga reconhecer
+     * nativamente.
+     */
+    const fallbackDate =
+        dayjs(normalizedValue)
 
     if (fallbackDate.isValid()) {
-        return fallbackDate.tz(timezone)
+        return fallbackDate.tz(
+            timezone
+        )
     }
 
     return invalidDayjs()
+}
+
+function getFirstValidDiaryDate(
+    values: Array<string | undefined>
+): Dayjs | undefined {
+
+    for (const value of values) {
+
+        if (
+            isInvalidDiaryDateValue(value)
+        ) {
+            continue
+        }
+
+        const parsed =
+            parseDiaryDate(value)
+
+        if (parsed.isValid()) {
+            return parsed
+        }
+    }
+
+    return undefined
 }
 
 function normalizeText(value?: string): string {
@@ -69,22 +212,28 @@ function normalizeText(value?: string): string {
         .trim() ?? ""
 }
 
-function getPublicationDate(record: DiaryRecord): Dayjs {
-    const publicationDate =
-        record.dataPublicacao ||
-        record.dataDisponibilizacao ||
-        record.dataDivulgacao ||
-        record.data
+function getPublicationDate(
+    record: DiaryRecord
+): Dayjs {
 
-    const fixedPublicationDate = isInvalidDiaryDateValue(publicationDate)
-        ? extractAvailabilityDateFromInformation(record)
-        : publicationDate
+    const informationDate =
+        extractAvailabilityDateFromInformation(
+            record
+        )
 
-    const parsedDate = parseDiaryDate(fixedPublicationDate)
+    const parsed =
+        getFirstValidDiaryDate([
+            record.dataPublicacao,
+            record.dataDisponibilizacao,
+            record.dataDivulgacao,
+            record.data,
+            informationDate
+        ])
 
-    return parsedDate.isValid()
-        ? parsedDate
-        : parseDiaryDate(record.data)
+    return (
+        parsed ??
+        invalidDayjs()
+    )
 }
 
 function removePdfPageBreakMarkers(value?: string): string {
@@ -119,25 +268,21 @@ function isInvalidDiaryDateValue(value?: string): boolean {
     )
 }
 
-function getAvailabilityDate(record: DiaryRecord): Dayjs | undefined {
-    const availabilityDate =
-        record.dataDisponibilizacao ||
-        record.dataDivulgacao ||
-        record.data
+function getAvailabilityDate(
+    record: DiaryRecord
+): Dayjs | undefined {
 
-    const fixedAvailabilityDate = isInvalidDiaryDateValue(availabilityDate)
-        ? extractAvailabilityDateFromInformation(record)
-        : availabilityDate
+    const informationDate =
+        extractAvailabilityDateFromInformation(
+            record
+        )
 
-    if (!fixedAvailabilityDate) {
-        return undefined
-    }
-
-    const parsedDate = parseDiaryDate(fixedAvailabilityDate)
-
-    return parsedDate.isValid()
-        ? parsedDate
-        : undefined
+    return getFirstValidDiaryDate([
+        record.dataDisponibilizacao,
+        record.dataDivulgacao,
+        record.data,
+        informationDate
+    ])
 }
 
 function getCaseNumber(record: DiaryRecord): string {

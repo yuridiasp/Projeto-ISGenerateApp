@@ -3,6 +3,7 @@ import fs from 'fs'
 import jsdom from "jsdom"
 import { writeExcelFileRepository } from '@repositories/xlsx/excelISFile.repositories'
 import { isJF, isPrev, isTRT } from '@services/fileHandler'
+import { throws } from 'node:assert';
 
 function initAndSetIs(lista: NodeListOf<Element>) {
 
@@ -32,6 +33,9 @@ function initAndSetIs(lista: NodeListOf<Element>) {
     for (let index = 1; index < lista.length; index++) {
         const table = lista[index].querySelector("table")
         
+        if (!table)
+            continue
+
         table.innerHTML = table.innerHTML.replace(/<br>/g,'')
 
         table.querySelector("tbody > tr:nth-child(1) > td:nth-child(4)")?.removeAttribute('colspan')
@@ -43,7 +47,7 @@ function initAndSetIs(lista: NodeListOf<Element>) {
             const textoLimpo = tds[7].textContent.replace(/\s+/g, ' ').trim()
             const isTJSE = textoLimpo.includes("TMP.NPRO")
             const processFound = isTJSE ? textoLimpo.match(/\d{12}/g) : textoLimpo.match(/\b(\d{7}-\d{2}\.\d{4}\.\d{1,2}\.\d{2}\.\d{4})\b/g)
-            const processo = processFound.length ? processFound[0] : '-'
+            const processo = processFound?.length ? processFound[0] : '-'
             const objIS: IS = {
                 availability_date: tds[0].querySelector("strong").textContent,
                 publication_date: tds[1].querySelector("strong").textContent,
@@ -53,16 +57,16 @@ function initAndSetIs(lista: NodeListOf<Element>) {
                 court: tds[5].querySelector("strong").textContent,
                 information: tds[7].textContent,
                 case_number: processo,
-                related_case_number: null,
-                description: null,
-                internal_deadline: null,
-                fatal_deadline: null,
-                time: null,
-                expert_or_defendant: null,
-                local_adress: null,
-                executor: null,
-                separate_task: null,
-                justification: null
+                related_case_number: "",
+                description: "",
+                internal_deadline: "",
+                fatal_deadline: "",
+                time: "",
+                expert_or_defendant: "",
+                local_adress: "",
+                executor: "",
+                separate_task: "",
+                justification: ""
             }
 
             if (isTRT(html)) {
