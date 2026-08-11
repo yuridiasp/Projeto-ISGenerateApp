@@ -301,3 +301,57 @@ export function findSerdijulPjeListBlockStarts(
     .map(match => match.index ?? -1)
     .filter(index => index >= 0);
 }
+
+export function isSerdijulPautaJulgamentoText(
+  text: string
+): boolean {
+  const normalized =
+    fixDiaryEncoding(text)
+      .replace(/\r/g, "")
+      .replace(/\n+/g, " ")
+      .replace(/[ ]{2,}/g, " ")
+      .trim()
+
+  const hasPauta =
+    /Pauta(?:\s+Pauta)?\s+de\s+Julgamento/i
+      .test(normalized)
+
+  const hasProcesso =
+    /Processo\s+N(?:º|°|o)?\s+[A-Za-zÀ-ÿ0-9._-]+-\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/i
+      .test(normalized)
+
+  const hasPje =
+    /Complemento\s+Processo\s+Eletr[oô]nico\s*-\s*PJE/i
+      .test(normalized)
+
+  const hasRelator =
+    /\bRelator\s+/i
+      .test(normalized)
+
+  const hasIntimados =
+    /Intimado\(s\)\s*\/\s*Citado\(s\)\s*:/i
+      .test(normalized)
+
+  return (
+    hasPauta &&
+    hasProcesso &&
+    hasPje &&
+    hasRelator &&
+    hasIntimados
+  )
+}
+
+export function findSerdijulPautaJulgamentoBlockStarts(
+  text: string
+): number[] {
+  const regex =
+    /(?:\b\d{4}\s*-\s*)?Processo\s+N(?:º|°|o)?\s+[A-Za-zÀ-ÿ0-9._-]+-\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/gi
+
+  return [...text.matchAll(regex)]
+    .map(match =>
+      match.index ?? -1
+    )
+    .filter(index =>
+      index >= 0
+    )
+}

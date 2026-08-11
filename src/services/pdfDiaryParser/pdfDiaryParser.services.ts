@@ -1,5 +1,20 @@
-//src/services/pdfDiaryParser/pdfDiaryParser.services.ts
-
+import {
+  extractPdfDiaryMetadataAtPosition,
+  findSerdijulPjeListBlockStarts,
+  isSerdijulPjeListText
+} from "@helpers/pdfDiaryText.helpers";
+import {
+  findSerdijulPautaJulgamentoBlockStarts,
+  isSerdijulPautaJulgamentoText
+} from "@helpers/pdfDiaryText.helpers"
+import {
+  isValidSerdijulPautaJulgamentoRecord,
+  parseSerdijulPautaJulgamentoRecord
+} from "./serdijulPautaJulgamentoParser.services"
+import {
+  isValidSerdijulPjeListRecord,
+  parseSerdijulPjeListRecord
+} from "./serdijulPjeListParser.services";
 import { DiaryRecord, PdfDiaryMetadata } from "@models/diaryReader/diaryReader.models";
 import { extractValue } from "@helpers/diaryRegex.helpers";
 import { normalizePdfDiaryMarkers } from "@helpers/pdfDiaryText.helpers";
@@ -8,16 +23,6 @@ import { extractDiaryAdvogados } from "@helpers/diaryAdvogados.helpers";
 import { cleanDiaryValue, removeComunicacaoId } from "@helpers/diaryText.helpers";
 import { removeSerdijulNoise } from "@helpers/pdfDiaryText.helpers";
 import { resolveMainProcessNumber } from "@services/diaryParser/diaryPublicationParser.services";
-import {
-  extractPdfDiaryMetadataAtPosition,
-  findSerdijulPjeListBlockStarts,
-  isSerdijulPjeListText
-} from "@helpers/pdfDiaryText.helpers";
-
-import {
-  isValidSerdijulPjeListRecord,
-  parseSerdijulPjeListRecord
-} from "./serdijulPjeListParser.services";
 
 function extractMainTJSEProcessNumber(informacoes: string): string | undefined {
   return (
@@ -275,6 +280,8 @@ function isOutlookIsProcessosLayout(
 function isSerdijulLayout(
   text: string
 ): boolean {
+  const hasPautaJulgamento = isSerdijulPautaJulgamentoText(text)
+
   const hasTraditionalLayout =
     /Publicacao\s+Processo\s*:/i
       .test(text);
@@ -284,13 +291,15 @@ function isSerdijulLayout(
 
   return (
     hasTraditionalLayout ||
-    hasPjeListLayout
-  );
+    hasPjeListLayout ||
+    hasPautaJulgamento
+  )
 }
 
 type SerdijulBlockKind =
   | "PUBLICACAO_PROCESSO"
-  | "PJE_LIST";
+  | "PJE_LIST"
+  | "PAUTA_JULGAMENTO"
 
 
 interface SerdijulBlock {
@@ -310,15 +319,23 @@ function parseSerdijulPdfDiaryRecords(
   const records:
     DiaryRecord[] = [];
 
-  for (
-    const block of blocks
-  ) {
+  for (const block of blocks) {
     const localMetadata =
       extractPdfDiaryMetadataAtPosition(
         text,
         block.start,
         metadata
-      );
+    );
+
+    if (block.kind === "PAUTA_JULGAMENTO") {
+      const record = parseSerdijulPautaJulgamentoRecord(block.text, localMetadata)
+
+      if (isValidSerdijulPautaJulgamentoRecord(record)) {
+        records.push(record)
+      }
+
+      continue
+    }
 
     if (
       block.kind ===
@@ -363,6 +380,12 @@ function parseSerdijulPdfDiaryRecords(
 function extractSerdijulBlocks(
   text: string
 ): SerdijulBlock[] {
+  const pautaStarts = findSerdijulPautaJulgamentoBlockStarts(text).map(start => ({
+    kind:
+      "PAUTA_JULGAMENTO" as const,
+    start
+  }))
+
   const publicationStarts =
     [
       ...text.matchAll(
@@ -393,7 +416,8 @@ function extractSerdijulBlocks(
 
   const starts = [
     ...publicationStarts,
-    ...pjeStarts
+    ...pjeStarts,
+    ...pautaStarts
   ]
     .sort(
       (a, b) =>

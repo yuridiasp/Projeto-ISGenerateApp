@@ -247,4 +247,50 @@ describe("leitura de documentos reais da pasta doc", () => {
     },
     30000
   );
+
+  it("extrai pauta de julgamento SERDIJUL TRT20", async () => {
+    const rawText =
+      extractTextWithProjectReader(
+        "SERDIJUL TRT20 10082026.pdf",
+        "PDF"
+      )
+
+    const metadata =
+      extractPdfDiaryMetadata(
+        rawText
+      )
+
+    const records =
+      parsePdfDiaryRecords(
+        normalizePdfDiaryText(
+          rawText
+        ),
+        metadata
+      )
+
+    expect(records)
+      .toHaveLength(3)
+
+    expect(
+      records.map(
+        item =>
+          item.processo
+      )
+    ).toEqual([
+      "0000258-83.2026.5.20.0012",
+      "0000714-82.2025.5.20.0007",
+      "0001349-63.2025.5.20.0007"
+    ])
+
+    expect(
+      records.every(
+        item =>
+          item.advogados.includes(
+            "FABIO CORREA RIBEIRO"
+          )
+      )
+    ).toBe(true)
+  },
+  30000
+)
 })

@@ -1,8 +1,9 @@
 import path from "path";
 
 import {
-  isSerdijulPjeListText
-} from "./pdfDiaryText.helpers";
+  isSerdijulPjeListText,
+  isSerdijulPautaJulgamentoText
+} from "./pdfDiaryText.helpers"
 import { DiaryDocumentIdentification, DiaryDocumentLayout, DiaryFileType } from "@models/diaryReader/diaryReader.models";
 import { fixDiaryEncoding } from "./diaryEncoding.helpers";
 
@@ -118,12 +119,11 @@ function isPdfIsProcessosLayout(text: string): boolean {
 function isSerdijulLayout(
   text: string
 ): boolean {
-  const hasPublicacaoProcesso =
-    /Publicacao\s+Processo\s*:/i
-      .test(text);
+  const hasPublicacaoProcesso = /Publicacao\s+Processo\s*:/i.test(text);
 
-  const hasPjeList =
-    isSerdijulPjeListText(text);
+  const hasPjeList = isSerdijulPjeListText(text)
+
+  const hasPautaJulgamento = isSerdijulPautaJulgamentoText(text)
 
   const hasExternalWordStructure =
     /Data\s+Disponibilizacao\s*:/i.test(text) &&
@@ -142,11 +142,12 @@ function isSerdijulLayout(
   return (
     (
       hasPublicacaoProcesso ||
-      hasPjeList
+      hasPjeList ||
+      hasPautaJulgamento
     ) &&
     !hasExternalWordStructure &&
     !hasExternalPdfIsProcessosStructure
-  );
+  )
 }
 
 function isPdfDefaultLayout(text: string): boolean {
@@ -208,6 +209,10 @@ function getIdentificationReasons(
 
   if (isSerdijulPjeListText(text)) {
     reasons.push("Encontrada estrutura SERDIJUL/PJe com NPU");
+  }
+
+  if (isSerdijulPautaJulgamentoText(text)) {
+    reasons.push("Encontrada estrutura SERDIJUL de pauta de julgamento")
   }
 
   reasons.push(`Layout identificado: ${layout}`);

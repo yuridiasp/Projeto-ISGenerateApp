@@ -173,6 +173,76 @@ describe("parsePdfDiaryRecords", () => {
         ).toMatch(
         /TRIBUNAL REGIONAL FEDERAL DA 2/i
         );
-    }
-    );
+    });
+
+    test("extrai pauta de julgamento SERDIJUL", () => {
+        const text = `
+        DIÁRIO DO TRIBUNAL REGIONAL DO TRABALHO DE SERGIPE (20ª REGIÃO)
+
+        Edição nº 4532
+        Data da Divulgação: 07 de agosto de 2026(sexta-feira)
+        Data da Publicação: 10 de agosto de 2026(segunda-feira)
+
+        Publicações
+
+        Pauta Pauta de Julgamento
+        Pauta da Ordinaria Virtual de Julgamento do(a) Primeira Turma
+
+        0000 - Processo Nº
+        RORSum-0000258-83.2026.5.20.0012
+        Complemento Processo Eletronico - PJE
+        Relator VILMA LEITE MACHADO AMORIM
+        Revisor VILMA LEITE MACHADO AMORIM
+        RECORRENTE LEONARDO SOUSA ALMEIDA DE LIMA
+        ADVOGADO FABIO CORREA RIBEIRO
+        (OAB: 353-A/SE)
+        RECORRIDO LUCAS COMERCIO VAREJISTA DE PECAS E PNEUS LTDA
+        ADVOGADO GUSTAVO LUIS CORREA BITENCOURT
+        (OAB: 35140/SC)
+        Intimado(s) / Citado(s):
+        - LEONARDO SOUSA ALMEIDA DE LIMA
+        - LUCAS COMERCIO VAREJISTA DE PECAS E PNEUS LTDA
+        `
+
+        const records =
+        parsePdfDiaryRecords(
+            text
+        )
+
+        expect(records)
+        .toHaveLength(1)
+
+        expect(records[0])
+        .toMatchObject({
+            layout:
+            "SERDIJUL",
+
+            processo:
+            "0000258-83.2026.5.20.0012",
+
+            classe:
+            "RORSum",
+
+            tipoComunicacao:
+            "Pauta de Julgamento"
+        })
+
+        expect(
+        records[0].advogados
+        ).toEqual(
+        expect.arrayContaining([
+            "FABIO CORREA RIBEIRO",
+            "GUSTAVO LUIS CORREA BITENCOURT"
+        ])
+        )
+
+        expect(
+        records[0].partes
+        ).toEqual(
+        expect.arrayContaining([
+            "LEONARDO SOUSA ALMEIDA DE LIMA",
+            "LUCAS COMERCIO VAREJISTA DE PECAS E PNEUS LTDA"
+        ])
+        )
+    })
 })
