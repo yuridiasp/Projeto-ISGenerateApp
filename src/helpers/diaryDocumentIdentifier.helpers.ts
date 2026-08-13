@@ -76,7 +76,7 @@ function identifyDocumentLayout(
   }
 
   if (
-    fileType === "PDF" &&
+    isSupportedDiaryFileType(fileType) &&
     isSerdijulLayout(text)
   ) {
     return "SERDIJUL";
@@ -90,6 +90,10 @@ function identifyDocumentLayout(
   }
 
   return "UNKNOWN";
+}
+
+function isSupportedDiaryFileType(fileType: DiaryFileType): boolean {
+  return fileType === "PDF" || fileType === "DOCX" || fileType === "DOC";
 }
 
 function isWordCadastradoLayout(text: string): boolean {

@@ -290,7 +290,44 @@ describe("leitura de documentos reais da pasta doc", () => {
           )
       )
     ).toBe(true)
-  },
-  30000
-)
+  }, 30000)
+
+  it("extrai registros de SERDIJUL armazenado em DOCX", async () => {
+    const rawText = extractTextWithProjectReader(
+      "SERDIJUL TJSE 13082026.docx",
+      "DOCX"
+    );
+
+    const metadata = extractPdfDiaryMetadata(rawText);
+
+    const records = parsePdfDiaryRecords(
+      normalizePdfDiaryText(rawText),
+      metadata
+    );
+
+    expect(records.length).toBeGreaterThan(0);
+
+    const firstRecord = records.find(
+      record => record.processo === "5006405-28.2026.8.25.0084"
+    );
+
+    expect(firstRecord).toBeDefined();
+
+    expect(firstRecord).toMatchObject({
+      layout: "SERDIJUL",
+      processo: "5006405-28.2026.8.25.0084",
+      dataDisponibilizacao: "12/08/2026",
+      tipoComunicacao: "Intimacao"
+    });
+
+    expect(firstRecord?.partes).toContain(
+      "MARIA ROSINEIDE EDUARDO DOS SANTOS"
+    );
+
+    expect(firstRecord?.advogados).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("FABIO CORREA RIBEIRO")
+      ])
+    );
+  }, 30000);
 })

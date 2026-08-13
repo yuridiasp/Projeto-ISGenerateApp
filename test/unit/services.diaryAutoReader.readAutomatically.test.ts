@@ -292,5 +292,49 @@ describe(
             }
         )
 
+        test("roteia SERDIJUL DOCX para o parser estruturado sem reler o arquivo", async () => {
+            const file = {
+                filePath: "SERDIJUL TJSE 13082026.docx",
+                fileName: "SERDIJUL TJSE 13082026.docx"
+                };
+
+                const rawText = `
+                Publicacao Processo: 5006405-28.2026.8.25.0084
+                Orgao: 3 Juizado Especial Civel da Comarca de Aracaju
+                `;
+
+                const records = [{
+                processo: "5006405-28.2026.8.25.0084",
+                partes: [],
+                advogados: [],
+                layout: "SERDIJUL" as const
+                }];
+
+                mockInspect.mockResolvedValueOnce({
+                identification: {
+                    fileType: "DOCX",
+                    layout: "SERDIJUL",
+                    extension: ".docx",
+                    confidence: "HIGH",
+                    reasons: []
+                },
+                rawText
+                });
+
+                mockPdfParseText.mockReturnValueOnce(records);
+
+                const result = await readDiaryAutomatically(file);
+
+                expect(result).toBe(records);
+                expect(mockInspect).toHaveBeenCalledWith(file);
+                expect(mockPdfParseText).toHaveBeenCalledWith(rawText);
+                expect(mockPdfParseText).toHaveBeenCalledTimes(1);
+
+                expect(mockPdfRead).not.toHaveBeenCalled();
+                expect(mockWordRead).not.toHaveBeenCalled();
+                expect(mockWordParseText).not.toHaveBeenCalled();
+            }
+        );
+
     }
 )

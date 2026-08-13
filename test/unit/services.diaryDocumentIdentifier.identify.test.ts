@@ -8,10 +8,12 @@ import {
 import {
     createDiaryDocumentIdentifierService
 } from "../../src/services/diaryDocumentIdentifier/diaryDocumentIdentifier.services"
-
 import {
     iFileData
 } from "../../src/services/validateIntimations/validateIntimations.services"
+import {
+    identifyDiaryDocument
+} from "../../src/helpers/diaryDocumentIdentifier.helpers"
 
 
 describe(
@@ -311,6 +313,28 @@ describe(
                 ).not.toHaveBeenCalled()
             }
         )
+
+        test("prioriza WORD_CADASTRADO para DOCX com sua estrutura propria", () => {
+            const text = `
+            Data Disponibilizacao: 12/08/2026
+            Data Publicacao: 13/08/2026
+            Codigo: 123
+            Jornal: TJSE
+            Tribunal: TJSE
+            Vara: 1 Vara
+            Informacoes:
+            Publicacao Processo: 0000000-00.2026.8.25.0001
+            `;
+
+            const result = identifyDiaryDocument(
+            "cadastrados.docx",
+            text
+            );
+
+            expect(result.layout).toBe(
+            "WORD_CADASTRADO"
+            );
+        });
 
     }
 )

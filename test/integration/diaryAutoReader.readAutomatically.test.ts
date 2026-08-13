@@ -232,9 +232,31 @@ describe(
                         })
                     ])
                 )
-            },
-            30000
-        )
+            }, 30000)
 
+            test("processa SERDIJUL DOCX automaticamente", async () => {
+                const filePath = docPath("SERDIJUL TJSE 13082026.docx");
+
+                const records = await readDiaryAutomatically({
+                    filePath,
+                    fileName: path.basename(filePath)
+                });
+
+                expect(records.length).toBeGreaterThan(0);
+
+                const record = records.find(
+                item =>
+                    item.processo ===
+                    "5006405-28.2026.8.25.0084"
+                );
+
+                expect(record).toBeDefined();
+
+                expect(record).toMatchObject({
+                layout: "SERDIJUL",
+                processo: "5006405-28.2026.8.25.0084",
+                tipoComunicacao: "Intimacao"
+                });
+            }, 30000);
     }
 )
