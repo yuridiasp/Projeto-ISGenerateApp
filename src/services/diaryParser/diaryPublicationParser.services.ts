@@ -8,7 +8,6 @@ import {
 } from "@helpers/diaryText.helpers";
 import { extractDiaryPartes } from "@helpers/diaryPartes.helpers";
 import { extractDiaryAdvogados } from "@helpers/diaryAdvogados.helpers";
-import { extractDiaryProcessNumber } from "@helpers/diaryProcess.helpers";
 
 export function sanitizeProcessNumber(value?: string): string | undefined {
   const sanitized = value?.replace(/\D/g, "") ?? "";
@@ -19,40 +18,46 @@ export function sanitizeProcessNumber(value?: string): string | undefined {
 export function extractMainTJSEProcessNumberFromInformation(
   informacoes: string
 ): string | undefined {
-  const patterns: RegExp[] = [
-    // Inteiro teor: ... tmp.npro=202600731033
-    /tmp\.npro\s*=\s*([0-9]{8,})/i,
+  const conteudo =
+    extractValue(
+      informacoes,
+      /Conteudo\s*:\s*([\s\S]*?)(?=\s+\|\s*comunicacao_id\s*:|$)/i
+    ) ?? informacoes;
 
-    // Conteudo: 202600731033 (0011777-04.2026.8.25.0000)
-    /Conteudo\s*:\s*([0-9]{8,})\s*\(/i,
-    /CONTEUDO\s*:\s*([0-9]{8,})\s*\(/i,
+  const bodyPatterns: RegExp[] = [
+    /\bPROC\.\s*:\s*([0-9]{12})(?!\d)/i,
 
-    // Conteudo: CUMPRIMENTO DE SENTENCA PROC.: 20261000661 NUMERO UNICO...
-    /PROC\.\s*:\s*([0-9]{8,})/i,
+    /(?:NRO\.?|Nº|N°|NUMERO|NÚMERO)\s*(?:DO\s+)?PROCESSO\.*\s*:\s*([0-9]{12})(?!\d)/i,
 
-    // NRO. PROCESSO....: 202500102629
-    /NRO\.\s*PROCESSO\.*\s*:\s*([0-9]{8,})/i,
+    /\bPROCESSO\.*\s*:\s*([0-9]{12})(?![-.\d])/i,
 
-    // NRO PROCESSO: 202500102629
-    /NRO\s+PROCESSO\.*\s*:\s*([0-9]{8,})/i,
-
-    // NUMERO DO PROCESSO: 202500102629
-    /N[ÚU]MERO\s+DO\s+PROCESSO\.*\s*:\s*([0-9]{8,})/i,
-
-    // PROCESSO....: 202500102629
-    // Evita capturar CNJ com hífen/ponto.
-    /PROCESSO\.*\s*:\s*([0-9]{8,})(?![-.\d])/i
+    /*
+     * Alguns formatos antigos iniciam o corpo diretamente
+     * pelo número TJSE:
+     *
+     * 202556501881 PROCEDENCIA......:
+     */
+    /\b([0-9]{12})\b(?=\s+(?:NUMERO\s+UNICO|NÚMERO\s+ÚNICO|PROCEDENCIA|SITUACAO|REQUERENTE|EXEQUENTE|AUTOR)\b)/i
   ];
 
-  for (const pattern of patterns) {
-    const match = informacoes.match(pattern);
+  for (const pattern of bodyPatterns) {
+    const match = conteudo.match(pattern);
 
     if (match?.[1]) {
       return sanitizeProcessNumber(match[1]);
     }
   }
 
-  return undefined;
+  /*
+   * Fallback: número interno presente no link do TJSE.
+   * Só é usado se o corpo não trouxe o identificador.
+   */
+  return sanitizeProcessNumber(
+    extractValue(
+      informacoes,
+      /tmp\.npro\s*=\s*([0-9]{12})(?!\d)/i
+    )
+  );
 }
 
 export function extractPublicationProcessNumber(
@@ -147,6 +152,10 @@ function enrichRecordWithPublicacaoProcesso(
 ): DiaryRecord {
   const processo = resolveMainProcessNumber(informacoes);
 
+  const processoCnj =
+    extractPublicationProcessNumber(informacoes) ??
+    extractUniqueCNJProcessNumber(informacoes);
+
   const orgao =
     extractValue(
       informacoes,
@@ -181,7 +190,7 @@ function enrichRecordWithPublicacaoProcesso(
     ...baseRecord,
 
     processo,
-    processoCnj: processo,
+    processoCnj,
 
     orgao,
     vara: orgao ?? baseRecord.vara,
@@ -279,5 +288,30 @@ function enrichRecordWithLegacyInformation(
 
     partes: extractDiaryPartes(informacoes),
     advogados: extractDiaryAdvogados(informacoes)
+  };
+}
+
+export function resolveDiaryProcessNumbers(informacoes: string): {
+  processo?: string;
+  processoCnj?: string;
+} {
+  const mainTJSEProcess =
+    extractMainTJSEProcessNumberFromInformation(informacoes);
+
+  const publicationProcess = extractValue(
+    informacoes,
+    /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i
+  );
+
+  const uniqueCnj = extractValue(
+    informacoes,
+    /N[ÚU]MERO\s+ÚNICO\s*:\s*([0-9.-]+)/i
+  );
+
+  const processoCnj = publicationProcess ?? uniqueCnj;
+
+  return {
+    processo: mainTJSEProcess ?? processoCnj,
+    processoCnj
   };
 }

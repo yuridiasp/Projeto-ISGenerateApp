@@ -139,7 +139,7 @@ describe("leitura de documentos reais da pasta doc", () => {
       expect.arrayContaining([
         expect.objectContaining({
           layout: "DEFAULT",
-          processo: expect.stringMatching(/^\d{20}$/),
+          processo: expect.stringMatching(/^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/),
           orgao: expect.any(String),
           dataDisponibilizacao: expect.any(String),
           conteudo: expect.any(String)
@@ -305,11 +305,31 @@ describe("leitura de documentos reais da pasta doc", () => {
       metadata
     );
 
-    expect(records.length).toBeGreaterThan(0);
+    const record = records.find(
+      item =>
+        item.processoCnj ===
+        "0013344-38.2024.8.25.0001"
+    );
 
     const firstRecord = records.find(
       record => record.processo === "5006405-28.2026.8.25.0084"
     );
+
+    expect(record).toBeDefined();
+
+    expect(record?.processo).toBe(
+      "202410201440"
+    );
+
+    expect(record?.processoCnj).toBe(
+      "0013344-38.2024.8.25.0001"
+    );
+
+    expect(record?.processo).not.toBe(
+      record?.processoCnj
+    );
+
+    expect(records.length).toBeGreaterThan(0);
 
     expect(firstRecord).toBeDefined();
 

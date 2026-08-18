@@ -22,27 +22,11 @@ import { extractDiaryPartes } from "@helpers/diaryPartes.helpers";
 import { extractDiaryAdvogados } from "@helpers/diaryAdvogados.helpers";
 import { cleanDiaryValue, removeComunicacaoId } from "@helpers/diaryText.helpers";
 import { removeSerdijulNoise } from "@helpers/pdfDiaryText.helpers";
-import { resolveMainProcessNumber } from "@services/diaryParser/diaryPublicationParser.services";
-
-function extractMainTJSEProcessNumber(informacoes: string): string | undefined {
-  return (
-    extractValue(
-      informacoes,
-      /(?:NRO\.?|Nº|N°|NUMERO|NÚMERO)\s*(?:DO\s+)?PROCESSO\.*\s*:\s*([0-9]{8,})/i
-    ) ??
-    extractValue(
-      informacoes,
-      /PROCESSO\.*\s*:\s*([0-9]{8,})(?![-.\d])/i
-    )
-  );
-}
-
-function extractCNJProcessNumber(informacoes: string): string | undefined {
-  return (
-    extractValue(informacoes, /NUMERO\s+UNICO\s*:\s*([0-9.-]+)/i) ??
-    extractValue(informacoes, /NÚMERO\s+ÚNICO\s*:\s*([0-9.-]+)/i)
-  );
-}
+import {
+    extractMainTJSEProcessNumberFromInformation,
+  resolveDiaryProcessNumbers,
+  resolveMainProcessNumber
+} from "@services/diaryParser/diaryPublicationParser.services";
 
 function extractOriginProcessNumber(informacoes: string): string | undefined {
   return extractValue(
@@ -164,7 +148,10 @@ function enrichRecordWithPublicacaoProcesso(
   baseRecord: DiaryRecord,
   informacoes: string
 ): DiaryRecord {
-  const processo = resolveMainProcessNumber(informacoes);
+  const {
+    processo,
+    processoCnj
+  } = resolveDiaryProcessNumbers(informacoes);
 
   const orgao = extractValue(
     informacoes,
@@ -185,7 +172,7 @@ function enrichRecordWithPublicacaoProcesso(
     ...baseRecord,
 
     processo,
-    processoCnj: processo,
+    processoCnj,
 
     orgao,
     vara: orgao ?? baseRecord.vara,
@@ -487,10 +474,22 @@ function parseSerdijulPdfDiaryRecord(
   block: string,
   metadata: PdfDiaryMetadata
 ): DiaryRecord {
-  const processo = extractValue(
+
+  const publicationProcess = extractValue(
     block,
     /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i
   );
+
+  const uniqueCnj = extractValue(
+    block,
+    /N[ÚU]MERO\s+ÚNICO\s*:\s*([0-9.-]+)/i
+  );
+
+  const mainTJSEProcess =
+    extractMainTJSEProcessNumberFromInformation(block);
+
+  const processo = mainTJSEProcess ?? publicationProcess ?? uniqueCnj;
+  const processoCnj = publicationProcess ?? uniqueCnj;
 
   const orgao = extractValue(
     block,
@@ -506,7 +505,7 @@ function parseSerdijulPdfDiaryRecord(
     layout: "SERDIJUL",
 
     processo,
-    processoCnj: processo,
+    processoCnj,
 
     orgao,
     vara: orgao,

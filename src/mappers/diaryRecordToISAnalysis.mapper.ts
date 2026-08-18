@@ -286,11 +286,11 @@ function getAvailabilityDate(
 }
 
 function getCaseNumber(record: DiaryRecord): string {
-    return sanitizeProcessNumber(
-        record.processoCnj ||
-        record.processo ||
-        record.processoOrigem
-    )
+  return sanitizeProcessNumber(
+    record.processo ||
+    record.processoCnj ||
+    record.processoOrigem
+  );
 }
 
 function getRelatedCaseNumber(record: DiaryRecord): string {

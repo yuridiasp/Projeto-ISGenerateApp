@@ -69,13 +69,11 @@ describe(
                     data: "01/06/2026",
                     dataPublicacao: "01/06/2026",
                     codigo: "COD123",
-                    processo:
-                        "00012345620265200001",
-                    orgao:
-                        "1 Vara do Trabalho",
+                    processo: "0001234-56.2026.5.20.0001",
+                    processoCnj: "0001234-56.2026.5.20.0001",
+                    orgao: "1 Vara do Trabalho",
                     comunicacaoId: "456",
-                    conteudo:
-                        "Despacho publicado"
+                    conteudo: "Despacho publicado"
                 })
             }
         )

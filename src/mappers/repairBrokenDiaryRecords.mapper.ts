@@ -31,11 +31,11 @@ function getRecordDate(record: DiaryRecord): string | undefined {
 }
 
 function getRecordCaseNumber(record: DiaryRecord): string {
-    return normalizeText(
-        record.processoCnj ||
-        record.processo ||
-        record.processoOrigem
-    )
+  return normalizeText(
+    record.processo ||
+    record.processoCnj ||
+    record.processoOrigem
+  );
 }
 
 function getRecordContent(record: DiaryRecord): string {

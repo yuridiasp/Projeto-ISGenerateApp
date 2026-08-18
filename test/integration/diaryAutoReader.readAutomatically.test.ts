@@ -169,9 +169,9 @@ describe(
                             layout: "DEFAULT",
 
                             processo:
-                                expect.stringMatching(
-                                    /^\d{20}$/
-                                ),
+    expect.stringMatching(
+        /^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/
+    ),
 
                             orgao:
                                 expect.any(String),
@@ -217,9 +217,7 @@ describe(
                                 "WORD_CADASTRADO",
 
                             processo:
-                                expect.stringMatching(
-                                    /^\d{20}$/
-                                ),
+                                expect.stringMatching(/^\d{20}$/),
 
                             orgao:
                                 expect.any(String),
