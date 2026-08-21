@@ -20,16 +20,12 @@ export async function getObjectValidateIntimationsService({ filePath, fileName }
     // Excel: .xls, .xlsx, .xlsm, .csv
     // Word: .doc, .docx, .dot, .dotx
     const regexToWordFile = /\.(doc|docx|dot|dotx)$/
-    const regexToExcekFile = /\.(xls|xlsx|xlsm|csv)$/
     
     if (filePath) {
         try {
             const fileExists = fs.existsSync(filePath)
             if (fileExists) {
-                if (regexToExcekFile.test(filePath)) {
-                    const resulstXLSX = readExcelFile(filePath)
-                    return { success: true, data: { file: resulstXLSX  } }
-                } else if (regexToWordFile.test(filePath))
+                if (regexToWordFile.test(filePath))
                     return { success: true, data: { file: await readWordFile(filePath, fileName) } }
                 return { success: false, error: new ValidationError('Tipo de arquivo inválido.') }
             }
@@ -49,6 +45,14 @@ export async function getOjectValidatePublicationService(file: iFileData): Promi
             const fileExists = fs.existsSync(file.filePath)
             
             if (fileExists) {
+                const regexToExcekFile = /\.(xls|xlsx|xlsm|csv)$/
+
+                if (regexToExcekFile.test(file.filePath)) {
+                    const resulstXLSX = readExcelFile(file.filePath)
+                    
+                    return { success: true, data: { file: resulstXLSX  } }
+                }
+
                 const diaryRecords = await readDiaryAutomatically(file)
 
                 const repairedDiaryRecords = repairBrokenDiaryRecords(diaryRecords)

@@ -4,12 +4,15 @@ import { afterAll, beforeAll, describe, expect, it, jest } from "@jest/globals"
 
 import { dayjsConfig } from "../../src/config/dayjsConfig.config"
 import {
-    HandleIntimationsReportResult,
     handleIntimationsReportService
 } from "../../src/services/intimation/handleIntimationsReport.services"
+import { HandleIntimationsReportResult } from "../../src/models/handleIntimationsReport/handleIntimationsReport.models"
 import { iWindows } from "../../src/models/windows/iWindows.models"
 import { Result } from "../../src/models/results/result.models"
-import { getObjectValidateIntimationsService } from "../../src/services/validateIntimations/validateIntimations.services"
+import {
+    getObjectValidateIntimationsService,
+    getOjectValidatePublicationService
+} from "../../src/services/validateIntimations/validateIntimations.services"
 import { getFileData } from "./utils/getFileData"
 import { login } from "./utils/login"
 
@@ -96,7 +99,7 @@ describe("Validar cadastro de intimacoes a partir de um documento Word", () => {
             window: windows,
             cookie,
             file: fileData,
-            funcValObj: getObjectValidateIntimationsService
+            funcValObj: getOjectValidatePublicationService
         })
 
         const newFilePath = result.data?.newFilePath as string
