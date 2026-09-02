@@ -10,6 +10,7 @@ import type {
     FolderIntimationCounterInput,
     FolderIntimationFileCount
 } from "@services/folderIntimationCounter"
+import { PublicationComparisonFile, PublicationComparisonItem, PublicationComparisonResult, PublicationComparisonStatus } from "@models/publicationComparison";
 
 /**
  * 1. classifyPublicationsByDepartment
@@ -92,11 +93,34 @@ const buttonsDivCountIntimationsByFolder = document.querySelector('#buttonsDivCo
 const confirmButtonCountIntimationsByFolder = document.querySelector('#confirmButtonCountIntimationsByFolder') as HTMLButtonElement
 const cancelButtonCountIntimationsByFolder = document.querySelector('#cancelButtonCountIntimationsByFolder') as HTMLButtonElement
 
+
+const inputComparePublications = document.querySelector("#inputComparePublications") as HTMLInputElement
+const buttonsDivComparePublications = document.querySelector("#buttonsDivComparePublications") as HTMLElement
+const confirmButtonComparePublications = document.querySelector("#confirmButtonComparePublications") as HTMLButtonElement
+const cancelButtonComparePublications = document.querySelector("#cancelButtonComparePublications") as HTMLButtonElement
+
+const visualIndicatorConection = document.querySelector("#visual-indicator-conection") as HTMLElement
 const loader = document.querySelector('#loader') as HTMLElement
 const content = document.querySelector('.content') as HTMLElement
+const comparisonContainer = document.querySelector("#comparison-report") as HTMLElement
 const reportContainer = document.querySelector("#report-container") as HTMLElement
 const reportContent = document.querySelector("#report-content") as HTMLElement
 const closeReportButton = document.querySelector('#closeReport') as HTMLButtonElement
+const closeComparisonReport = document.querySelector('#closeComparisonReport') as HTMLButtonElement
+const somenteDivergenciasBtn = document.querySelector("#somente-divergencias-btn") as HTMLButtonElement
+const todasPublicacoesBtn = document.querySelector("#todas-publicacoes-btn") as HTMLButtonElement
+const successViewPublicacoes = document.querySelector(".success-view-publicacoes") as HTMLButtonElement
+const comparisonReportTableContainer = document.querySelector(".comparison-report-table-container") as HTMLElement
+const notFoundDivergencesSectionResult = document.querySelector(".not-found-divergences-section-result") as HTMLElement
+const totalArquivos = document.querySelectorAll(".total-arquivos") as unknown as HTMLElement[]
+const totalPublicacoes = document.querySelectorAll(".total-publicacoes") as unknown as HTMLElement[]
+const successDestaqueCardComparisonReport = document.querySelector(".principal-card-comparison-report:last-child") as HTMLElement
+const contadorDivergenciasEncontradas = document.querySelectorAll(".divergencias-encontradas") as unknown as HTMLElement[]
+const divergencesFoundSectionResult = document.querySelector(".divergences-found-section-result") as HTMLElement
+const comparisonReportFilterContainer = document.querySelector(".comparison-report-filter") as HTMLElement
+const resultTableComparisonReportTbody = document.querySelector(".result-table-comparison-report tbody") as HTMLElement
+const rowResultTableComparisonReportThead = document.querySelector(".result-table-comparison-report thead tr") as HTMLElement
+const comparedFileList = document.querySelector("#compared-file-list") as HTMLElement
 
 const textMessages = {
     success: {
@@ -130,6 +154,14 @@ const operationArgs: tOperationArgs = {
 
 let credentials: credential | undefined
 let currentOperation: operationsType | undefined
+let publicationComparisonFiles: iFileData[] = [];
+let controlador: AbortController | null
+let lastItemShowMoreComparisonTable: HTMLElement | null
+let hasDivergencias: boolean | null
+
+function setConnectionStatus(connected: boolean): void {
+    visualIndicatorConection.classList.toggle("conectado",connected)
+}
 
 // API
 
@@ -143,6 +175,7 @@ let currentOperation: operationsType | undefined
     ) => Promise<string | ApiResult>
 
     export interface iAPI {
+        openMultipleFilesDialog(): Promise<{ filePaths: string[], canceled: boolean }>
         openFileDialogForFile(): Promise<{ filePaths: string[], canceled: boolean }>;
         openFolderDialogForFolder(): Promise<{ filePaths: string[], canceled: boolean }>;
         registerIntimationsFromAnalyses: GenericApiFunction;
@@ -155,6 +188,9 @@ let currentOperation: operationsType | undefined
         abrirJanelaLogin(): void;
         receiveCredentials(callback: (credentials: string) => void): void;
         copyToClipboard(text: string): Promise<boolean>;
+        comparePublications(data: iFileData[]): Promise<Result<PublicationComparisonResult>>
+        getVersions(): Promise<{ nomeapp: string, autor: string, version: string, electronjs: string, nodejs: string, github: string }>,
+        openDirectory(path: string): Promise<void>
     }
 
     declare global {
@@ -278,10 +314,8 @@ let currentOperation: operationsType | undefined
             ? JSON.parse(response) as ApiResult
             : response
             
-        console.log(response, result)
 
         if (result.success === true) {
-            console.log(textMessages.success.successPtBr)
 
             const data = result.data as Partial<{ message: string; msg: string }>
 
@@ -407,8 +441,91 @@ let currentOperation: operationsType | undefined
         return operations[currentOperation]()
     }
 
+// Renderer do relatório
+    function insertPublicationComparisonReport(result: PublicationComparisonResult): void {
+        reportContent.innerHTML = "";
+
+        const [summary] = createElementReport(
+            result.equal ? "success" : "error",
+            result.equal ? "check" : "times",
+            result.equal
+            ? "PUBLICAÇÕES IDÊNTICAS"
+            : `${result.totalDifferences} DIVERGÊNCIAS`,
+            `${result.files.length} arquivos comparados`
+        );
+
+        reportContent.append(summary);
+
+        result.items
+            .filter(item => item.status !== "MATCH")
+            .forEach(item => {
+            const container = document.createElement("div");
+            container.classList.add(
+                "publication-comparison-difference"
+            );
+
+            const title = document.createElement("strong");
+
+            title.textContent =
+                `${item.caseNumber} | ${formatComparisonDate(item.publicationDate)}`;
+
+            container.append(title);
+
+            item.files.forEach(file => {
+                const row = document.createElement("div");
+                row.classList.add("publication-comparison-file");
+
+                if (file.count === 0) {
+                row.classList.add("missing");
+                }
+
+                row.textContent =
+                `${file.fileName}: ${file.count} ocorrência(s)`;
+
+                container.append(row);
+            });
+
+            reportContent.append(container);
+        });
+    }
+
+    function formatComparisonDate(value: string): string {
+        const [year, month, day] = value.split("-");
+
+        return value ? `${day}/${month}/${year}` : "Data não identificada";
+    }
+
 
 // UI
+
+    export function hideComparisonContainer() {
+        comparisonContainer.classList.add('hidder')
+        comparisonContainer.classList.remove('show')
+
+        const handleTransitionEnd = (event: TransitionEvent) => {
+            if (
+                event.target === comparisonContainer &&
+                comparisonContainer.classList.contains('hidder')
+            ) {
+                comparisonContainer.style.display = 'none'
+            }
+        }
+
+        comparisonContainer.addEventListener(
+            'transitionend',
+            handleTransitionEnd,
+            { once: true }
+        )
+    }
+
+    export function showComparisonContainer() {
+        comparisonContainer.style.display = 'block'
+
+        requestAnimationFrame(() => {
+            comparisonContainer.classList.remove('hidder')
+            comparisonContainer.classList.add('show')
+        })
+    }
 
     export function showMessageCopy(result: boolean) {
         const toggleClassShow = (element: HTMLInputElement) => {
@@ -443,6 +560,22 @@ let currentOperation: operationsType | undefined
 
         if (filePathTitle)
             filePathTitle.innerHTML = filePath
+
+        if (filePath.length) {
+
+
+            if(controlador) {
+                controlador.abort()
+                controlador = null
+            }
+
+            if(!controlador)
+                controlador = new AbortController()
+
+            filePathTitle?.addEventListener("click", () => {
+                window.API.openDirectory(filePath)
+            }, { signal: controlador.signal })
+        }
     }
 
     export function createElementReport(resultClass: 'success' | 'error', resultIcon: 'check' | 'times', processValue = "", publicationValue = "") {
@@ -572,6 +705,21 @@ let currentOperation: operationsType | undefined
         buttonsDivReconcileAnalysesWithSystem.classList.remove('aparecer')
         buttonsDivReconcilePublicationsWithSystem.classList.remove('aparecer')
         buttonsDivCountIntimationsByFolder.classList.remove('aparecer')
+        buttonsDivComparePublications.classList.remove('aparecer')
+        buttonsDivClassifyPublicationsByDepartment.parentElement?.classList.remove('active-form')
+        buttonsDivregisterIntimationsFromAnalyses.parentElement?.classList.remove('active-form')
+        buttonsDivReconcileAnalysesWithSystem.parentElement?.classList.remove('active-form')
+        buttonsDivReconcilePublicationsWithSystem.parentElement?.classList.remove('active-form')
+        buttonsDivCountIntimationsByFolder.parentElement?.classList.remove('active-form')
+        buttonsDivComparePublications.parentElement?.classList.remove('active-form')
+    }
+
+    export function resetComparison() {
+        hideLoader()
+        showMainMenuContent()
+        hideComparisonContainer()
+        resetComparisonReport()
+        hideAllOperationButtons()
     }
 
     export function resetReport() {
@@ -641,22 +789,278 @@ let currentOperation: operationsType | undefined
         if (!canceled) {
             operationArgs[operation] = createObjectArgs(filePaths)
             div.classList.add('aparecer')
+            div.parentElement?.classList.add("active-form")
         }
+    }
+
+    export function filterTableRowsComparisonReport (filter: boolean) {
+        const rows = document.querySelectorAll(".result-table-tr") as unknown as HTMLElement[]
+
+        rows.forEach(row => row.style.display = "table-row")
+
+        if (filter) {
+            const successItem:PublicationComparisonStatus = "MATCH"
+            rows.forEach(row => { if (row.dataset['comparisonStatus'] === successItem) row.style.display = "none" })
+        }
+    }
+
+    export function applyActiveClassFilterComparisonTableBTN (button: HTMLElement) {
+        todasPublicacoesBtn.classList.remove("active")
+        somenteDivergenciasBtn.classList.remove("active")
+        
+        button.classList.add("active")
+    }
+    
+    export function updateIconProcessListComparisonTable(currentRow: HTMLElement) {
+        const defaultIconCode = "m9 18 6-6-6-6"
+        const activeIconCode = "m6 9 6 6 6-6"
+
+        const currentPath = currentRow.querySelector("path")
+
+        const currentPathValue = currentPath?.getAttribute("d")
+
+        const rows = document.querySelectorAll(".result-table-tr") as unknown as HTMLElement[]
+
+        rows.forEach(row => {
+            const path = row.querySelector("td:first-child path")
+
+            path?.setAttribute("d", defaultIconCode)
+        })
+
+        if (currentPath && (currentPathValue === defaultIconCode))
+            currentPath.setAttribute("d", activeIconCode)
+    }
+
+    export function showMoreTableRowComparisonTable(target: HTMLElement) {
+        const index = target.dataset.comparisonIndex
+        
+        const trShowMore = document.querySelector(`.show-more-row-info-comparison-report[data-comparison-index="${index}"]`) as HTMLElement
+        
+        if (trShowMore) {
+            lastItemShowMoreComparisonTable?.classList.toggle("display-none")
+
+            if (trShowMore !== lastItemShowMoreComparisonTable) {
+                if (trShowMore.classList.contains("display-none")) {
+                    trShowMore.classList.toggle("display-none")
+                    lastItemShowMoreComparisonTable = trShowMore
+                }
+            } else {
+                lastItemShowMoreComparisonTable = null
+            }
+                
+        }
+    }
+
+    export function exibirElementos(elements: HTMLElement[]) {
+        elements.forEach(e => e.classList.remove("display-none"))
+    }
+
+    export function ocultarElementos(elements: HTMLElement[]) {
+        elements.forEach(e => e.classList.add("display-none"))
+    }
+
+    export function insertDataFileListComparisonReport (files: PublicationComparisonFile[]) {
+        
+        const statusTh = rowResultTableComparisonReportThead.querySelector("th:last-child") as HTMLElement
+
+        files.forEach((file, index) => {
+            const th = document.createElement("th")
+            th.innerHTML = (index + 1).toString()
+
+            rowResultTableComparisonReportThead.insertBefore(th, statusTh)
+
+            const li = document.createElement("li")
+
+            li.innerHTML = `<div>
+                                <span class="label-item-file">${index + 1}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text size-3.5 shrink-0 text-muted-foreground" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+                                <span class="inter-normal">${file.fileName}</span>
+                            </div>
+                            <span class="jetbrains-mono file-path">${file.filePath}</span>`
+
+            comparedFileList.append(li)
+        })
+    }
+
+    export function insertDataTableComparisonReport(items: PublicationComparisonItem[]) {
+        
+        items.forEach((item, index) => {
+            const trPrimary =document.createElement("tr")
+
+            const primaryStatus = {
+                COUNT_MISMATCH: "QUANTIDADE",
+                MISSING: "AUSENTE",
+                MATCH: "IGUAL",
+            }
+
+            const primaryLabelSpanClass = {
+                COUNT_MISMATCH: "warning-label",
+                MISSING: "danger-label",
+                MATCH: "success-label",
+            }
+
+            const primaryTdsHTML = item.files.map(file => {
+                const tdValue = {
+                    COUNT_MISMATCH: `${file.count}x`,
+                    MISSING: "—",
+                    MATCH: "✓",
+                }
+
+                const tdClass = {
+                    COUNT_MISMATCH: "multi",
+                    MISSING: "fail",
+                    MATCH: "success",
+                }
+
+                return `<td class="table-icon-result-comparison-report-${tdClass[item.status]} realce-icon-result-comparison-report">${file.count === 1 ? tdValue.MATCH : (file.count === 0 ? tdValue.MISSING : tdValue.COUNT_MISMATCH)}</td>`
+            }).join("")
+
+            trPrimary.setAttribute("class", `result-table-tr result-table-${ item.status === "MATCH" ? "success" : "danger"}-bg-tr`)
+            trPrimary.dataset.comparisonIndex = index.toString()
+            trPrimary.dataset.comparisonStatus = item.status
+
+            trPrimary.innerHTML = `<td>${ item.status === "MATCH" ? '' : '<span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-3.5 shrink-0 text-danger-foreground" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></span>'}<span class="jetbrains-mono">${item.caseNumber}</span></td>
+                                    <td class="jetbrains-mono">${formatComparisonDate(item.publicationDate)}</td>
+                                    ${primaryTdsHTML}
+                                    <td>
+                                        <span class="${primaryLabelSpanClass[item.status]}">
+                                            <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert size-3" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg></span>
+                                            ${primaryStatus[item.status]}
+                                        </span>
+                                    </td>`
+            
+            resultTableComparisonReportTbody?.append(trPrimary)
+
+            if (item.status !== "MATCH") {
+                const trSecondary =document.createElement("tr")
+    
+                const secondaryCardsTdsHTML = item.files.map((file, index) => {
+                    const card = `<div class="show-more-card-info-comparison-report ${ item.files[index].count === 0 ? 'not-found' : 'found' }-comparison">
+                                    <div><span class="label-item-file">${index + 1}</span><span>${file.fileName}</span></div>
+                                    <div>
+                                        <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x size-3.5" aria-hidden="true"><path d="M18 6 6 18"></path><path d="${ item.files[index].count === 0 ? 'm6 6 12 12' : 'M20 6 9 17l-5-5' }"></path></svg> ${ item.files[index].count === 0 ? 'Não encontrada' : 'Encontrada' }</span>
+                                        <span>Quantidades: ${file.count}</span>
+                                    </div>
+                                </div>`
+    
+                    return card
+                }).join('')
+    
+                trSecondary.setAttribute("class", "show-more-row-info-comparison-report display-none")
+                trSecondary.dataset.comparisonIndex = index.toString()
+                trSecondary.dataset.comparisonStatus = item.status
+                
+                trSecondary.innerHTML = `<td colspan="6">
+                                                <div class="show-more-container">
+                                                    ${secondaryCardsTdsHTML}
+                                                </div>
+                                            </td>`
+                                    
+    
+                resultTableComparisonReportTbody?.append(trSecondary)
+            }
+        })
+    }
+
+    export function updateUIComparisonReportFromDivergencias(result: PublicationComparisonResult) {
+        insertDataFileListComparisonReport(result.files)
+
+        insertDataTableComparisonReport(result.items)
+
+        const rows = document.querySelectorAll(".result-table-tr") as unknown as HTMLElement[]
+        rows.forEach(row => row.addEventListener("click", () => { updateIconProcessListComparisonTable(row); showMoreTableRowComparisonTable(row) }))
+
+        hasDivergencias = !result.equal
+        
+        totalPublicacoes.forEach(e => {
+            e.innerHTML = result.totalPublications.toString()
+        })
+
+        totalArquivos.forEach(e => {
+            e.innerHTML = result.files.length.toString()
+        })
+        
+        contadorDivergenciasEncontradas.forEach(contador => {
+            contador.innerHTML = result.totalDifferences.toString()
+        })
+
+        if (hasDivergencias) {
+            comparisonReportFilterContainer?.querySelector("div:last-child")?.classList.remove("match-all")
+            successDestaqueCardComparisonReport?.classList.remove("success-destaque-card-comparison-report")
+            filterTableRowsComparisonReport(true);
+            applyActiveClassFilterComparisonTableBTN(somenteDivergenciasBtn)
+
+            ocultarElementos([notFoundDivergencesSectionResult])
+            exibirElementos([comparisonReportTableContainer, divergencesFoundSectionResult])
+        } else {
+            comparisonReportFilterContainer?.querySelector("div:last-child")?.classList.add("match-all")
+            successDestaqueCardComparisonReport?.classList.add("success-destaque-card-comparison-report")
+            
+            ocultarElementos([comparisonReportTableContainer, divergencesFoundSectionResult])
+            exibirElementos([notFoundDivergencesSectionResult])
+        }
+    }
+
+    export function resetComparisonReport() {
+        hasDivergencias = null
+        resultTableComparisonReportTbody.innerHTML = ""
+        comparedFileList.innerHTML = ""
+        rowResultTableComparisonReportThead.innerHTML = "<th>PROCESSO</th><th>PUBLICAÇÃO</th><th>STATUS</th>"
+        totalPublicacoes.forEach(e => {
+            e.innerHTML = "0"
+        })
+        totalArquivos.forEach(e => {
+            e.innerHTML = "0"
+        })
+        contadorDivergenciasEncontradas.forEach(e => {
+            e.innerHTML = "0"
+        })
+        comparisonReportFilterContainer?.querySelector("div:last-child")?.classList.remove("match-all")
+        successDestaqueCardComparisonReport?.classList.remove("success-destaque-card-comparison-report")
+        ocultarElementos([comparisonReportTableContainer, divergencesFoundSectionResult, notFoundDivergencesSectionResult])
     }
 
 // Renderer
 
-    closeReportButton.addEventListener('click', () => resetReport())
+    // Comparação de Publicações
+    //TODO: Refatorar esse bloco para carregar código apenas em uso da funcionalidade
+        successViewPublicacoes.addEventListener("click", () => {
+            filterTableRowsComparisonReport(false);
+            applyActiveClassFilterComparisonTableBTN(todasPublicacoesBtn)
+            exibirElementos([comparisonReportTableContainer])
+            ocultarElementos([notFoundDivergencesSectionResult])
+        })
 
-    inputClassifyPublicationsByDepartment.addEventListener('click', async () => {
-        const { canceled, filePaths } = await window.API.openFileDialogForFile()
-        
-        if (!canceled) {
-            operationArgs.classifyPublicationsByDepartment = createObjectArgs(filePaths)
+        todasPublicacoesBtn.addEventListener("click", () => {
+            filterTableRowsComparisonReport(false);
+            applyActiveClassFilterComparisonTableBTN(todasPublicacoesBtn)
+        })
 
-            buttonsDivClassifyPublicationsByDepartment?.classList.add('aparecer')
-        }
-    })
+        somenteDivergenciasBtn.addEventListener("click", () => {
+            if (hasDivergencias) {
+                filterTableRowsComparisonReport(true);
+                applyActiveClassFilterComparisonTableBTN(somenteDivergenciasBtn)
+            } else {
+                exibirElementos([notFoundDivergencesSectionResult])
+                ocultarElementos([comparisonReportTableContainer])
+            }
+        })
+
+        closeComparisonReport.addEventListener('click', () => resetComparison())
+
+        closeReportButton.addEventListener('click', () => resetReport())
+
+        inputClassifyPublicationsByDepartment.addEventListener('click', async () => {
+            resetReport()
+            const { canceled, filePaths } = await window.API.openFileDialogForFile()
+            
+            if (!canceled) {
+                operationArgs.classifyPublicationsByDepartment = createObjectArgs(filePaths)
+
+                buttonsDivClassifyPublicationsByDepartment?.classList.add('aparecer')
+                buttonsDivClassifyPublicationsByDepartment.parentElement?.classList.add('active-form')
+            }
+        })
 
     confirmButtonClassifyPublicationsByDepartmentXLSX?.addEventListener('click', () => {
         operations.classifyPublicationsByDepartment({ isXlsx: true })
@@ -668,9 +1072,11 @@ let currentOperation: operationsType | undefined
 
     cancelButtonClassifyPublicationsByDepartment.addEventListener('click', () => {
         buttonsDivClassifyPublicationsByDepartment?.classList.remove('aparecer')
+        buttonsDivClassifyPublicationsByDepartment.parentElement?.classList.remove('active-form')
     })
 
     inputCountIntimationsByFolder.addEventListener('click', async () => {
+        resetReport()
         const { canceled, filePaths } = await window.API.openFolderDialogForFolder()
 
         if (!canceled) {
@@ -679,6 +1085,7 @@ let currentOperation: operationsType | undefined
             folderCounterArgs.folderName = selectedFolder.folderName
 
             buttonsDivCountIntimationsByFolder?.classList.add('aparecer')
+            buttonsDivCountIntimationsByFolder.parentElement?.classList.add('active-form')
         }
     })
 
@@ -688,6 +1095,62 @@ let currentOperation: operationsType | undefined
 
     cancelButtonCountIntimationsByFolder.addEventListener('click', () => {
         buttonsDivCountIntimationsByFolder?.classList.remove('aparecer')
+        buttonsDivCountIntimationsByFolder.parentElement?.classList.remove('active-form')
+    })
+
+    inputComparePublications.addEventListener("click", async () => {
+        resetReport()
+        const { canceled, filePaths } =
+            await window.API.openMultipleFilesDialog();
+
+        if (canceled) return;
+
+        if (filePaths.length < 2) {
+            alert("Selecione pelo menos dois arquivos.");
+            return;
+        }
+
+        publicationComparisonFiles = filePaths.map(filePath => {
+            const pathArray = filePath.split("\\");
+            const fileName = pathArray.pop() ?? "";
+
+            return {
+                filePath,
+                fileName,
+                isXlsx: /\.(xls|xlsx|xlsm|csv)$/i.test(filePath)
+            };
+        });
+
+        buttonsDivComparePublications.classList.add("aparecer")
+        buttonsDivComparePublications.parentElement?.classList.add('active-form')
+    });
+
+    confirmButtonComparePublications.addEventListener("click", async () => {
+        showLoader();
+
+        try {
+            const response = await window.API.comparePublications(publicationComparisonFiles);
+            
+            if (response.success === false) {
+                alert(response.error?.toString() ?? "Erro ao comparar arquivos.");
+                return;
+            }
+
+            hideLoaderOnly();
+            hideMainMenuContent();
+            closeReportButton.disabled = false
+            showComparisonContainer()
+            updateUIComparisonReportFromDivergencias(response.data as PublicationComparisonResult)
+        } catch (error) {
+            console.error(error);
+            alert("Erro inesperado ao comparar publicações.");
+            hideLoader();
+        }
+    });
+
+    cancelButtonComparePublications.addEventListener('click', () => {
+        buttonsDivComparePublications?.classList.remove('aparecer')
+        buttonsDivComparePublications.parentElement?.classList.remove('active-form')
     })
 
     export function applyListenersRegisterOrValidateFunction(
@@ -699,6 +1162,7 @@ let currentOperation: operationsType | undefined
         validateInput: HTMLInputElement
     ): void {
         validateInput.addEventListener('click', async () => {
+            resetReport()
             await setFilePathArg(operation, div)
         })
 
@@ -713,6 +1177,7 @@ let currentOperation: operationsType | undefined
 
         btnCancel.addEventListener('click', () => {
             div.classList.remove('aparecer')
+            div.parentElement?.classList.remove('active-form')
         })
     }
 
@@ -785,6 +1250,30 @@ let currentOperation: operationsType | undefined
     })
 
     window.API.receiveCredentials((receivedCredentials: string) => {
-        credentials = JSON.parse(receivedCredentials)
-        resumeOperation()
+        try {
+            credentials = JSON.parse(receivedCredentials)
+
+            setConnectionStatus(true)
+
+            resumeOperation()
+        } catch (error) {
+            credentials = undefined
+
+            setConnectionStatus(false)
+
+            console.error(
+                "Não foi possível processar as credenciais:",
+                error
+            )
+        }
     })
+
+// Data Load
+    async function setHtmlText() {
+        const versaoSpan = document.querySelector('#versao') as HTMLElement
+        const { version } = await window.API.getVersions()
+        setConnectionStatus(false)
+        versaoSpan.innerText = version
+    }
+
+    window.onload = setHtmlText

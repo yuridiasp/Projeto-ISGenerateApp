@@ -7,4 +7,6 @@ export function createMainWindowService (windows: iWindows) {
     const indexPageWidth = 400, indexPageHeight = 600
     
     windows.mainWindow = createWindow(indexPageWidth,  indexPageHeight, { }, { resizable: true }, mainWindowFolderPath)
+
+    windows.mainWindow.maximize()
 }

@@ -28,5 +28,8 @@ contextBridge.exposeInMainWorld('API', {
     updateReportStatus: (callback: callbackUpdateReportStatus) => ipcRenderer.on('update-view-report-validation', (event: Electron.IpcRendererEvent, value: iValidationReport, operation: operationsType) => callback(value, operation)),
     enableButtonCloseReport: (calback: callbackEnableButtonCloseReport) => ipcRenderer.on('enable-button-close-report', calback),
     receiveCredentials: (calback: callbackreceiveCredentials) => ipcRenderer.on('receive-credentials', (event, credentials: credential) => calback(credentials)),
-    copyToClipboard: (text: string) => ipcRenderer.invoke('clopy-to-clip', text)
+    copyToClipboard: (text: string) => ipcRenderer.invoke('clopy-to-clip', text),
+    openMultipleFilesDialog: async () => ipcRenderer.invoke("open-multiple-files-dialog"),
+    comparePublications: async (files: iFileData[]) => ipcRenderer.invoke("compare-publications", files),
+    openDirectory: async (path: string) => ipcRenderer.send('open-directory', path),
 })

@@ -1,5 +1,5 @@
 import { iWindows } from '@models/windows'
-import { openFileDialog, openFolderDialog } from '@infrastructure/dialog/openFile.infrastructure'
+import { openFileDialog, openFolderDialog, openMultipleFilesDialog } from '@infrastructure/dialog/openFile.infrastructure'
 import { closeSobreWindowService, createSobreWindowService } from '@services/windows'
 import { createMainWindowService } from '@services/windows'
 import { splitISService } from '@services/splitIS/splitIS.services'
@@ -14,6 +14,8 @@ import { copyToClipboardService } from '@services/clipboard/copyToClipboard.serv
 import { ValidationError } from '@models/errors';
 import { countIntimationsByFolder } from '@services/folderIntimationCounter'
 import type { FolderIntimationCounterInput } from '@services/folderIntimationCounter'
+import { comparePublicationFilesService } from '@services/publicationComparison/publicationComparison.services';
+import { openDirectory } from '@infrastructure/explorer/openPath';
 
 export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
     if (!windows || !Object.keys(windows).length) {
@@ -196,4 +198,39 @@ export async function intimationsReportController(event: Electron.IpcMainInvokeE
 
 export function copyToClipboardController(text: string) {
     return copyToClipboardService(text)
+}
+
+
+export async function comparePublicationsController(event: Electron.IpcMainInvokeEvent, files: iFileData[]) {
+  if (!files || files.length < 2) {
+    return {
+      success: false,
+      error: new ValidationError("Selecione pelo menos dois arquivos para comparação.")
+    };
+  }
+
+  try {
+    const result = await comparePublicationFilesService(files);
+
+    return {
+      success: true,
+      data: result
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error
+    };
+  }
+}
+
+export function openMultipleFilesDialogController(
+  event: Electron.IpcMainInvokeEvent,
+  windows: iWindows
+) {
+  return openMultipleFilesDialog(windows);
+}
+
+export async function openDirectoryController(path: string) {
+    return await openDirectory(path)
 }

@@ -17,7 +17,10 @@ import { splitISController,
     copyToClipboardController,
     intimationsPublicationRegisterController,
     openFolderDialogForFolder,
-    countIntimationsByFolderController
+    countIntimationsByFolderController,
+    comparePublicationsController,
+    openMultipleFilesDialogController,
+    openDirectoryController
 } from '@controllers/controllers'
 
 export async function setHandlers (windows: iWindows) {
@@ -36,4 +39,7 @@ export async function setHandlers (windows: iWindows) {
     ipcMain.handle('open-folder-dialog-for-folder', (event) => openFolderDialogForFolder(event, windows))
     ipcMain.handle('login-korbil', (event, credential: credential) => loginController(credential))
     ipcMain.handle('clopy-to-clip', (event, text) => copyToClipboardController(text))
+    ipcMain.handle("open-multiple-files-dialog",event => openMultipleFilesDialogController(event, windows))
+    ipcMain.handle("compare-publications", comparePublicationsController)
+    ipcMain.on("open-directory", (event, path: string) => openDirectoryController(path))
 }

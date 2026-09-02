@@ -27,3 +27,21 @@ export async function openFolderDialog(windows: iWindows) {
 
     return await dialog.showOpenDialog(options)
 }
+
+export async function openMultipleFilesDialog(windows: iWindows) {
+  const options: Electron.OpenDialogOptions = {
+    properties: ["openFile", "multiSelections"],
+    filters: [
+      {
+        name: "Documentos compatíveis",
+        extensions: ["xlsx", "xls", "xlsm", "csv", "doc", "docx", "pdf"]
+      }
+    ]
+  };
+
+  if (windows.mainWindow) {
+    return dialog.showOpenDialog(windows.mainWindow, options);
+  }
+
+  return dialog.showOpenDialog(options);
+}

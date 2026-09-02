@@ -3,103 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="./css/style.css">
     <title>ISGeA</title>
 </head>
 <body>
-    <div id="messageCopySuccess" class="messageCopy-container">
-        <div class="messageCopy successCopy">
-            <p>Copiado!</p>
+    <main class="container">
+        <div id="messageCopySuccess" class="messageCopy-container">
+            <div class="messageCopy successCopy">
+                <p>Copiado!</p>
+            </div>
         </div>
-    </div>
-    <div id="messageCopyError" class="messageCopy-container">
-        <div class="messageCopy errorCopy">
-            <p>Erro!</p>
+        <div id="messageCopyError" class="messageCopy-container">
+            <div class="messageCopy errorCopy">
+                <p>Erro!</p>
+            </div>
         </div>
-    </div>
-    <div id="loader" class=""></div>
-    <div id="report-container" class="hidder">
-        <header>
-            <h3 id="fileName"></h3>
-            <h6 id="filePath" class="truncate-text"></h6>
-        </header>
-        <div id="report-content"></div>
-        <button id="closeReport" disabled>FECHAR</button>
-    </div>
-    <div class="content">
-        <img id="logo" src="../../../assets/logo.png" alt="" srcset="">
-        <div>
-            <form id="formSplit" action="">
-                <label class="dividir" for="inputClassifyPublicationsByDepartment"><i class="fa fa-expand" aria-hidden="true"></i>DIVIDIR ARQUIVO IS</label>
-                <input type="button" class="mainOptions" name="inputClassifyPublicationsByDepartment" id="inputClassifyPublicationsByDepartment" style="display: none;">
-                <div id="buttonsDivClassifyPublicationsByDepartment" class="buttons">
-                    <button id="confirmButtonClassifyPublicationsByDepartmentXLSX" class="xlsx btn-sup" type="button">
-                        <i class="fa fa-file-excel-o" aria-hidden="true"></i> EXCEL
-                    </button>
-                    <button id="confirmButtonClassifyPublicationsByDepartmentDOCX" class="docx btn-sup" type="button">
-                        <i class="fa fa-file-word-o" aria-hidden="true"></i> WORD
-                    </button>
-                    <button id="cancelButtonClassifyPublicationsByDepartment" class="cancel btn-sup" type="reset">
-                        CANCELAR
-                    </button>
+        <div id="loader" class=""></div>
+        <div id="report-container" class="hidder">
+            <header>
+                <h3 id="fileName"></h3>
+                <h6 id="filePath" class="truncate-text"></h6>
+            </header>
+            <div id="report-content"></div>
+            <button id="closeReport" disabled>FECHAR</button>
+        </div>
+        <div class="content">
+            <div class="effect-gradient-glow"></div>
+            <header>
+                <div id="logo" class="logo">
+                    <span class="logo-disc-image"></span>
+                    <h1>ISGeA</h1>
                 </div>
-            </form>
-        </div>
-        <div>
-            <form id="formRegistrationIS" action="">
-                <label class="registrar" for="inputRegisterIntimationsFromAnalyses"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>LANÇAR INTIMAÇÕES</label>
-                <input type="button" class="mainOptions" name="inputRegisterIntimationsFromAnalyses" id="inputRegisterIntimationsFromAnalyses" style="display: none;">
-                <div id="buttonsDivregisterIntimationsFromAnalyses" class="buttons">
-                    <input id="confirmButtonRegisterIntimationsFromAnalyses" class="btn confirm" type="button" value="CONFIRMAR">
-                    <input id="cancelButtonRegisterIntimationsFromAnalyses" class="btn cancel" type="reset" value="CANCELAR">
+                <p>Central de rotinas processuais. Escolha uma operação para começar.</p>
+            </header>
+            <nav>
+                <ul>
+                    <li>
+                        <form id="formSplit" action="">
+                            <label class="dividir" for="inputClassifyPublicationsByDepartment">
+                                <span class="icon-menu transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-split size-5" aria-hidden="true" data-tsd-source="/src/routes/index.tsx:89:17"><path d="M16 3h5v5"></path><path d="M8 3H3v5"></path><path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"></path><path d="m15 9 6-6"></path></svg></span>
+                                <div>
+                                    <h4>DIVIDIR ARQUIVO IS</h4>
+                                    <p>Separar lotes por área</p>
+                                </div>
+                            </label>
+                            <input type="button" class="mainOptions" name="inputClassifyPublicationsByDepartment" id="inputClassifyPublicationsByDepartment" style="display: none;">
+                            <div id="buttonsDivClassifyPublicationsByDepartment" class="buttons">
+                                <button id="confirmButtonClassifyPublicationsByDepartmentXLSX" class="xlsx btn" type="button">
+                                    <i class="fa fa-file-excel-o" aria-hidden="true"></i> EXCEL
+                                </button>
+                                <button id="confirmButtonClassifyPublicationsByDepartmentDOCX" class="docx btn" type="button">
+                                    <i class="fa fa-file-word-o" aria-hidden="true"></i> WORD
+                                </button>
+                                <button id="cancelButtonClassifyPublicationsByDepartment" class="cancel btn" type="reset">
+                                    CANCELAR
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+                    <li>
+                        <form id="formRegistrationIS" action="">
+                            <label class="registrar" for="inputRegisterIntimationsFromAnalyses">
+                                <span class="icon-menu transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen size-5" aria-hidden="true" data-tsd-source="/src/routes/index.tsx:89:17"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"></path></svg></span>
+                                <div>
+                                    <h4>LANÇAR INTIMAÇÕES</h4>
+                                    <p>Registro em massa</p>
+                                </div>
+                            </label>
+                            <input type="button" class="mainOptions" name="inputRegisterIntimationsFromAnalyses" id="inputRegisterIntimationsFromAnalyses" style="display: none;" disabled>
+                            <div id="buttonsDivregisterIntimationsFromAnalyses" class="buttons">
+                                <input id="confirmButtonRegisterIntimationsFromAnalyses" class="btn confirm" type="button" value="CONFIRMAR">
+                                <input id="cancelButtonRegisterIntimationsFromAnalyses" class="btn cancel" type="reset" value="CANCELAR">
+                            </div>
+                        </form>
+                    </li>
+                    <li>
+                        <form id="formValidateAnaliseRegister" action="">
+                            <label class="validar" for="inputReconcileAnalysesWithSystem">
+                                <span class="icon-menu transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check size-5" aria-hidden="true" data-tsd-source="/src/routes/index.tsx:89:17"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg></span>
+                                <div>
+                                    <h4>VALIDAR ANÁLISE</h4>
+                                    <p>Validar cadastro das análises da equipe</p>
+                                </div>
+                            </label>
+                            <input type="button" class="mainOptions" name="inputReconcileAnalysesWithSystem" id="inputReconcileAnalysesWithSystem" style="display: none;">
+                            <div id="buttonsDivReconcileAnalysesWithSystem" class="buttons">
+                                <input id="confirmButtonReconcileAnalysesWithSystem" class="btn confirm" type="button" value="CONFIRMAR">
+                                <input id="cancelButtonReconcileAnalysesWithSystem" class="btn cancel" type="reset" value="CANCELAR">
+                            </div>
+                        </form>
+                    </li>
+                    <li>
+                        <form id="formValidateIntimationRegister" action="">
+                            <label class="validar" for="inputReconcilePublicationsWithSystem">
+                                <span class="icon-menu transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check size-5" aria-hidden="true" data-tsd-source="/src/routes/index.tsx:89:17"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg></span>
+                                <div>
+                                    <h4>VALIDAR PUBLICAÇÃO</h4>
+                                    <p>Validar cadastro das publicações dos processos</p>
+                                </div>
+                            </label>
+                            <input type="button" class="mainOptions" name="inputReconcilePublicationsWithSystem" id="inputReconcilePublicationsWithSystem" style="display: none;">
+                            <div id="buttonsDivReconcilePublicationsWithSystem" class="buttons">
+                                <input id="confirmButtonReconcilePublicationsWithSystem" class="btn confirm" type="button" value="CONFIRMAR">
+                                <input id="cancelButtonReconcilePublicationsWithSystem" class="btn cancel" type="reset" value="CANCELAR">
+                            </div>
+                        </form>
+                    </li>
+                    <li>
+                        <form id="formCountIntimationsByFolder" action="">
+                            <label class="validar" for="inputCountIntimationsByFolder">
+                                <span class="icon-menu transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-open size-5" aria-hidden="true" data-tsd-source="/src/routes/index.tsx:89:17"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></span>
+                                <div>
+                                    <h4>CONTAR INTIMACOES</h4>
+                                    <p>Totais de publicações por arquivo</p>
+                                </div>
+                            </label>
+                            <input type="button" class="mainOptions" name="inputCountIntimationsByFolder" id="inputCountIntimationsByFolder" style="display: none;">
+                            <div id="buttonsDivCountIntimationsByFolder" class="buttons">
+                                <input id="confirmButtonCountIntimationsByFolder" class="btn confirm" type="button" value="CONFIRMAR">
+                                <input id="cancelButtonCountIntimationsByFolder" class="btn cancel" type="reset" value="CANCELAR">
+                            </div>
+                        </form>
+                    </li>
+                    <li>
+                        <form id="formCountIntimationsByFolder" action="">
+                            <label class="validar" for="inputComparePublications">
+                                <span class="icon-menu transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy size-5" aria-hidden="true" data-tsd-source="/src/routes/index.tsx:89:17"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg></span>
+                                <div>
+                                    <h4>COMPARAR PUBLICAÇÕES</h4>
+                                    <p>Diferenças entre arquivos de publicações</p>
+                                </div>
+                            </label>
+                            <input type="button" class="mainOptions" name="inputComparePublications" id="inputComparePublications" style="display: none;">
+                            <div id="buttonsDivComparePublications" class="buttons">
+                                <input id="confirmButtonComparePublications" class="btn confirm" type="button" value="CONFIRMAR">
+                                <input id="cancelButtonComparePublications" class="btn cancel" type="reset" value="CANCELAR">
+                            </div>
+                        </form>
+                    </li>
+                    <!-- <div>
+                        <form id="formAnalise" action="">
+                            <label class="analisar" style="background: gray; color: darkgrey;" for="analiseIS"><i class="fa fa-search" aria-hidden="true"></i> PRÉ-ANALISAR IS</label>
+                            <input type="file" name="analiseIS" id="analiseIS" style="display: none;" disabled>
+                            <div id="analiseBtns" class="buttons">
+                                <input class="btn" type="button" value="CONFIRMAR">
+                                <input class="btn" type="reset" value="CANCELAR">
+                            </div>
+                        </form>
+                    </div> -->
+                </ul>
+            </nav>
+            <footer>
+                <hr>
+                <div>
+                    <div>
+                        Versão <span id="versao"></span>
+                    </div>
+                    <div id="visual-indicator-conection" class="">
+                        <span id="conection-indicator"></span>
+                        <span class="text-indicator-conected">Conectado</span>
+                        <span class="text-indicator-desconected">Desconectado</span>
+                    </div>
                 </div>
-            </form>
+            </footer>
         </div>
-        <div>
-            <form id="formValidateAnaliseRegister" action="">
-                <label class="validar" for="inputReconcileAnalysesWithSystem"><i class="fa fa-check" aria-hidden="true"></i>VALIDAR ANÁLISE</label>
-                <input type="button" class="mainOptions" name="inputReconcileAnalysesWithSystem" id="inputReconcileAnalysesWithSystem" style="display: none;">
-                <div id="buttonsDivReconcileAnalysesWithSystem" class="buttons">
-                    <input id="confirmButtonReconcileAnalysesWithSystem" class="btn confirm" type="button" value="CONFIRMAR">
-                    <input id="cancelButtonReconcileAnalysesWithSystem" class="btn cancel" type="reset" value="CANCELAR">
+        <div id="comparison-report" class="comparison-report">
+            <header>
+                <div class="title-comparison-report">
+                    <h1 class="inter-bold">COMPARAÇÃO DE PUBLICAÇÕES</h1>
+                    <p class="inter-normal">Verifique se os arquivos possuem o mesmo conjunto de publicações.</p>
                 </div>
-            </form>
+                <button id="closeComparisonReport" class="close-comparison-report-btn inter-normal"><span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x size-3.5" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></span>FECHAR</button>
+            </header>
+            <hr>
+            <main>
+                <section class="comparison-report-cards inter-normal">
+                    <div class="principal-card-comparison-report">
+                        <span class="jetbrains-mono total-arquivos">3</span>
+                        ARQUIVOS
+                    </div>
+                    <div class="principal-card-comparison-report">
+                        <span class="jetbrains-mono total-publicacoes">315</span>
+                        PUBLICAÇÕES
+                    </div>
+                    <div class="principal-card-comparison-report">
+                        <span class="jetbrains-mono divergencias-encontradas">0</span>
+                        DIVERGÊNCIAS
+                    </div>
+                </section>
+                <section class="file-list-comparison-report">
+                    <h3 class="inter-bold">ARQUIVOS COMPARADOS</h3>
+                    <ul id="compared-file-list"></ul>
+                </section>
+                <section class="divergences-found-section-result">
+                    <div class="divergences-comparison-report-card">
+                        <h2 class="inter-bold"><span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert size-4 text-danger" aria-hidden="true" data-tsd-source="/src/features/comparison/PublicationComparisonView.tsx:95:23"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg></span><span class="divergencias-encontradas">0</span> DIVERGÊNCIAS ENCONTRADAS</h2>
+                        <p>Os arquivos não possuem exatamente o mesmo conjunto de publicações.</p>
+                    </div>
+                </section>
+                <section class="not-found-divergences-section-result display-none">
+                    <div class="comparison-report-success-result-resume-container">
+                        <p class="comparison-report-success-result-resume-container-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check mx-auto size-8 text-success" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+                        </p>
+                        <h2 class="inter-bold">PUBLICAÇÕES IDÊNTICAS</h2>
+                        <p class="inter-normal">Todos os arquivos possuem o mesmo conjunto de publicações.</p>
+                        <div>
+                            <p class="inter-normal"><span class="jetbrains-mono total-arquivos">3</span> arquivos comparados</p>
+                            <p class="inter-normal"><span class="jetbrains-mono total-publicacoes">315</span> publicações verificadas</p>
+                            <p class="inter-normal">Nenhuma divergência encontrada</p>
+                        </div>
+                        <button class="close-comparison-report-btn success-view-publicacoes">VER TODAS AS PUBLICAÇÕES</button>
+                    </div>
+                </section>
+                <section class="comparison-report-table-container">
+                    <section class="comparison-report-filter">
+                        <div>
+                            <button id="somente-divergencias-btn" class="comparison-report-filter-btn">SOMENTE DIVERGÊNCIAS</button>
+                            <button id="todas-publicacoes-btn" class="comparison-report-filter-btn active">TODAS AS PUBLICAÇÕES</button>
+                        </div>
+                        <div>
+                            <span class="inter-normal success">Nenhuma divergência encontrada</span>
+                            <span class="inter-normal fail"><span class="divergencias-encontradas">0</span> divergências encontradas</span>
+                        </div>
+                    </section>
+                    <div class="comparison-table-scroll">
+                        <table class="result-table-comparison-report">
+                            <thead>
+                                <tr>
+                                    <th>PROCESSO</th>
+                                    <th>PUBLICAÇÃO</th>
+                                    <th>STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <footer>
+                        <p>Clique em uma linha divergente para ver os detalhes por arquivo.</p>
+                    </footer>
+                </section>
+            </main>
         </div>
-        <div>
-            <form id="formValidateIntimationRegister" action="">
-                <label class="validar" for="inputReconcilePublicationsWithSystem"><i class="fa fa-check" aria-hidden="true"></i>VALIDAR CADASTRO</label>
-                <input type="button" class="mainOptions" name="inputReconcilePublicationsWithSystem" id="inputReconcilePublicationsWithSystem" style="display: none;">
-                <div id="buttonsDivReconcilePublicationsWithSystem" class="buttons">
-                    <input id="confirmButtonReconcilePublicationsWithSystem" class="btn confirm" type="button" value="CONFIRMAR">
-                    <input id="cancelButtonReconcilePublicationsWithSystem" class="btn cancel" type="reset" value="CANCELAR">
-                </div>
-            </form>
-        </div>
-        <div>
-            <form id="formCountIntimationsByFolder" action="">
-                <label class="validar" for="inputCountIntimationsByFolder"><i class="fa fa-folder-open-o" aria-hidden="true"></i>CONTAR INTIMACOES</label>
-                <input type="button" class="mainOptions" name="inputCountIntimationsByFolder" id="inputCountIntimationsByFolder" style="display: none;">
-                <div id="buttonsDivCountIntimationsByFolder" class="buttons">
-                    <input id="confirmButtonCountIntimationsByFolder" class="btn confirm" type="button" value="CONFIRMAR">
-                    <input id="cancelButtonCountIntimationsByFolder" class="btn cancel" type="reset" value="CANCELAR">
-                </div>
-            </form>
-        </div>
-        <!-- <div>
-            <form id="formAnalise" action="">
-                <label class="analisar" style="background: gray; color: darkgrey;" for="analiseIS"><i class="fa fa-search" aria-hidden="true"></i> PRÉ-ANALISAR IS</label>
-                <input type="file" name="analiseIS" id="analiseIS" style="display: none;" disabled>
-                <div id="analiseBtns" class="buttons">
-                    <input class="btn" type="button" value="CONFIRMAR">
-                    <input class="btn" type="reset" value="CANCELAR">
-                </div>
-            </form>
-        </div> -->
-        <footer>
-    
-        </footer>
-    </div>
+    </main>
     <script>var exports = {};</script>
     <script src="../../../dist/src/renderer/renderer.js"></script>
 </body>
