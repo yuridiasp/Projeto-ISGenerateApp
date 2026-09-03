@@ -245,4 +245,31 @@ describe("parsePdfDiaryRecords", () => {
         ])
         )
     })
+
+    test("SERDIJUL da Justica Federal usa Publicacao Processo como processo principal", () => {
+        const text = `
+            Publicacao Processo: 0021574-40.2025.4.05.8500
+            Orgao: 5 Vara Federal SE
+            Data de disponibilizacao: 28/08/2026
+            Tipo de comunicacao: Intimacao
+            Meio: Diario de Justica Eletronico Nacional
+            Inteiro teor: https://example.com
+            Parte: INSTITUTO NACIONAL DO SEGURO SOCIAL
+            Advogado: FABIO CORREA RIBEIRO
+            Classe: PROCEDIMENTO DO JUIZADO ESPECIAL CIVEL
+            Conteudo:
+            PROCESSO: 200800142128
+            SENTENCA
+        `;
+
+        const records = parsePdfDiaryRecords(text);
+
+        expect(records).toHaveLength(1);
+
+        expect(records[0]).toMatchObject({
+            layout: "SERDIJUL",
+            processo: "0021574-40.2025.4.05.8500",
+            processoCnj: "0021574-40.2025.4.05.8500"
+        });
+    });
 })

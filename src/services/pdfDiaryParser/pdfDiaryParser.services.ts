@@ -23,7 +23,6 @@ import { extractDiaryAdvogados } from "@helpers/diaryAdvogados.helpers";
 import { cleanDiaryValue, removeComunicacaoId } from "@helpers/diaryText.helpers";
 import { removeSerdijulNoise } from "@helpers/pdfDiaryText.helpers";
 import {
-    extractMainTJSEProcessNumberFromInformation,
   resolveDiaryProcessNumbers,
   resolveMainProcessNumber
 } from "@services/diaryParser/diaryPublicationParser.services";
@@ -475,21 +474,7 @@ function parseSerdijulPdfDiaryRecord(
   metadata: PdfDiaryMetadata
 ): DiaryRecord {
 
-  const publicationProcess = extractValue(
-    block,
-    /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i
-  );
-
-  const uniqueCnj = extractValue(
-    block,
-    /N[ÚU]MERO\s+ÚNICO\s*:\s*([0-9.-]+)/i
-  );
-
-  const mainTJSEProcess =
-    extractMainTJSEProcessNumberFromInformation(block);
-
-  const processo = mainTJSEProcess ?? publicationProcess ?? uniqueCnj;
-  const processoCnj = publicationProcess ?? uniqueCnj;
+  const { processo, processoCnj } = resolveDiaryProcessNumbers(block);
 
   const orgao = extractValue(
     block,
