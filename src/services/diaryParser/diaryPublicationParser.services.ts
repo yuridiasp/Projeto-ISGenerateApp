@@ -101,11 +101,28 @@ export function extractOriginProcessNumber(
   );
 }
 
-export function resolveMainProcessNumber(informacoes: string): string | undefined {
+export function resolveMainProcessNumber(
+  informacoes: string
+): string | undefined {
+  const publicationProcess = extractValue(
+    informacoes,
+    /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i
+  );
+
+  const uniqueCnj = extractValue(
+    informacoes,
+    /N[ÚU]MERO\s+ÚNICO\s*:\s*([0-9.-]+)/i
+  );
+
+  const processoCnj = publicationProcess ?? uniqueCnj;
+
+  if (processoCnj && !isTJSEProcessNumber(processoCnj)) {
+    return sanitizeProcessNumber(processoCnj);
+  }
+
   return (
     extractMainTJSEProcessNumberFromInformation(informacoes) ??
-    extractPublicationProcessNumber(informacoes) ??
-    extractUniqueCNJProcessNumber(informacoes) ??
+    sanitizeProcessNumber(processoCnj) ??
     extractOriginProcessNumber(informacoes)
   );
 }
@@ -295,9 +312,6 @@ export function resolveDiaryProcessNumbers(informacoes: string): {
   processo?: string;
   processoCnj?: string;
 } {
-  const mainTJSEProcess =
-    extractMainTJSEProcessNumberFromInformation(informacoes);
-
   const publicationProcess = extractValue(
     informacoes,
     /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i
@@ -310,8 +324,24 @@ export function resolveDiaryProcessNumbers(informacoes: string): {
 
   const processoCnj = publicationProcess ?? uniqueCnj;
 
+  if (!isTJSEProcessNumber(processoCnj)) {
+    return {
+      processo: processoCnj,
+      processoCnj
+    };
+  }
+
+  const mainTJSEProcess =
+    extractMainTJSEProcessNumberFromInformation(informacoes);
+
   return {
     processo: mainTJSEProcess ?? processoCnj,
     processoCnj
   };
+}
+
+export function isTJSEProcessNumber(value?: string): boolean {
+  if (!value) return false;
+
+  return /^\d{7}-\d{2}\.\d{4}\.8\.25\.\d{4}$/.test(value.trim());
 }

@@ -3,6 +3,7 @@ import { describe, expect, test } from "@jest/globals";
 import {
   extractMainTJSEProcessNumberFromInformation,
   extractPublicationProcessNumber,
+  resolveDiaryProcessNumbers,
   resolveMainProcessNumber
 } from "../../src/services/diaryParser/diaryPublicationParser.services";
 
@@ -54,5 +55,30 @@ describe("diaryPublicationParser", () => {
     expect(
       resolveMainProcessNumber(text)
     ).toBe("50064052820268250084");
+  });
+
+  test("nao usa numero interno TJSE em publicacao da Justica Federal", () => {
+    const text = `
+      Publicacao Processo: 0011117-46.2025.4.05.8500
+      Orgao: 5 Vara Federal SE
+      Data de disponibilizacao: 01/09/2026
+      Tipo de comunicacao: Intimacao
+
+      Conteudo:
+      PROCESSO: 200800142128
+      SENTENCA
+      INSTITUTO NACIONAL DO SEGURO SOCIAL - INSS
+    `;
+
+    expect(
+      resolveDiaryProcessNumbers(text)
+    ).toEqual({
+      processo: "0011117-46.2025.4.05.8500",
+      processoCnj: "0011117-46.2025.4.05.8500"
+    });
+
+    expect(
+      resolveMainProcessNumber(text)
+    ).toBe("00111174620254058500");
   });
 });
