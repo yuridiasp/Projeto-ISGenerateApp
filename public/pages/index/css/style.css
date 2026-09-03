@@ -401,6 +401,7 @@ label:hover {
     position: absolute;
     inset: 0;
     background-image: var(--gradient-glow);
+    z-index: -1;
 }
 
 .content nav ul {
