@@ -510,22 +510,23 @@ label:hover {
     align-items: center;
     width: 100%;
     min-width: 0;
-    gap: 0.75rem;
-    padding: 0.5rem;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
     font-size: 0.8rem;
 }
 
-.content-validation-result > * {
-    min-width: 0;
+.content-validation-result > i {
+    flex: 0 0 2rem;
+    text-align: left;
 }
 
-.content-validation-result > :first-child {
+.content-validation-result .process-report {
     flex: 1 1 auto;
-    overflow-wrap: anywhere;
+    text-align: center;
 }
 
-.content-validation-result > :last-child {
-    flex: 0 0 auto;
+.content-validation-result .publication-report {
+    flex: 0 0 8rem;
     text-align: right;
 }
 
