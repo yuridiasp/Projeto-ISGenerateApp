@@ -5,14 +5,15 @@ import { credential } from '@services/login/login.services'
 import { iFileData } from '@services/validateIntimations/validateIntimations.services'
 import { operationsType } from '@renderer/renderer';
 import type { FolderIntimationCounterInput } from '@services/folderIntimationCounter';
+import { DialogContext } from '@models/dialogHistory';
 
 type callbackUpdateReportStatus = (value: iValidationReport, operation: operationsType) => void
 type callbackEnableButtonCloseReport = () => void
 type callbackreceiveCredentials = (credentials: credential) => credential
 
 contextBridge.exposeInMainWorld('API', {
-    openFileDialogForFile: async () => await ipcRenderer.invoke('open-file-dialog-for-file'),
-    openFolderDialogForFolder: async () => await ipcRenderer.invoke('open-folder-dialog-for-folder'),
+    openFileDialogForFile: async (context: DialogContext) => await ipcRenderer.invoke('open-file-dialog-for-file', context),
+    openFolderDialogForFolder: async (context: DialogContext) => await ipcRenderer.invoke('open-folder-dialog-for-folder', context),
     classifyPublicationsByDepartment: async (data: iFileData) => await ipcRenderer.invoke('split-is', data),
     countIntimationsByFolder: async (data: FolderIntimationCounterInput) => await ipcRenderer.invoke('count-intimations-by-folder', data),
     getVersions: async () => await ipcRenderer.invoke('get-versions'),
@@ -29,7 +30,7 @@ contextBridge.exposeInMainWorld('API', {
     enableButtonCloseReport: (calback: callbackEnableButtonCloseReport) => ipcRenderer.on('enable-button-close-report', calback),
     receiveCredentials: (calback: callbackreceiveCredentials) => ipcRenderer.on('receive-credentials', (event, credentials: credential) => calback(credentials)),
     copyToClipboard: (text: string) => ipcRenderer.invoke('clopy-to-clip', text),
-    openMultipleFilesDialog: async () => ipcRenderer.invoke("open-multiple-files-dialog"),
+    openMultipleFilesDialog: async (context: DialogContext) => ipcRenderer.invoke("open-multiple-files-dialog", context),
     comparePublications: async (files: iFileData[]) => ipcRenderer.invoke("compare-publications", files),
     openDirectory: async (path: string) => ipcRenderer.send('open-directory', path),
 })

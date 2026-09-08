@@ -22,6 +22,7 @@ import { splitISController,
     openMultipleFilesDialogController,
     openDirectoryController
 } from '@controllers/controllers'
+import { DialogContext } from '@models/dialogHistory';
 
 export async function setHandlers (windows: iWindows) {
     ipcMain.handle('validate-intimation-register', (event: Electron.IpcMainInvokeEvent, data: iFileData, credentials: credential) => intimationsPublicationRegisterController(event, data, credentials, windows))
@@ -35,11 +36,11 @@ export async function setHandlers (windows: iWindows) {
     ipcMain.on('abrir-janela-login', () => createLoginWindowController(windows))
     ipcMain.on('fechar-janela-login', () => closeLoginWindowController(windows))
     ipcMain.on('send-credencials-to-renderer', (event, credencials: credential) => sendCredenctialsController(credencials, windows))
-    ipcMain.handle('open-file-dialog-for-file', (event) => openFileDialogForFile(event, windows))
-    ipcMain.handle('open-folder-dialog-for-folder', (event) => openFolderDialogForFolder(event, windows))
+    ipcMain.handle('open-file-dialog-for-file', (event, context: DialogContext) => openFileDialogForFile(event, windows, context))
+    ipcMain.handle('open-folder-dialog-for-folder', (event, context: DialogContext) => openFolderDialogForFolder(event, windows, context))
     ipcMain.handle('login-korbil', (event, credential: credential) => loginController(credential))
     ipcMain.handle('clopy-to-clip', (event, text) => copyToClipboardController(text))
-    ipcMain.handle("open-multiple-files-dialog",event => openMultipleFilesDialogController(event, windows))
+    ipcMain.handle("open-multiple-files-dialog", (event, context: DialogContext) => openMultipleFilesDialogController(event, windows, context))
     ipcMain.handle("compare-publications", comparePublicationsController)
     ipcMain.on("open-directory", (event, path: string) => openDirectoryController(path))
 }

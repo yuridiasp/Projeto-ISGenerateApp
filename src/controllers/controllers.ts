@@ -16,26 +16,46 @@ import { countIntimationsByFolder } from '@services/folderIntimationCounter'
 import type { FolderIntimationCounterInput } from '@services/folderIntimationCounter'
 import { comparePublicationFilesService } from '@services/publicationComparison/publicationComparison.services';
 import { openDirectory } from '@infrastructure/explorer/openPath';
+import { DialogContext } from '@models/dialogHistory';
 
-export function openFileDialogForFile(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
-    if (!windows || !Object.keys(windows).length) {
-        return {
-            success: false,
-            error: new ValidationError("Janela do evento ausente.")
-        }
-    }
-    return openFileDialog(windows)
+export function openFileDialogForFile(
+  event: Electron.IpcMainInvokeEvent,
+  windows: iWindows,
+  context: DialogContext
+) {
+  if (!windows || !Object.keys(windows).length) {
+    return {
+      success: false,
+      error: new ValidationError(
+        "Janela do evento ausente."
+      )
+    };
+  }
+
+  return openFileDialog(
+    windows,
+    context
+  );
 }
 
-export function openFolderDialogForFolder(event: Electron.IpcMainInvokeEvent, windows: iWindows) {
-    if (!windows || !Object.keys(windows).length) {
-        return {
-            success: false,
-            error: new ValidationError("Janela do evento ausente.")
-        }
-    }
+export function openFolderDialogForFolder(
+  event: Electron.IpcMainInvokeEvent,
+  windows: iWindows,
+  context: DialogContext
+) {
+  if (!windows || !Object.keys(windows).length) {
+    return {
+      success: false,
+      error: new ValidationError(
+        "Janela do evento ausente."
+      )
+    };
+  }
 
-    return openFolderDialog(windows)
+  return openFolderDialog(
+    windows,
+    context
+  );
 }
 
 export async function loginController(credentials: credential) {
@@ -226,9 +246,17 @@ export async function comparePublicationsController(event: Electron.IpcMainInvok
 
 export function openMultipleFilesDialogController(
   event: Electron.IpcMainInvokeEvent,
-  windows: iWindows
+  windows: iWindows,
+  context: DialogContext
 ) {
-  return openMultipleFilesDialog(windows);
+    if (!windows || !Object.keys(windows).length) {
+        return {
+            success: false,
+            error: new ValidationError("Janela do evento ausente.")
+        };
+    }
+    
+    return openMultipleFilesDialog(windows, context);
 }
 
 export async function openDirectoryController(path: string) {

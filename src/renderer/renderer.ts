@@ -11,6 +11,7 @@ import type {
     FolderIntimationFileCount
 } from "@services/folderIntimationCounter"
 import { PublicationComparisonFile, PublicationComparisonItem, PublicationComparisonResult, PublicationComparisonStatus } from "@models/publicationComparison";
+import { DialogContext } from "@models/dialogHistory";
 
 /**
  * 1. classifyPublicationsByDepartment
@@ -175,9 +176,9 @@ function setConnectionStatus(connected: boolean): void {
     ) => Promise<string | ApiResult>
 
     export interface iAPI {
-        openMultipleFilesDialog(): Promise<{ filePaths: string[], canceled: boolean }>
-        openFileDialogForFile(): Promise<{ filePaths: string[], canceled: boolean }>;
-        openFolderDialogForFolder(): Promise<{ filePaths: string[], canceled: boolean }>;
+        openMultipleFilesDialog(context: DialogContext): Promise<{ filePaths: string[], canceled: boolean }>
+        openFileDialogForFile(context: DialogContext): Promise<{ filePaths: string[], canceled: boolean }>;
+        openFolderDialogForFolder(context: DialogContext): Promise<{ filePaths: string[], canceled: boolean }>;
         registerIntimationsFromAnalyses: GenericApiFunction;
         reconcilePublicationsWithSystem: GenericApiFunction;
         reconcileAnalysesWithSystem: GenericApiFunction;
@@ -782,9 +783,9 @@ function setConnectionStatus(connected: boolean): void {
 
     export async function setFilePathArg(
         operation: operationsType,
-        div: HTMLElement
+        div: HTMLElement,
     ): Promise<void> {
-        const { canceled, filePaths } = await window.API.openFileDialogForFile()
+        const { canceled, filePaths } = await window.API.openFileDialogForFile(operation)
 
         if (!canceled) {
             operationArgs[operation] = createObjectArgs(filePaths)
@@ -1052,7 +1053,7 @@ function setConnectionStatus(connected: boolean): void {
 
         inputClassifyPublicationsByDepartment.addEventListener('click', async () => {
             resetReport()
-            const { canceled, filePaths } = await window.API.openFileDialogForFile()
+            const { canceled, filePaths } = await window.API.openFileDialogForFile("classifyPublicationsByDepartment")
             
             if (!canceled) {
                 operationArgs.classifyPublicationsByDepartment = createObjectArgs(filePaths)
@@ -1077,7 +1078,7 @@ function setConnectionStatus(connected: boolean): void {
 
     inputCountIntimationsByFolder.addEventListener('click', async () => {
         resetReport()
-        const { canceled, filePaths } = await window.API.openFolderDialogForFolder()
+        const { canceled, filePaths } = await window.API.openFolderDialogForFolder("countIntimationsByFolder")
 
         if (!canceled) {
             const selectedFolder = createFolderArgs(filePaths)
@@ -1101,7 +1102,7 @@ function setConnectionStatus(connected: boolean): void {
     inputComparePublications.addEventListener("click", async () => {
         resetReport()
         const { canceled, filePaths } =
-            await window.API.openMultipleFilesDialog();
+            await window.API.openMultipleFilesDialog("comparePublications");
 
         if (canceled) return;
 
@@ -1159,7 +1160,7 @@ function setConnectionStatus(connected: boolean): void {
         functionAPI: GenericApiFunction,
         btnConfirm: HTMLButtonElement,
         btnCancel: HTMLButtonElement,
-        validateInput: HTMLInputElement
+        validateInput: HTMLInputElement,
     ): void {
         validateInput.addEventListener('click', async () => {
             resetReport()
