@@ -272,4 +272,67 @@ describe("parsePdfDiaryRecords", () => {
             processoCnj: "0021574-40.2025.4.05.8500"
         });
     });
+
+    test("SERDIJUL TJSE antigo usa numero do Portal TJNET como processo principal", () => {
+        const text = `
+            Publicacao Processo: 0059529-66.2026.8.25.0001
+            Orgao: 14 Vara Civel de Aracaju
+            Data de disponibilizacao: 31/08/2026
+            Tipo de comunicacao: Citacao
+            Meio: Diario de Justica Eletronico Nacional
+            Inteiro teor:
+            HTTPS: / /WWW.TJSE.JUS.BR /TJNET /CONSULTAS /INTERNET
+            /RESPNUMPROCESSO.WSP?TMP.NPRO202611403068
+            Parte: INSS - INSTITUTO NACIONAL DO SEGURO SOCIAL
+            Advogado: FABIO CORREA RIBEIRO
+            Classe: CUMPRIMENTO DE SENTENCA
+            Conteudo:
+            202611403068 (0059529-66.2026.8.25.0001)
+            CUMPRIMENTO DE SENTENCA
+            | comunicacao_id: 123 |
+        `;
+
+        const records = parsePdfDiaryRecords(text);
+
+        expect(records).toHaveLength(1);
+
+        expect(records[0]).toMatchObject({
+            layout: "SERDIJUL",
+            processo: "202611403068",
+            processoCnj: "0059529-66.2026.8.25.0001",
+            dataDisponibilizacao: "31/08/2026",
+            tipoComunicacao: "Citacao"
+        });
+    });
+
+    test("SERDIJUL TJSE Eproc mantem CNJ como processo principal", () => {
+        const text = `
+            Publicacao Processo: 0059529-66.2026.8.25.0001
+            Orgao: 14 Vara Civel de Aracaju
+            Data de disponibilizacao: 31/08/2026
+            Tipo de comunicacao: Citacao
+            Meio: Diario de Justica Eletronico Nacional
+            Inteiro teor:
+            https://eproc.tjse.jus.br/eproc/
+            Parte: INSS - INSTITUTO NACIONAL DO SEGURO SOCIAL
+            Advogado: FABIO CORREA RIBEIRO
+            Classe: CUMPRIMENTO DE SENTENCA
+            Conteudo:
+            202611403068 (0059529-66.2026.8.25.0001)
+            CUMPRIMENTO DE SENTENCA
+            | comunicacao_id: 124 |
+        `;
+
+        const records = parsePdfDiaryRecords(text);
+
+        expect(records).toHaveLength(1);
+
+        expect(records[0]).toMatchObject({
+            layout: "SERDIJUL",
+            processo: "0059529-66.2026.8.25.0001",
+            processoCnj: "0059529-66.2026.8.25.0001",
+            dataDisponibilizacao: "31/08/2026",
+            tipoComunicacao: "Citacao"
+        });
+    });
 })

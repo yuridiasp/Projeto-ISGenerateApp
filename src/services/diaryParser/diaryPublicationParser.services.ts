@@ -15,6 +15,54 @@ export function sanitizeProcessNumber(value?: string): string | undefined {
   return sanitized || undefined;
 }
 
+function normalizeTJSELegacyText(value: string): string {
+  return value.replace(/\s+/g, "");
+}
+
+export function isLegacyTJSEPublication(informacoes: string): boolean {
+  const normalized = normalizeTJSELegacyText(informacoes);
+
+  return /RESPNUMPROCESSO\.WSP\?TMP\.NPRO/i.test(normalized);
+}
+
+export function extractLegacyTJSEProcessNumber(
+  informacoes: string
+): string | undefined {
+  const normalized = normalizeTJSELegacyText(informacoes);
+
+  /*
+   * Portal antigo TJSE / TJNET.
+   *
+   * A extração dos documentos pode produzir:
+   *
+   * TMP.NPRO=202611403068
+   *
+   * ou:
+   *
+   * TMP.NPRO202611403068
+   *
+   * Por isso o sinal "=" é opcional.
+   */
+  const fromUrl = normalized.match(
+    /RESPNUMPROCESSO\.WSP\?TMP\.NPRO(?:=)?([0-9]{12})(?!\d)/i
+  );
+
+  if (fromUrl?.[1]) {
+    return fromUrl[1];
+  }
+
+  /*
+   * Fallback observado nas publicações antigas:
+   *
+   * 202611403068 (0059529-66.2026.8.25.0001)
+   */
+  const fromContent = informacoes.match(
+    /\b([0-9]{12})\b(?=\s*\(\s*\d{7}-\d{2}\.\d{4}\.8\.25\.\d{4}\s*\))/i
+  );
+
+  return fromContent?.[1];
+}
+
 export function extractMainTJSEProcessNumberFromInformation(
   informacoes: string
 ): string | undefined {
@@ -116,14 +164,41 @@ export function resolveMainProcessNumber(
 
   const processoCnj = publicationProcess ?? uniqueCnj;
 
-  if (processoCnj && !isTJSEProcessNumber(processoCnj)) {
+  /*
+   * Quando não há CNJ explícito, preservamos os fallbacks
+   * anteriores para formatos legados.
+   */
+  if (!processoCnj) {
+    return (
+      extractLegacyTJSEProcessNumber(informacoes) ??
+      extractMainTJSEProcessNumberFromInformation(informacoes) ??
+      extractOriginProcessNumber(informacoes)
+    );
+  }
+
+  /*
+   * Tribunais diferentes do TJSE usam o CNJ da publicação.
+   */
+  if (!isTJSEProcessNumber(processoCnj)) {
     return sanitizeProcessNumber(processoCnj);
   }
 
+  /*
+   * TJSE sem indicação do antigo Portal TJNET:
+   * considera-se publicação do fluxo moderno/Eproc
+   * e mantém-se o CNJ.
+   */
+  if (!isLegacyTJSEPublication(informacoes)) {
+    return sanitizeProcessNumber(processoCnj);
+  }
+
+  /*
+   * TJSE antigo/TJNET:
+   * prioriza o número antigo de 12 dígitos.
+   */
   return (
-    extractMainTJSEProcessNumberFromInformation(informacoes) ??
-    sanitizeProcessNumber(processoCnj) ??
-    extractOriginProcessNumber(informacoes)
+    extractLegacyTJSEProcessNumber(informacoes) ??
+    sanitizeProcessNumber(processoCnj)
   );
 }
 
@@ -324,6 +399,23 @@ export function resolveDiaryProcessNumbers(informacoes: string): {
 
   const processoCnj = publicationProcess ?? uniqueCnj;
 
+  /*
+   * Mantém suporte aos formatos antigos que eventualmente
+   * não tragam Publicacao Processo ou NUMERO UNICO.
+   */
+  if (!processoCnj) {
+    return {
+      processo:
+        extractLegacyTJSEProcessNumber(informacoes) ??
+        extractMainTJSEProcessNumberFromInformation(informacoes),
+      processoCnj: undefined
+    };
+  }
+
+  /*
+   * Fora do TJSE, Publicacao Processo permanece sendo
+   * o identificador principal.
+   */
   if (!isTJSEProcessNumber(processoCnj)) {
     return {
       processo: processoCnj,
@@ -331,11 +423,26 @@ export function resolveDiaryProcessNumbers(informacoes: string): {
     };
   }
 
-  const mainTJSEProcess =
-    extractMainTJSEProcessNumberFromInformation(informacoes);
+  /*
+   * TJSE moderno/Eproc:
+   * o processo principal é o próprio CNJ.
+   */
+  if (!isLegacyTJSEPublication(informacoes)) {
+    return {
+      processo: processoCnj,
+      processoCnj
+    };
+  }
+
+  /*
+   * TJSE antigo/TJNET:
+   * utiliza o número de 12 dígitos.
+   */
+  const legacyProcess =
+    extractLegacyTJSEProcessNumber(informacoes);
 
   return {
-    processo: mainTJSEProcess ?? processoCnj,
+    processo: legacyProcess ?? processoCnj,
     processoCnj
   };
 }

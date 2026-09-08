@@ -1,38 +1,142 @@
 import { describe, expect, test } from "@jest/globals";
 
 import {
-  extractMainTJSEProcessNumberFromInformation,
+  extractLegacyTJSEProcessNumber,
   extractPublicationProcessNumber,
+  isLegacyTJSEPublication,
   resolveDiaryProcessNumbers,
   resolveMainProcessNumber
 } from "../../src/services/diaryParser/diaryPublicationParser.services";
 
 describe("diaryPublicationParser", () => {
-  test("prioriza numero interno TJSE do corpo sobre CNJ e tmp.npro", () => {
+  test("usa numero antigo quando publicacao TJSE vem do Portal TJNET sem sinal de igual", () => {
+    const text = `
+      Publicacao Processo: 0059529-66.2026.8.25.0001
+      Orgao: 14 Vara Civel de Aracaju
+      Data de disponibilizacao: 31/08/2026
+      Tipo de comunicacao: Citacao
+
+      Inteiro teor:
+      HTTPS: / /WWW.TJSE.JUS.BR /TJNET /CONSULTAS /INTERNET
+      /RESPNUMPROCESSO.WSP?TMP.NPRO202611403068
+
+      Conteudo:
+      202611403068 (0059529-66.2026.8.25.0001)
+      CUMPRIMENTO DE SENTENCA
+    `;
+
+    expect(
+      isLegacyTJSEPublication(text)
+    ).toBe(true);
+
+    expect(
+      extractLegacyTJSEProcessNumber(text)
+    ).toBe("202611403068");
+
+    expect(
+      resolveDiaryProcessNumbers(text)
+    ).toEqual({
+      processo: "202611403068",
+      processoCnj: "0059529-66.2026.8.25.0001"
+    });
+
+    expect(
+      resolveMainProcessNumber(text)
+    ).toBe("202611403068");
+  });
+
+  test("reconhece numero antigo do TJNET quando TMP.NPRO possui sinal de igual", () => {
     const text = `
       Publicacao Processo: 0013344-38.2024.8.25.0001
 
       Inteiro teor:
-      https://www.tjse.jus.br/teste?tmp.npro=999999999999
+      https://www.tjse.jus.br/tjnet/consultas/internet/respnumprocesso.wsp?tmp.npro=201650000294
 
       Conteudo:
-      EXECUCAO DE TITULO EXTRAJUDICIAL
-      PROC.: 201650000294
-      NUMERO UNICO: 0013344-38.2024.8.25.0001
+      201650000294 (0013344-38.2024.8.25.0001)
     `;
 
     expect(
-      resolveMainProcessNumber(text)
+      isLegacyTJSEPublication(text)
+    ).toBe(true);
+
+    expect(
+      extractLegacyTJSEProcessNumber(text)
     ).toBe("201650000294");
+
+    expect(
+      resolveDiaryProcessNumbers(text)
+    ).toEqual({
+      processo: "201650000294",
+      processoCnj: "0013344-38.2024.8.25.0001"
+    });
   });
 
-  test("mantem CNJ separado do numero principal TJSE", () => {
+  test("usa numero antigo associado ao CNJ no conteudo como fallback do Portal TJNET", () => {
+    const text = `
+      Publicacao Processo: 0059529-66.2026.8.25.0001
+
+      Inteiro teor:
+      https://www.tjse.jus.br/tjnet/consultas/internet/respnumprocesso.wsp?tmp.npro
+
+      Conteudo:
+      202611403068 (0059529-66.2026.8.25.0001)
+      CUMPRIMENTO DE SENTENCA
+    `;
+
+    expect(
+      isLegacyTJSEPublication(text)
+    ).toBe(true);
+
+    expect(
+      extractLegacyTJSEProcessNumber(text)
+    ).toBe("202611403068");
+
+    expect(
+      resolveDiaryProcessNumbers(text)
+    ).toEqual({
+      processo: "202611403068",
+      processoCnj: "0059529-66.2026.8.25.0001"
+    });
+  });
+
+  test("mantem CNJ quando publicacao TJSE vem do Eproc", () => {
+    const text = `
+      Publicacao Processo: 0059529-66.2026.8.25.0001
+
+      Inteiro teor:
+      https://eproc.tjse.jus.br/eproc/
+
+      Conteudo:
+      202611403068 (0059529-66.2026.8.25.0001)
+      Intimacao disponibilizada no Eproc.
+    `;
+
+    expect(
+      isLegacyTJSEPublication(text)
+    ).toBe(false);
+
+    expect(
+      resolveDiaryProcessNumbers(text)
+    ).toEqual({
+      processo: "0059529-66.2026.8.25.0001",
+      processoCnj: "0059529-66.2026.8.25.0001"
+    });
+
+    expect(
+      resolveMainProcessNumber(text)
+    ).toBe("00595296620268250001");
+  });
+
+  test("mantem CNJ separado do numero antigo TJSE", () => {
     const text = `
       Publicacao Processo: 0013344-38.2024.8.25.0001
 
+      Inteiro teor:
+      https://www.tjse.jus.br/tjnet/consultas/internet/respnumprocesso.wsp?tmp.npro=201650000294
+
       Conteudo:
-      PROC.: 201650000294
-      NUMERO UNICO: 0013344-38.2024.8.25.0001
+      201650000294 (0013344-38.2024.8.25.0001)
     `;
 
     expect(
@@ -42,22 +146,16 @@ describe("diaryPublicationParser", () => {
     expect(
       extractPublicationProcessNumber(text)
     ).toBe("00133443820248250001");
-  });
-
-  test("usa CNJ quando nao existe numero interno TJSE", () => {
-    const text = `
-      Publicacao Processo: 5006405-28.2026.8.25.0084
-
-      Conteudo:
-      Intimacao disponibilizada no sistema.
-    `;
 
     expect(
-      resolveMainProcessNumber(text)
-    ).toBe("50064052820268250084");
+      resolveDiaryProcessNumbers(text)
+    ).toEqual({
+      processo: "201650000294",
+      processoCnj: "0013344-38.2024.8.25.0001"
+    });
   });
 
-  test("nao usa numero interno TJSE em publicacao da Justica Federal", () => {
+  test("nao aplica regra do TJNET a publicacao da Justica Federal", () => {
     const text = `
       Publicacao Processo: 0011117-46.2025.4.05.8500
       Orgao: 5 Vara Federal SE
@@ -80,5 +178,26 @@ describe("diaryPublicationParser", () => {
     expect(
       resolveMainProcessNumber(text)
     ).toBe("00111174620254058500");
+  });
+
+  test("mantem CNJ de outro tribunal mesmo que exista numero de 12 digitos no conteudo", () => {
+    const text = `
+      Publicacao Processo: 0000730-48.2025.5.20.0003
+
+      Conteudo:
+      PROCESSO: 202611403068
+      Intimacao trabalhista.
+    `;
+
+    expect(
+      resolveDiaryProcessNumbers(text)
+    ).toEqual({
+      processo: "0000730-48.2025.5.20.0003",
+      processoCnj: "0000730-48.2025.5.20.0003"
+    });
+
+    expect(
+      resolveMainProcessNumber(text)
+    ).toBe("00007304820255200003");
   });
 });
