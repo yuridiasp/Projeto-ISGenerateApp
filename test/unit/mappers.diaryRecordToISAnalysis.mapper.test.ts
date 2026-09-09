@@ -10,47 +10,29 @@ import {
 } from "../../src/mappers/diaryRecordToISAnalysis.mapper"
 
 
-describe(
-    "diaryRecordToISAnalysis.mapper",
-    () => {
+describe("diaryRecordToISAnalysis.mapper", () => {
 
-        test(
-            "interpreta data brasileira textual de cabecalho SERDIJUL",
-            () => {
+        test("interpreta data brasileira textual de cabecalho SERDIJUL", () => {
 
                 const result =
-                    parseDiaryDate(
-                        "07 de agosto de 2026(sexta-feira)"
-                    )
+                    parseDiaryDate("07 de agosto de 2026(sexta-feira)")
 
-                expect(
-                    result.isValid()
-                ).toBe(true)
+                expect(result.isValid()).toBe(true)
 
-                expect(
-                    result.format("DD/MM/YYYY")
-                ).toBe("07/08/2026")
+                expect(result.format("DD/MM/YYYY")).toBe("07/08/2026")
             }
         )
 
 
-        test(
-            "interpreta data PJe com ano de dois digitos",
-            () => {
+        test("interpreta data PJe com ano de dois digitos", () => {
 
                 const result =
-                    parseDiaryDate(
-                        "06/08/26 18:24"
-                    )
+                    parseDiaryDate("06/08/26 18:24")
+
+                expect(result.isValid()).toBe(true)
 
                 expect(
-                    result.isValid()
-                ).toBe(true)
-
-                expect(
-                    result.format(
-                        "DD/MM/YYYY HH:mm"
-                    )
+                    result.format("DD/MM/YYYY HH:mm")
                 ).toBe(
                     "06/08/2026 18:24"
                 )
@@ -58,29 +40,21 @@ describe(
         )
 
 
-        test(
-            "nao lança excecao para valor de data invalido",
-            () => {
+        test("nao lança excecao para valor de data invalido", () => {
 
                 expect(
                     () =>
-                        parseDiaryDate(
-                            "valor completamente invalido"
-                        )
+                        parseDiaryDate("valor completamente invalido")
                 ).not.toThrow()
 
                 expect(
-                    parseDiaryDate(
-                        "valor completamente invalido"
-                    ).isValid()
+                    parseDiaryDate("valor completamente invalido").isValid()
                 ).toBe(false)
             }
         )
 
 
-        test(
-            "usa data de disponibilizacao quando data de publicacao e invalida",
-            () => {
+        test("usa data de disponibilizacao quando data de publicacao e invalida", () => {
 
                 const records =
                     normalizeDiaryRecordsToISAnalysisDTO([
@@ -101,9 +75,7 @@ describe(
                         }
                     ])
 
-                expect(
-                    records
-                ).toHaveLength(1)
+                expect(records).toHaveLength(1)
 
                 expect(
                     records[0]
@@ -122,9 +94,7 @@ describe(
         )
 
 
-        test(
-            "normaliza registro SERDIJUL PJe com data textual de publicacao",
-            () => {
+        test("normaliza registro SERDIJUL PJe com data textual de publicacao", () => {
 
                 const records =
                     normalizeDiaryRecordsToISAnalysisDTO([
@@ -159,9 +129,7 @@ describe(
                         }
                     ])
 
-                expect(
-                    records
-                ).toHaveLength(1)
+                expect(records).toHaveLength(1)
 
                 expect(
                     records[0]
@@ -179,9 +147,7 @@ describe(
                     "06/08/2026"
                 )
 
-                expect(
-                    records[0].case_number
-                ).toBe(
+                expect(records[0].case_number).toBe(
                     "10075628620254013400"
                 )
             }

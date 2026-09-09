@@ -1,6 +1,7 @@
 import {
   extractPdfDiaryMetadataAtPosition,
   findSerdijulPjeListBlockStarts,
+  isLegacySerdijulText,
   isSerdijulPjeListText
 } from "@helpers/pdfDiaryText.helpers";
 import {
@@ -23,50 +24,54 @@ import { extractDiaryAdvogados } from "@helpers/diaryAdvogados.helpers";
 import { cleanDiaryValue, removeComunicacaoId } from "@helpers/diaryText.helpers";
 import { removeSerdijulNoise } from "@helpers/pdfDiaryText.helpers";
 import {
+    extractCNJProcessNumber,
+    extractMainTJSEProcessNumberFromInformation,
   resolveDiaryProcessNumbers,
   resolveMainProcessNumber
 } from "@services/diaryParser/diaryPublicationParser.services";
 
 function extractOriginProcessNumber(informacoes: string): string | undefined {
-  return extractValue(
-    informacoes,
-    /PROCESSO\s+ORIGEM\.*\s*:\s*([0-9A-Z./-]+)/i
-  );
+  return extractValue(informacoes, /PROCESSO\s+ORIGEM\.*\s*:\s*([0-9A-Z./-]+)/i);
 }
 
-export function parsePdfDiaryRecords(
-  text: string,
-  metadata: PdfDiaryMetadata = {}
-): DiaryRecord[] {
+function parseLegacySerdijulRecord(text: string, metadata: PdfDiaryMetadata): DiaryRecord {
+  const processo = extractMainTJSEProcessNumberFromInformation(text);
+  const processoCnj = extractCNJProcessNumber(text);
+
+  return {
+    layout: "SERDIJUL",
+    processo,
+    processoCnj,
+    processoOrigem: extractOriginProcessNumber(text),
+    jornal: metadata.jornal,
+    tribunal: metadata.tribunal,
+    dataDivulgacao: metadata.dataDivulgacao,
+    dataPublicacao: metadata.dataPublicacao,
+    orgao: extractValue(text, /ORGAO\s+JULGADOR\.*\s*:\s*([\s\S]*?)\s+RELATOR/i),
+    conteudo: cleanDiaryValue(text),
+    informacoes: cleanDiaryValue(text),
+    partes: extractDiaryPartes(text),
+    advogados: extractDiaryAdvogados(text)
+  };
+}
+
+export function parsePdfDiaryRecords(text: string, metadata: PdfDiaryMetadata = {}): DiaryRecord[] {
   const normalized =
     normalizePdfDiaryMarkers(text);
 
-  if (
-    isOutlookIsProcessosLayout(
-      normalized
-    )
-  ) {
-    return parseOutlookIsProcessosRecords(
-      normalized,
-      metadata
-    );
+  if (isOutlookIsProcessosLayout(normalized)) {
+    return parseOutlookIsProcessosRecords(normalized, metadata);
   }
 
-  if (
-    isSerdijulLayout(
-      normalized
-    )
-  ) {
-    return parseSerdijulPdfDiaryRecords(
-      normalized,
-      metadata
-    );
+  if (isLegacySerdijulText(normalized)) {
+    return [parseLegacySerdijulRecord(normalized, metadata)];
   }
 
-  return parseDefaultPdfDiaryRecords(
-    normalized,
-    metadata
-  );
+  if (isSerdijulLayout(normalized)) {
+    return parseSerdijulPdfDiaryRecords(normalized, metadata);
+  }
+
+  return parseDefaultPdfDiaryRecords(normalized, metadata);
 }
 
 function parseOutlookIsProcessosRecords(
@@ -91,15 +96,9 @@ function parseOutlookIsProcessosRecord(
   block: string,
   metadata: PdfDiaryMetadata
 ): DiaryRecord {
-  const informacoes = extractValue(
-    block,
-    /Informacoes\s*:\s*([\s\S]*)$/i
-  );
+  const informacoes = extractValue(block, /Informacoes\s*:\s*([\s\S]*)$/i);
 
-  const data = extractValue(
-    block,
-    /Data\s*:\s*(\d{2}\/\d{2}\/\d{4})/i
-  );
+  const data = extractValue(block, /Data\s*:\s*(\d{2}\/\d{2}\/\d{4})/i);
 
   const baseRecord: DiaryRecord = {
     layout: "DEFAULT",
@@ -107,15 +106,9 @@ function parseOutlookIsProcessosRecord(
     data,
     dataPublicacao: data,
 
-    codigo: extractValue(
-      block,
-      /Codigo\s*:\s*([\s\S]*?)\s+Nome\s+Pesquisado\s*:/i
-    ),
+    codigo: extractValue(block, /Codigo\s*:\s*([\s\S]*?)\s+Nome\s+Pesquisado\s*:/i),
 
-    nomePesquisado: extractValue(
-      block,
-      /Nome\s+Pesquisado\s*:\s*([\s\S]*?)\s+Jornal\s*:/i
-    ),
+    nomePesquisado: extractValue(block, /Nome\s+Pesquisado\s*:\s*([\s\S]*?)\s+Jornal\s*:/i),
 
     jornal:
       extractValue(block, /Jornal\s*:\s*([\s\S]*?)\s+Tribunal\s*:/i) ??
@@ -125,10 +118,7 @@ function parseOutlookIsProcessosRecord(
       extractValue(block, /Tribunal\s*:\s*([\s\S]*?)\s+Vara\s*:/i) ??
       metadata.tribunal,
 
-    vara: extractValue(
-      block,
-      /Vara\s*:\s*([\s\S]*?)\s+Informacoes\s*:/i
-    ),
+    vara: extractValue(block, /Vara\s*:\s*([\s\S]*?)\s+Informacoes\s*:/i),
 
     informacoes,
 
@@ -157,10 +147,7 @@ function enrichRecordWithPublicacaoProcesso(
     /Orgao\s*:\s*([\s\S]*?)\s+Data\s+de\s+disponibilizacao\s*:/i
   );
 
-  const comunicacaoId = extractValue(
-    informacoes,
-    /\|\s*comunicacao_id\s*:\s*([^|]+)\|/i
-  );
+  const comunicacaoId = extractValue(informacoes, /\|\s*comunicacao_id\s*:\s*([^|]+)\|/i);
 
   const conteudo = extractValue(
     informacoes,
@@ -176,38 +163,24 @@ function enrichRecordWithPublicacaoProcesso(
     orgao,
     vara: orgao ?? baseRecord.vara,
 
-    dataDisponibilizacao: extractValue(
-      informacoes,
-      /Data\s+de\s+disponibilizacao\s*:\s*([\d\/-]+)/i
-    ),
+    dataDisponibilizacao: extractValue(informacoes, /Data\s+de\s+disponibilizacao\s*:\s*([\d\/-]+)/i),
 
     tipoComunicacao: extractValue(
       informacoes,
       /Tipo\s+de\s+comunicacao\s*:\s*([\s\S]*?)\s+Meio\s*:/i
     ),
 
-    meio: extractValue(
-      informacoes,
-      /Meio\s*:\s*([\s\S]*?)\s+Inteiro\s+teor\s*:/i
-    ),
+    meio: extractValue(informacoes, /Meio\s*:\s*([\s\S]*?)\s+Inteiro\s+teor\s*:/i),
 
-    inteiroTeor: extractValue(
-      informacoes,
-      /Inteiro\s+teor\s*:\s*([\s\S]*?)\s+Parte\s*:/i
-    ),
+    inteiroTeor: extractValue(informacoes, /Inteiro\s+teor\s*:\s*([\s\S]*?)\s+Parte\s*:/i),
 
-    classe: extractValue(
-      informacoes,
-      /Classe\s*:\s*([\s\S]*?)\s+Conteudo\s*:/i
-    ),
+    classe: extractValue(informacoes, /Classe\s*:\s*([\s\S]*?)\s+Conteudo\s*:/i),
 
     conteudo: cleanDiaryValue(conteudo),
 
     comunicacaoId,
 
-    informacoes: cleanDiaryValue(
-      removeComunicacaoId(informacoes)
-    ),
+    informacoes: cleanDiaryValue(removeComunicacaoId(informacoes)),
 
     partes: extractDiaryPartes(informacoes),
     advogados: extractDiaryAdvogados(informacoes)
@@ -228,10 +201,7 @@ function enrichRecordWithLegacyInformation(
 
     processoOrigem: extractOriginProcessNumber(informacoes),
 
-    orgao: extractValue(
-      informacoes,
-      /ORGAO\s+JULGADOR\.*\s*:\s*([\s\S]*?)\s+RELATOR/i
-    ),
+    orgao: extractValue(informacoes, /ORGAO\s+JULGADOR\.*\s*:\s*([\s\S]*?)\s+RELATOR/i),
 
     classe: extractValue(
       informacoes,
@@ -307,11 +277,7 @@ function parseSerdijulPdfDiaryRecords(
 
   for (const block of blocks) {
     const localMetadata =
-      extractPdfDiaryMetadataAtPosition(
-        text,
-        block.start,
-        metadata
-    );
+      extractPdfDiaryMetadataAtPosition(text, block.start, metadata);
 
     if (block.kind === "PAUTA_JULGAMENTO") {
       const record = parseSerdijulPautaJulgamentoRecord(block.text, localMetadata)
@@ -328,15 +294,10 @@ function parseSerdijulPdfDiaryRecords(
       "PJE_LIST"
     ) {
       const record =
-        parseSerdijulPjeListRecord(
-          block.text,
-          localMetadata
-        );
+        parseSerdijulPjeListRecord(block.text, localMetadata);
 
       if (
-        isValidSerdijulPjeListRecord(
-          record
-        )
+        isValidSerdijulPjeListRecord(record)
       ) {
         records.push(record);
       }
@@ -345,15 +306,10 @@ function parseSerdijulPdfDiaryRecords(
     }
 
     const record =
-      parseSerdijulPdfDiaryRecord(
-        block.text,
-        localMetadata
-      );
+      parseSerdijulPdfDiaryRecord(block.text, localMetadata);
 
     if (
-      isValidSerdijulPdfDiaryRecord(
-        record
-      )
+      isValidSerdijulPdfDiaryRecord(record)
     ) {
       records.push(record);
     }
@@ -374,9 +330,7 @@ function extractSerdijulBlocks(
 
   const publicationStarts =
     [
-      ...text.matchAll(
-        /Publicacao\s+Processo\s*:/gi
-      )
+      ...text.matchAll(/Publicacao\s+Processo\s*:/gi)
     ]
       .map(match => ({
         kind:
@@ -391,9 +345,7 @@ function extractSerdijulBlocks(
       );
 
   const pjeStarts =
-    findSerdijulPjeListBlockStarts(
-      text
-    )
+    findSerdijulPjeListBlockStarts(text)
       .map(start => ({
         kind:
           "PJE_LIST",
@@ -423,11 +375,7 @@ function extractSerdijulBlocks(
   const blocks:
     SerdijulBlock[] = [];
 
-  for (
-    let index = 0;
-    index < starts.length;
-    index++
-  ) {
+  for ( let index = 0; index < starts.length; index++ ) {
     const current =
       starts[index];
 
@@ -459,9 +407,7 @@ function extractSerdijulBlocks(
       text:
         current.kind ===
         "PUBLICACAO_PROCESSO"
-          ? removeSerdijulNoise(
-              rawBlock
-            )
+          ? removeSerdijulNoise(rawBlock)
           : rawBlock
     });
   }
@@ -481,10 +427,7 @@ function parseSerdijulPdfDiaryRecord(
     /Orgao\s*:\s*([\s\S]*?)\s+Data\s+de\s+disponibilizacao\s*:/i
   );
 
-  const comunicacaoId = extractValue(
-    block,
-    /\|\s*comunicacao_id\s*:\s*([^|]+)\|/i
-  );
+  const comunicacaoId = extractValue(block, /\|\s*comunicacao_id\s*:\s*([^|]+)\|/i);
 
   return {
     layout: "SERDIJUL",
@@ -495,42 +438,24 @@ function parseSerdijulPdfDiaryRecord(
     orgao,
     vara: orgao,
 
-    dataDisponibilizacao: extractValue(
-      block,
-      /Data\s+de\s+disponibilizacao\s*:\s*([\d\/-]+)/i
-    ),
+    dataDisponibilizacao: extractValue(block, /Data\s+de\s+disponibilizacao\s*:\s*([\d\/-]+)/i),
 
     dataDivulgacao: metadata.dataDivulgacao,
     dataPublicacao: metadata.dataPublicacao,
 
-    tipoComunicacao: extractValue(
-      block,
-      /Tipo\s+de\s+comunicacao\s*:\s*([\s\S]*?)\s+Meio\s*:/i
-    ),
+    tipoComunicacao: extractValue(block, /Tipo\s+de\s+comunicacao\s*:\s*([\s\S]*?)\s+Meio\s*:/i),
 
-    meio: extractValue(
-      block,
-      /Meio\s*:\s*([\s\S]*?)\s+Inteiro\s+teor\s*:/i
-    ),
+    meio: extractValue(block, /Meio\s*:\s*([\s\S]*?)\s+Inteiro\s+teor\s*:/i),
 
     inteiroTeor: extractSerdijulInteiroTeor(block),
 
-    classe: extractValue(
-      block,
-      /Classe\s*:\s*([\s\S]*?)\s+Conteudo\s*:/i
-    ),
+    classe: extractValue(block, /Classe\s*:\s*([\s\S]*?)\s+Conteudo\s*:/i),
 
-    conteudo: cleanSerdijulExtractedText(
-      extractSerdijulConteudo(block),
-      orgao
-    ),
+    conteudo: cleanSerdijulExtractedText(extractSerdijulConteudo(block), orgao),
 
     comunicacaoId,
 
-    informacoes: cleanSerdijulExtractedText(
-      removeComunicacaoId(block),
-      orgao
-    ),
+    informacoes: cleanSerdijulExtractedText(removeComunicacaoId(block), orgao),
 
     partes: extractDiaryPartes(block),
     advogados: extractDiaryAdvogados(block),
@@ -541,10 +466,7 @@ function parseSerdijulPdfDiaryRecord(
 }
 
 function extractSerdijulInteiroTeor(block: string): string | undefined {
-  const inteiroTeor = extractValue(
-    block,
-    /Inteiro\s+teor\s*:\s*([\s\S]*?)\s+Parte\s*:/i
-  );
+  const inteiroTeor = extractValue(block, /Inteiro\s+teor\s*:\s*([\s\S]*?)\s+Parte\s*:/i);
 
   if (!inteiroTeor) return undefined;
 
@@ -589,33 +511,18 @@ function parseDefaultPdfDiaryRecord(
   block: string,
   metadata: PdfDiaryMetadata
 ): DiaryRecord {
-  const informacoes = extractValue(
-    block,
-    /Informacoes\s*:\s*([\s\S]*)$/i
-  );
+  const informacoes = extractValue(block, /Informacoes\s*:\s*([\s\S]*)$/i);
 
   return {
     layout: "DEFAULT",
 
-    data: extractValue(
-      block,
-      /Data\s*:\s*(\d{2}\/\d{2}\/\d{4})/i
-    ),
+    data: extractValue(block, /Data\s*:\s*(\d{2}\/\d{2}\/\d{4})/i),
 
-    dataPublicacao: extractValue(
-      block,
-      /Data\s*:\s*(\d{2}\/\d{2}\/\d{4})/i
-    ),
+    dataPublicacao: extractValue(block, /Data\s*:\s*(\d{2}\/\d{2}\/\d{4})/i),
 
-    codigo: extractValue(
-      block,
-      /Codigo\s*:\s*([\s\S]*?)\s+Nome\s+Pesquisado\s*:/i
-    ),
+    codigo: extractValue(block, /Codigo\s*:\s*([\s\S]*?)\s+Nome\s+Pesquisado\s*:/i),
 
-    nomePesquisado: extractValue(
-      block,
-      /Nome\s+Pesquisado\s*:\s*([\s\S]*?)\s+Jornal\s*:/i
-    ),
+    nomePesquisado: extractValue(block, /Nome\s+Pesquisado\s*:\s*([\s\S]*?)\s+Jornal\s*:/i),
 
     jornal:
       extractValue(block, /Jornal\s*:\s*([\s\S]*?)\s+Tribunal\s*:/i) ??
@@ -625,10 +532,7 @@ function parseDefaultPdfDiaryRecord(
       extractValue(block, /Tribunal\s*:\s*([\s\S]*?)\s+Vara\s*:/i) ??
       metadata.tribunal,
 
-    vara: extractValue(
-      block,
-      /Vara\s*:\s*([\s\S]*?)\s+Informacoes\s*:/i
-    ),
+    vara: extractValue(block, /Vara\s*:\s*([\s\S]*?)\s+Informacoes\s*:/i),
 
     informacoes,
 
@@ -655,10 +559,7 @@ function cleanSerdijulExtractedText(
   if (orgao) {
     const escapedOrgao = escapeRegExp(orgao);
 
-    cleaned = cleaned.replace(
-      new RegExp(`\\s*${escapedOrgao}\\s*--\\s*--\\s*`, "gi"),
-      " "
-    );
+    cleaned = cleaned.replace(new RegExp(`\\s*${escapedOrgao}\\s*--\\s*--\\s*`, "gi"), " ");
   }
 
   return cleanDiaryValue(

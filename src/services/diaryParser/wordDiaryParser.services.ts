@@ -45,43 +45,22 @@ function parseWordCadastradoRecords(text: string): DiaryRecord[] {
 }
 
 function parseWordCadastradoRecord(block: string): DiaryRecord {
-  const informacoes = extractRawValue(
-    block,
-    /Informa(?:ç|c)[oõ]es\s*:\s*([\s\S]*)$/i
-  );
+  const informacoes = extractRawValue(block, /Informa(?:ç|c)[oõ]es\s*:\s*([\s\S]*)$/i);
 
   const baseRecord: DiaryRecord = {
     layout: "WORD_CADASTRADO",
 
-    dataDisponibilizacao: extractValue(
-      block,
-      /Data\s+Disponibiliza(?:ção|cao)\s*:\s*([\d/.-]+)/i
-    ),
+    dataDisponibilizacao: extractValue(block, /Data\s+Disponibiliza(?:ção|cao)\s*:\s*([\d/.-]+)/i),
 
-    dataPublicacao: extractValue(
-      block,
-      /Data\s+Publica(?:ção|cao)\s*:\s*([\d/.-]+)/i
-    ),
+    dataPublicacao: extractValue(block, /Data\s+Publica(?:ção|cao)\s*:\s*([\d/.-]+)/i),
 
-    codigo: extractValue(
-      block,
-      /C[oó]digo\s*:\s*([\s\S]*?)\s+Jornal\s*:/i
-    ),
+    codigo: extractValue(block, /C[oó]digo\s*:\s*([\s\S]*?)\s+Jornal\s*:/i),
 
-    jornal: extractValue(
-      block,
-      /Jornal\s*:\s*([\s\S]*?)\s+Tribunal\s*:/i
-    ),
+    jornal: extractValue(block, /Jornal\s*:\s*([\s\S]*?)\s+Tribunal\s*:/i),
 
-    tribunal: extractValue(
-      block,
-      /Tribunal\s*:\s*([\s\S]*?)\s+Vara\s*:/i
-    ),
+    tribunal: extractValue(block, /Tribunal\s*:\s*([\s\S]*?)\s+Vara\s*:/i),
 
-    vara: extractValue(
-      block,
-      /Vara\s*:\s*([\s\S]*?)\s+Informa(?:ç|c)[oõ]es\s*:/i
-    ),
+    vara: extractValue(block, /Vara\s*:\s*([\s\S]*?)\s+Informa(?:ç|c)[oõ]es\s*:/i),
 
     informacoes: cleanDiaryValue(informacoes),
 
@@ -89,10 +68,7 @@ function parseWordCadastradoRecord(block: string): DiaryRecord {
     advogados: []
   };
 
-  return enrichRecordWithInternalPublication(
-    baseRecord,
-    informacoes ?? ""
-  );
+  return enrichRecordWithInternalPublication(baseRecord, informacoes ?? "");
 }
 
 function isValidWordCadastradoRecord(record: DiaryRecord): boolean {

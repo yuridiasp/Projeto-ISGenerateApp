@@ -23,6 +23,7 @@ import { splitISController,
     openDirectoryController
 } from '@controllers/controllers'
 import { DialogContext } from '@models/dialogHistory';
+import { renameDiaryFilesController } from '@controllers/renameDiaryFiles.controllers';
 
 export async function setHandlers (windows: iWindows) {
     ipcMain.handle('validate-intimation-register', (event: Electron.IpcMainInvokeEvent, data: iFileData, credentials: credential) => intimationsPublicationRegisterController(event, data, credentials, windows))
@@ -42,5 +43,6 @@ export async function setHandlers (windows: iWindows) {
     ipcMain.handle('clopy-to-clip', (event, text) => copyToClipboardController(text))
     ipcMain.handle("open-multiple-files-dialog", (event, context: DialogContext) => openMultipleFilesDialogController(event, windows, context))
     ipcMain.handle("compare-publications", comparePublicationsController)
+    ipcMain.handle("rename-diary-files", renameDiaryFilesController);
     ipcMain.on("open-directory", (event, path: string) => openDirectoryController(path))
 }

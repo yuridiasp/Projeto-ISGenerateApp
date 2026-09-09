@@ -40,9 +40,7 @@ import {
 } from "../../src/infrastructure/pdfParse/pdfParse.infrastructure"
 
 
-describe(
-    "extractRawTextFromPdf",
-    () => {
+describe("extractRawTextFromPdf", () => {
 
         let tempDirectory: string
         let filePath: string
@@ -54,27 +52,18 @@ describe(
 
             tempDirectory =
                 fs.mkdtempSync(
-                    path.join(
-                        os.tmpdir(),
-                        "isgea-pdf-"
-                    )
+                    path.join(os.tmpdir(), "isgea-pdf-")
                 )
 
             filePath =
-                path.join(
-                    tempDirectory,
-                    "arquivo.pdf"
-                )
+                path.join(tempDirectory, "arquivo.pdf")
 
             /*
              * O PDFParse está mockado.
              * O conteúdo físico não precisa ser
              * um PDF verdadeiro neste teste.
              */
-            fs.writeFileSync(
-                filePath,
-                Buffer.from("PDF MOCK")
-            )
+            fs.writeFileSync(filePath, Buffer.from("PDF MOCK"))
 
             mockDestroy
                 .mockResolvedValue(undefined)
@@ -93,9 +82,7 @@ describe(
         })
 
 
-        test(
-            "retorna texto extraido do PDF",
-            async () => {
+        test("retorna texto extraido do PDF", async () => {
 
                 mockGetText
                     .mockResolvedValueOnce({
@@ -114,20 +101,14 @@ describe(
                         "texto extraido do PDF"
                     )
 
-                expect(
-                    mockGetText
-                ).toHaveBeenCalledTimes(1)
+                expect(mockGetText).toHaveBeenCalledTimes(1)
 
-                expect(
-                    mockDestroy
-                ).toHaveBeenCalledTimes(1)
+                expect(mockDestroy).toHaveBeenCalledTimes(1)
             }
         )
 
 
-        test(
-            "rejeita PDF sem camada de texto reconhecivel",
-            async () => {
+        test("rejeita PDF sem camada de texto reconhecivel", async () => {
 
                 mockGetText
                     .mockResolvedValueOnce({
@@ -145,21 +126,15 @@ describe(
                         /camada de texto reconhecível|camada de texto reconhecivel/i
                     )
 
-                expect(
-                    mockDestroy
-                ).toHaveBeenCalledTimes(1)
+                expect(mockDestroy).toHaveBeenCalledTimes(1)
             }
         )
 
 
-        test(
-            "destroi parser mesmo quando getText falha",
-            async () => {
+        test("destroi parser mesmo quando getText falha", async () => {
 
                 const parserError =
-                    new Error(
-                        "erro interno do parser"
-                    )
+                    new Error("erro interno do parser")
 
                 mockGetText
                     .mockRejectedValueOnce(
@@ -177,9 +152,7 @@ describe(
                         "erro interno do parser"
                     )
 
-                expect(
-                    mockDestroy
-                ).toHaveBeenCalledTimes(1)
+                expect(mockDestroy).toHaveBeenCalledTimes(1)
             }
         )
 

@@ -40,9 +40,7 @@ function isOleCompoundDocument(buffer: Buffer): boolean {
     return false;
   }
 
-  return signature.every(
-    (byte, index) => buffer[index] === byte
-  );
+  return signature.every((byte, index) => buffer[index] === byte);
 }
 
 function isHtml(buffer: Buffer): boolean {
@@ -80,17 +78,13 @@ function detectWordDocumentKind(
 function detectHtmlCharset(
   htmlHead: string
 ): string {
-  const charsetMeta = htmlHead.match(
-    /<meta[^>]*charset=["']?\s*([\w-]+)\s*["']?/i
-  );
+  const charsetMeta = htmlHead.match(/<meta[^>]*charset=["']?\s*([\w-]+)\s*["']?/i);
 
   if (charsetMeta?.[1]) {
     return charsetMeta[1].toLowerCase();
   }
 
-  const contentTypeMeta = htmlHead.match(
-    /content=["'][^"']*charset=([\w-]+)[^"']*["']/i
-  );
+  const contentTypeMeta = htmlHead.match(/content=["'][^"']*charset=([\w-]+)[^"']*["']/i);
 
   if (contentTypeMeta?.[1]) {
     return contentTypeMeta[1].toLowerCase();
@@ -132,9 +126,7 @@ function extractRawTextFromHtmlBuffer(
 export async function extractRawTextFromWord(
   file: iFileData
 ): Promise<string> {
-  const buffer = await fs.promises.readFile(
-    file.filePath
-  );
+  const buffer = await fs.promises.readFile(file.filePath);
 
   const kind = detectWordDocumentKind(buffer);
 

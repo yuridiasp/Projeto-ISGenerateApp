@@ -16,13 +16,9 @@ import {
 } from "../../src/helpers/diaryDocumentIdentifier.helpers"
 
 
-describe(
-    "createDiaryDocumentIdentifierService",
-    () => {
+describe("createDiaryDocumentIdentifierService", () => {
 
-        test(
-            "le texto de PDF usando apenas o repositorio de PDF",
-            async () => {
+        test("le texto de PDF usando apenas o repositorio de PDF", async () => {
 
                 const file = {
                     filePath: "entrada.PDF",
@@ -40,15 +36,11 @@ describe(
                 `
 
                 const pdfRepository = {
-                    readText: jest.fn(
-                        async (_file: iFileData) => rawText
-                    )
+                    readText: jest.fn(async (_file: iFileData) => rawText)
                 }
 
                 const docxRepository = {
-                    readText: jest.fn(
-                        async (_file: iFileData) => ""
-                    )
+                    readText: jest.fn(async (_file: iFileData) => "")
                 }
 
                 const service =
@@ -66,24 +58,16 @@ describe(
                 expect(result.layout)
                     .toBe("PDF_IS_PROCESSOS")
 
-                expect(
-                    pdfRepository.readText
-                ).toHaveBeenCalledTimes(1)
+                expect(pdfRepository.readText).toHaveBeenCalledTimes(1)
 
-                expect(
-                    pdfRepository.readText
-                ).toHaveBeenCalledWith(file)
+                expect(pdfRepository.readText).toHaveBeenCalledWith(file)
 
-                expect(
-                    docxRepository.readText
-                ).not.toHaveBeenCalled()
+                expect(docxRepository.readText).not.toHaveBeenCalled()
             }
         )
 
 
-        test(
-            "inspect retorna identificacao e o mesmo texto extraido",
-            async () => {
+        test("inspect retorna identificacao e o mesmo texto extraido", async () => {
 
                 const file = {
                     filePath: "entrada.pdf",
@@ -101,15 +85,11 @@ describe(
                 `
 
                 const pdfRepository = {
-                    readText: jest.fn(
-                        async () => rawText
-                    )
+                    readText: jest.fn(async () => rawText)
                 }
 
                 const docxRepository = {
-                    readText: jest.fn(
-                        async () => ""
-                    )
+                    readText: jest.fn(async () => "")
                 }
 
                 const service =
@@ -127,21 +107,15 @@ describe(
                 expect(result.rawText)
                     .toBe(rawText)
 
-                expect(
-                    result.identification
-                ).toMatchObject({
+                expect(result.identification).toMatchObject({
                     fileType: "PDF",
                     layout: "PDF_IS_PROCESSOS",
                     extension: ".pdf"
                 })
 
-                expect(
-                    pdfRepository.readText
-                ).toHaveBeenCalledTimes(1)
+                expect(pdfRepository.readText).toHaveBeenCalledTimes(1)
 
-                expect(
-                    docxRepository.readText
-                ).not.toHaveBeenCalled()
+                expect(docxRepository.readText).not.toHaveBeenCalled()
             }
         )
 
@@ -149,9 +123,7 @@ describe(
         test.each([
             "diario.docx",
             "diario.DOC"
-        ])(
-            "le texto de %s usando apenas o repositorio de Word",
-            async filePath => {
+        ])("le texto de %s usando apenas o repositorio de Word", async filePath => {
 
                 const file = {
                     filePath,
@@ -169,15 +141,11 @@ describe(
                 `
 
                 const pdfRepository = {
-                    readText: jest.fn(
-                        async (_file: iFileData) => ""
-                    )
+                    readText: jest.fn(async (_file: iFileData) => "")
                 }
 
                 const docxRepository = {
-                    readText: jest.fn(
-                        async (_file: iFileData) => rawText
-                    )
+                    readText: jest.fn(async (_file: iFileData) => rawText)
                 }
 
                 const service =
@@ -192,32 +160,20 @@ describe(
                 const result =
                     await service.inspect(file)
 
-                expect(
-                    result.identification.layout
-                ).toBe("WORD_CADASTRADO")
+                expect(result.identification.layout).toBe("WORD_CADASTRADO")
 
-                expect(
-                    result.rawText
-                ).toBe(rawText)
+                expect(result.rawText).toBe(rawText)
 
-                expect(
-                    docxRepository.readText
-                ).toHaveBeenCalledTimes(1)
+                expect(docxRepository.readText).toHaveBeenCalledTimes(1)
 
-                expect(
-                    docxRepository.readText
-                ).toHaveBeenCalledWith(file)
+                expect(docxRepository.readText).toHaveBeenCalledWith(file)
 
-                expect(
-                    pdfRepository.readText
-                ).not.toHaveBeenCalled()
+                expect(pdfRepository.readText).not.toHaveBeenCalled()
             }
         )
 
 
-        test(
-            "identify preserva compatibilidade e retorna somente a identificacao",
-            async () => {
+        test("identify preserva compatibilidade e retorna somente a identificacao", async () => {
 
                 const file = {
                     filePath: "diario.docx",
@@ -241,9 +197,7 @@ describe(
                 const service =
                     createDiaryDocumentIdentifierService({
                         pdfTextReaderRepository: {
-                            readText: jest.fn(
-                                async () => ""
-                            )
+                            readText: jest.fn(async () => "")
                         },
 
                         docxTextReaderRepository:
@@ -263,27 +217,19 @@ describe(
                     .not
                     .toHaveProperty("rawText")
 
-                expect(
-                    docxRepository.readText
-                ).toHaveBeenCalledTimes(1)
+                expect(docxRepository.readText).toHaveBeenCalledTimes(1)
             }
         )
 
 
-        test(
-            "falha para extensao sem leitor suportado",
-            async () => {
+        test("falha para extensao sem leitor suportado", async () => {
 
                 const pdfRepository = {
-                    readText: jest.fn(
-                        async () => ""
-                    )
+                    readText: jest.fn(async () => "")
                 }
 
                 const docxRepository = {
-                    readText: jest.fn(
-                        async () => ""
-                    )
+                    readText: jest.fn(async () => "")
                 }
 
                 const service =
@@ -304,13 +250,9 @@ describe(
                     .rejects
                     .toThrow(/Tipo de arquivo/i)
 
-                expect(
-                    pdfRepository.readText
-                ).not.toHaveBeenCalled()
+                expect(pdfRepository.readText).not.toHaveBeenCalled()
 
-                expect(
-                    docxRepository.readText
-                ).not.toHaveBeenCalled()
+                expect(docxRepository.readText).not.toHaveBeenCalled()
             }
         )
 
@@ -326,14 +268,9 @@ describe(
             Publicacao Processo: 0000000-00.2026.8.25.0001
             `;
 
-            const result = identifyDiaryDocument(
-            "cadastrados.docx",
-            text
-            );
+            const result = identifyDiaryDocument("cadastrados.docx", text);
 
-            expect(result.layout).toBe(
-            "WORD_CADASTRADO"
-            );
+            expect(result.layout).toBe("WORD_CADASTRADO");
         });
 
     }

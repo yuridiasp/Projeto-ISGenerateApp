@@ -17,10 +17,7 @@ describe("identifyDiaryDocument", () => {
             Informacoes: Publicacao do processo
         `
 
-        const result = identifyDiaryDocument(
-            "intimacoes.pdf",
-            text
-        )
+        const result = identifyDiaryDocument("intimacoes.pdf", text)
 
         expect(result).toMatchObject({
             fileType: "PDF",
@@ -38,9 +35,7 @@ describe("identifyDiaryDocument", () => {
     })
 
 
-    test(
-        "identifica PDF SERDIJUL quando existe marcador interno sem estrutura externa",
-        () => {
+    test("identifica PDF SERDIJUL quando existe marcador interno sem estrutura externa", () => {
 
             const text = `
                 Publicacao Processo: 0001234-56.2026.5.20.0001
@@ -49,10 +44,7 @@ describe("identifyDiaryDocument", () => {
                 Conteudo: despacho publicado
             `
 
-            const result = identifyDiaryDocument(
-                "serdijul.PDF",
-                text
-            )
+            const result = identifyDiaryDocument("serdijul.PDF", text)
 
             expect(result).toMatchObject({
                 fileType: "PDF",
@@ -69,9 +61,7 @@ describe("identifyDiaryDocument", () => {
     )
 
 
-    test(
-        "identifica documento Word cadastrado com marcadores normalizados",
-        () => {
+    test("identifica documento Word cadastrado com marcadores normalizados", () => {
 
             const text = `
                 Data Disponibilizacao: 31/05/2026
@@ -83,10 +73,7 @@ describe("identifyDiaryDocument", () => {
                 Informacoes: texto da intimacao
             `
 
-            const result = identifyDiaryDocument(
-                "diario.docx",
-                text
-            )
+            const result = identifyDiaryDocument("diario.docx", text)
 
             expect(result).toMatchObject({
                 fileType: "DOCX",
@@ -98,9 +85,7 @@ describe("identifyDiaryDocument", () => {
     )
 
 
-    test(
-        "identifica arquivo DOC com layout Word cadastrado",
-        () => {
+    test("identifica arquivo DOC com layout Word cadastrado", () => {
 
             const text = `
                 Data Disponibilizacao: 31/05/2026
@@ -112,10 +97,7 @@ describe("identifyDiaryDocument", () => {
                 Informacoes: texto da intimacao
             `
 
-            const result = identifyDiaryDocument(
-                "diario.DOC",
-                text
-            )
+            const result = identifyDiaryDocument("diario.DOC", text)
 
             expect(result).toMatchObject({
                 fileType: "DOC",
@@ -126,9 +108,7 @@ describe("identifyDiaryDocument", () => {
     )
 
 
-    test(
-        "nao classifica PDF como WORD_CADASTRADO apenas por possuir marcadores de Word",
-        () => {
+    test("nao classifica PDF como WORD_CADASTRADO apenas por possuir marcadores de Word", () => {
 
             const text = `
                 Data Disponibilizacao: 31/05/2026
@@ -140,10 +120,7 @@ describe("identifyDiaryDocument", () => {
                 Informacoes: texto da intimacao
             `
 
-            const result = identifyDiaryDocument(
-                "documento.pdf",
-                text
-            )
+            const result = identifyDiaryDocument("documento.pdf", text)
 
             expect(result.fileType).toBe("PDF")
 
@@ -156,14 +133,9 @@ describe("identifyDiaryDocument", () => {
     )
 
 
-    test(
-        "retorna desconhecido para extensao e texto sem marcadores suficientes",
-        () => {
+    test("retorna desconhecido para extensao e texto sem marcadores suficientes", () => {
 
-            const result = identifyDiaryDocument(
-                "notas.txt",
-                "conteudo livre"
-            )
+            const result = identifyDiaryDocument("notas.txt", "conteudo livre")
 
             expect(result).toMatchObject({
                 fileType: "UNKNOWN",

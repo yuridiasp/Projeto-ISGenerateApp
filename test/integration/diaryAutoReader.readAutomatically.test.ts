@@ -17,29 +17,14 @@ import {
 } from "../../src/services/diaryAutoReader/diaryAutoReader.services"
 
 
-function docPath(
-    fileName: string
-): string {
-
-    return path.resolve(
-        __dirname,
-        "..",
-        "..",
-        "doc",
-        fileName
-    )
+function docPath(fileName: string): string {
+    return path.resolve(__dirname, "..", "..", "doc", fileName)
 }
 
 
-function readDiaryAutomaticallyInProjectProcess(
-    fileName: string
-) {
+function readDiaryAutomaticallyInProjectProcess(fileName: string) {
     const root =
-        path.resolve(
-            __dirname,
-            "..",
-            ".."
-        )
+        path.resolve(__dirname, "..", "..")
 
     const filePath =
         docPath(fileName)
@@ -51,13 +36,7 @@ function readDiaryAutomaticallyInProjectProcess(
     }
 
     const tsxCli =
-        path.join(
-            root,
-            "node_modules",
-            "tsx",
-            "dist",
-            "cli.mjs"
-        )
+        path.join(root, "node_modules", "tsx", "dist", "cli.mjs")
 
     const script = `
         import { dayjsConfig } from "./src/config/dayjsConfig.config.ts";
@@ -95,166 +74,123 @@ function readDiaryAutomaticallyInProjectProcess(
 }
 
 
-describe(
-    "readDiaryAutomatically - integracao",
-    () => {
+describe("readDiaryAutomatically - integracao", () => {
 
-        beforeAll(() => {
-            dayjsConfig()
-        })
+    beforeAll(() => dayjsConfig())
 
+    test("identifica e processa PDF SERDIJUL automaticamente", async () => {
+        const records = readDiaryAutomaticallyInProjectProcess("SERIJDUL TRT20 01062026.pdf")
 
-        test(
-            "identifica e processa PDF SERDIJUL automaticamente",
-            async () => {
+        expect(records.length).toBeGreaterThan(0)
 
-                const records =
-                    readDiaryAutomaticallyInProjectProcess(
-                        "SERIJDUL TRT20 01062026.pdf"
-                    )
+        expect(records).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    layout: "SERDIJUL",
 
-                expect(
-                    records.length
-                ).toBeGreaterThan(0)
+                    processo:
+                        expect.stringMatching(/^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/),
 
-                expect(records).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            layout: "SERDIJUL",
+                    orgao:
+                        expect.any(String),
 
-                            processo:
-                                expect.stringMatching(
-                                    /^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/
-                                ),
+                    dataDisponibilizacao:
+                        expect.any(String),
 
-                            orgao:
-                                expect.any(String),
-
-                            dataDisponibilizacao:
-                                expect.any(String),
-
-                            conteudo:
-                                expect.any(String)
-                        })
-                    ])
-                )
-            },
-            30000
-        )
+                    conteudo:
+                        expect.any(String)
+                })
+            ])
+    )}, 30000)
 
 
-        test(
-            "identifica e processa PDF exportado pelo IS automaticamente",
-            async () => {
+    test("identifica e processa PDF exportado pelo IS automaticamente", async () => {
+        const records =
+            readDiaryAutomaticallyInProjectProcess("IS JFSE 08052026.pdf")
 
-                const records =
-                    readDiaryAutomaticallyInProjectProcess(
-                        "IS JFSE 08052026.pdf"
-                    )
+        expect(records.length).toBeGreaterThan(0)
 
-                expect(
-                    records.length
-                ).toBeGreaterThan(0)
-
-                /*
-                 * O identificador classifica o documento
-                 * físico como PDF_IS_PROCESSOS.
-                 *
-                 * Os registros produzidos pelo parser
-                 * atualmente usam layout DEFAULT.
-                 */
-                expect(records).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            layout: "DEFAULT",
+        /*
+            * O identificador classifica o documento
+            * físico como PDF_IS_PROCESSOS.
+            *
+            * Os registros produzidos pelo parser
+            * atualmente usam layout DEFAULT.
+            */
+        expect(records).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    layout: "DEFAULT",
 
                             processo:
-    expect.stringMatching(
-        /^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/
-    ),
+        expect.stringMatching(/^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/),
+                    orgao:
+                        expect.any(String),
+                    dataDisponibilizacao:
+                        expect.any(String),
+                    conteudo:
+                        expect.any(String)
+                })
+            ])
+        )},30000)
 
-                            orgao:
-                                expect.any(String),
+    test("identifica e processa DOCX cadastrado automaticamente", async () => {
+        const filePath =
+            docPath("TRT30092025 - Cadastrados.docx")
 
-                            dataDisponibilizacao:
-                                expect.any(String),
+        const records =
+            await readDiaryAutomatically({
+                filePath,
 
-                            conteudo:
-                                expect.any(String)
-                        })
-                    ])
-                )
-            },
-            30000
-        )
+                fileName:
+                    path.basename(filePath)
+            })
 
+        expect(records.length).toBeGreaterThan(0)
 
-        test(
-            "identifica e processa DOCX cadastrado automaticamente",
-            async () => {
+        expect(records).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    layout:
+                        "WORD_CADASTRADO",
 
-                const filePath =
-                    docPath(
-                        "TRT30092025 - Cadastrados.docx"
-                    )
+                    processo:
+                        expect.stringMatching(/^\d{20}$/),
 
-                const records =
-                    await readDiaryAutomatically({
-                        filePath,
+                    orgao:
+                        expect.any(String),
 
-                        fileName:
-                            path.basename(filePath)
-                    })
+                    dataDisponibilizacao:
+                        expect.any(String),
 
-                expect(
-                    records.length
-                ).toBeGreaterThan(0)
+                    conteudo:
+                        expect.any(String)
+                })
+            ])
+        )}, 30000)
 
-                expect(records).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            layout:
-                                "WORD_CADASTRADO",
+    test("processa SERDIJUL DOCX automaticamente", async () => {
+        const filePath = docPath("SERDIJUL TJSE 13082026.docx");
 
-                            processo:
-                                expect.stringMatching(/^\d{20}$/),
+        const records = await readDiaryAutomatically({
+            filePath,
+            fileName: path.basename(filePath)
+        });
 
-                            orgao:
-                                expect.any(String),
+        expect(records.length).toBeGreaterThan(0);
 
-                            dataDisponibilizacao:
-                                expect.any(String),
+        const record = records.find(
+        item =>
+            item.processo ===
+            "5006405-28.2026.8.25.0084"
+        );
 
-                            conteudo:
-                                expect.any(String)
-                        })
-                    ])
-                )
-            }, 30000)
+        expect(record).toBeDefined();
 
-            test("processa SERDIJUL DOCX automaticamente", async () => {
-                const filePath = docPath("SERDIJUL TJSE 13082026.docx");
-
-                const records = await readDiaryAutomatically({
-                    filePath,
-                    fileName: path.basename(filePath)
-                });
-
-                expect(records.length).toBeGreaterThan(0);
-
-                const record = records.find(
-                item =>
-                    item.processo ===
-                    "5006405-28.2026.8.25.0084"
-                );
-
-                expect(record).toBeDefined();
-
-                expect(record).toMatchObject({
-                layout: "SERDIJUL",
-                processo: "5006405-28.2026.8.25.0084",
-                tipoComunicacao: "Intimacao"
-                });
-            }, 30000);
-    }
-)
+        expect(record).toMatchObject({
+        layout: "SERDIJUL",
+        processo: "5006405-28.2026.8.25.0084",
+        tipoComunicacao: "Intimacao"
+        });
+    }, 30000);
+})

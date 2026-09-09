@@ -16,9 +16,7 @@ function readHistory(): DialogHistory {
       return {};
     }
 
-    return JSON.parse(
-      fs.readFileSync(filePath, "utf8")
-    ) as DialogHistory;
+    return JSON.parse(fs.readFileSync(filePath, "utf8")) as DialogHistory;
   } catch {
     return {};
   }

@@ -42,116 +42,69 @@ describe("openFile.infrastructure", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    jest.mocked(
-      getLastDialogDirectory
-    ).mockReturnValue(undefined);
+    jest.mocked(getLastDialogDirectory).mockReturnValue(undefined);
   });
 
   test("salva diretorio pai quando um arquivo e selecionado", async () => {
-    const filePath = path.join(
-      "arquivos",
-      "validar-cadastro",
-      "publicacoes.pdf"
-    );
+    const filePath = path.join("arquivos", "validar-cadastro", "publicacoes.pdf");
 
-    jest.mocked(
-      dialog.showOpenDialog
-    ).mockResolvedValue({
+    jest.mocked(dialog.showOpenDialog).mockResolvedValue({
       canceled: false,
       filePaths: [filePath]
     });
 
-    await openFileDialog(
-      windows,
-      "reconcilePublicationsWithSystem"
-    );
+    await openFileDialog(windows, "reconcilePublicationsWithSystem");
 
-    expect(
-      saveLastDialogDirectory
-    ).toHaveBeenCalledWith(
+    expect(saveLastDialogDirectory).toHaveBeenCalledWith(
       "reconcilePublicationsWithSystem",
       path.dirname(filePath)
     );
   });
 
   test("salva a propria pasta quando uma pasta e selecionada", async () => {
-    const folderPath = path.join(
-      "arquivos",
-      "intimacoes"
-    );
+    const folderPath = path.join("arquivos", "intimacoes");
 
-    jest.mocked(
-      dialog.showOpenDialog
-    ).mockResolvedValue({
+    jest.mocked(dialog.showOpenDialog).mockResolvedValue({
       canceled: false,
       filePaths: [folderPath]
     });
 
-    await openFolderDialog(
-      windows,
-      "countIntimationsByFolder"
-    );
+    await openFolderDialog(windows, "countIntimationsByFolder");
 
-    expect(
-      saveLastDialogDirectory
-    ).toHaveBeenCalledWith(
+    expect(saveLastDialogDirectory).toHaveBeenCalledWith(
       "countIntimationsByFolder",
       folderPath
     );
   });
 
   test("nao altera historico quando dialogo de arquivo e cancelado", async () => {
-    jest.mocked(
-      dialog.showOpenDialog
-    ).mockResolvedValue({
+    jest.mocked(dialog.showOpenDialog).mockResolvedValue({
       canceled: true,
       filePaths: []
     });
 
-    await openFileDialog(
-      windows,
-      "reconcileAnalysesWithSystem"
-    );
+    await openFileDialog(windows, "reconcileAnalysesWithSystem");
 
-    expect(
-      saveLastDialogDirectory
-    ).not.toHaveBeenCalled();
+    expect(saveLastDialogDirectory).not.toHaveBeenCalled();
   });
 
   test("nao altera historico quando dialogo de pasta e cancelado", async () => {
-    jest.mocked(
-      dialog.showOpenDialog
-    ).mockResolvedValue({
+    jest.mocked(dialog.showOpenDialog).mockResolvedValue({
       canceled: true,
       filePaths: []
     });
 
-    await openFolderDialog(
-      windows,
-      "countIntimationsByFolder"
-    );
+    await openFolderDialog(windows, "countIntimationsByFolder");
 
-    expect(
-      saveLastDialogDirectory
-    ).not.toHaveBeenCalled();
+    expect(saveLastDialogDirectory).not.toHaveBeenCalled();
   });
 
   test("salva diretorio do primeiro arquivo em selecao multipla", async () => {
-    const firstFile = path.join(
-      "arquivos",
-      "comparacao",
-      "arquivo-a.pdf"
-    );
+    const firstFile = path.join("arquivos", "comparacao", "arquivo-a.pdf");
 
-    const secondFile = path.join(
-      "arquivos",
-      "comparacao",
-      "arquivo-b.xlsx"
-    );
+    const secondFile = path.join("arquivos", "comparacao", "arquivo-b.xlsx");
 
-    jest.mocked(
-      dialog.showOpenDialog
-    ).mockResolvedValue({
+    jest.mocked(dialog.showOpenDialog).mockResolvedValue({
       canceled: false,
       filePaths: [
         firstFile,
@@ -159,56 +112,35 @@ describe("openFile.infrastructure", () => {
       ]
     });
 
-    await openMultipleFilesDialog(
-      windows,
-      "comparePublications"
-    );
+    await openMultipleFilesDialog(windows, "comparePublications");
 
-    expect(
-      saveLastDialogDirectory
-    ).toHaveBeenCalledWith(
+    expect(saveLastDialogDirectory).toHaveBeenCalledWith(
       "comparePublications",
       path.dirname(firstFile)
     );
 
-    expect(
-      saveLastDialogDirectory
-    ).toHaveBeenCalledTimes(1);
+    expect(saveLastDialogDirectory).toHaveBeenCalledTimes(1);
   });
 
   test("usa ultima pasta do contexto como defaultPath ao abrir arquivo", async () => {
-    const lastDirectory = path.join(
-      "arquivos",
-      "validar-cadastro"
-    );
+    const lastDirectory = path.join("arquivos", "validar-cadastro");
 
-    jest.mocked(
-      getLastDialogDirectory
-    ).mockReturnValue(
+    jest.mocked(getLastDialogDirectory).mockReturnValue(
       lastDirectory
     );
 
-    jest.mocked(
-      dialog.showOpenDialog
-    ).mockResolvedValue({
+    jest.mocked(dialog.showOpenDialog).mockResolvedValue({
       canceled: true,
       filePaths: []
     });
 
-    await openFileDialog(
-      windows,
+    await openFileDialog(windows, "reconcilePublicationsWithSystem");
+
+    expect(getLastDialogDirectory).toHaveBeenCalledWith(
       "reconcilePublicationsWithSystem"
     );
 
-    expect(
-      getLastDialogDirectory
-    ).toHaveBeenCalledWith(
-      "reconcilePublicationsWithSystem"
-    );
-
-    expect(
-      dialog.showOpenDialog
-    ).toHaveBeenCalledWith(
+    expect(dialog.showOpenDialog).toHaveBeenCalledWith(
       expect.objectContaining({
         properties: ["openFile"],
         defaultPath: lastDirectory
@@ -217,32 +149,20 @@ describe("openFile.infrastructure", () => {
   });
 
   test("usa ultima pasta do contexto como defaultPath ao abrir pasta", async () => {
-    const lastDirectory = path.join(
-      "arquivos",
-      "contador"
-    );
+    const lastDirectory = path.join("arquivos", "contador");
 
-    jest.mocked(
-      getLastDialogDirectory
-    ).mockReturnValue(
+    jest.mocked(getLastDialogDirectory).mockReturnValue(
       lastDirectory
     );
 
-    jest.mocked(
-      dialog.showOpenDialog
-    ).mockResolvedValue({
+    jest.mocked(dialog.showOpenDialog).mockResolvedValue({
       canceled: true,
       filePaths: []
     });
 
-    await openFolderDialog(
-      windows,
-      "countIntimationsByFolder"
-    );
+    await openFolderDialog(windows, "countIntimationsByFolder");
 
-    expect(
-      dialog.showOpenDialog
-    ).toHaveBeenCalledWith(
+    expect(dialog.showOpenDialog).toHaveBeenCalledWith(
       expect.objectContaining({
         properties: ["openDirectory"],
         defaultPath: lastDirectory
@@ -257,9 +177,7 @@ describe("openFile.infrastructure", () => {
     const publicationsDirectory =
       path.join("arquivos", "publicacoes");
 
-    jest.mocked(
-      getLastDialogDirectory
-    ).mockImplementation(context => {
+    jest.mocked(getLastDialogDirectory).mockImplementation(context => {
       if (
         context ===
         "reconcileAnalysesWithSystem"
@@ -277,38 +195,59 @@ describe("openFile.infrastructure", () => {
       return undefined;
     });
 
-    jest.mocked(
-      dialog.showOpenDialog
-    ).mockResolvedValue({
+    jest.mocked(dialog.showOpenDialog).mockResolvedValue({
       canceled: true,
       filePaths: []
     });
 
-    await openFileDialog(
-      windows,
-      "reconcileAnalysesWithSystem"
-    );
+    await openFileDialog(windows, "reconcileAnalysesWithSystem");
 
-    expect(
-      dialog.showOpenDialog
-    ).toHaveBeenLastCalledWith(
+    expect(dialog.showOpenDialog).toHaveBeenLastCalledWith(
       expect.objectContaining({
         defaultPath: analysesDirectory
       })
     );
 
-    await openFileDialog(
-      windows,
-      "reconcilePublicationsWithSystem"
-    );
+    await openFileDialog(windows, "reconcilePublicationsWithSystem");
 
-    expect(
-      dialog.showOpenDialog
-    ).toHaveBeenLastCalledWith(
+    expect(dialog.showOpenDialog).toHaveBeenLastCalledWith(
       expect.objectContaining({
         defaultPath:
           publicationsDirectory
       })
     );
   });
+
+  test("restringe renomeacao a PDF DOC e DOCX", async () => {
+      jest
+        .mocked(
+          dialog.showOpenDialog
+        )
+        .mockResolvedValue({
+          canceled: true,
+          filePaths: []
+        });
+
+      await openMultipleFilesDialog(windows, "renameDiaryFiles");
+
+      expect(dialog.showOpenDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          properties: [
+            "openFile",
+            "multiSelections"
+          ],
+
+          filters: [
+            expect.objectContaining({
+              extensions: [
+                "pdf",
+                "doc",
+                "docx"
+              ]
+            })
+          ]
+        })
+      );
+    }
+  );
 });

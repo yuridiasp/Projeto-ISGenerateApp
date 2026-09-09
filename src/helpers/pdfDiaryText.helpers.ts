@@ -122,13 +122,10 @@ export function extractPdfDiaryMetadataAtPosition(
   const previousText =
     text.slice(0, position);
 
-  const headerRegex =
-    /DI[ÁAÃ]RIO\s+DO\s+TRIBUNAL/gi;
+  const headerRegex = /DI[ÁAÃ]RIO\s+(?:DO\s+TRIBUNAL|DA\s+JUSTI(?:Ç|C)A\s+FEDERAL)/gi;
 
   const headers = [
-    ...previousText.matchAll(
-      headerRegex
-    )
+    ...previousText.matchAll(headerRegex)
   ];
 
   const lastHeader =
@@ -144,15 +141,10 @@ export function extractPdfDiaryMetadataAtPosition(
   }
 
   const sectionText =
-    text.slice(
-      lastHeader.index,
-      position
-    );
+    text.slice(lastHeader.index, position);
 
   const local =
-    extractPdfDiaryMetadata(
-      sectionText
-    );
+    extractPdfDiaryMetadata(sectionText);
 
   return {
     jornal:
@@ -183,19 +175,14 @@ function normalizePdfMetadataText(
     .trim();
 }
 
-function extractPdfDiaryJornal(
-  text: string
-): string | undefined {
-  const fixed =
-    normalizePdfMetadataText(text);
+function extractPdfDiaryJornal(text: string): string | undefined {
+  const fixed = normalizePdfMetadataText(text);
 
   const match = fixed.match(
-    /(DI[ÁAÃ]RIO\s+DO\s+TRIBUNAL[\s\S]*?)(?=\s+Edi(?:ç|c)[aã]o\s+n[º°o]?)/i
+    /(DI[ÁAÃ]RIO\s+(?:DO\s+TRIBUNAL|DA\s+JUSTI(?:Ç|C)A\s+FEDERAL)[\s\S]*?)(?=\s+(?:Edi(?:ç|c)[aã]o\s+n[º°o]?|Data\s+da\s+Divulga(?:ç|c)[aã]o\s*:))/i
   );
 
-  return cleanDiaryValue(
-    match?.[1]
-  );
+  return cleanDiaryValue(match?.[1]);
 }
 
 function extractPdfDiaryTribunal(
@@ -209,57 +196,32 @@ function extractPdfDiaryTribunal(
   }
 
   const tribunal = jornal
-    .replace(
-      /^DI[ÁAÃ]RIO\s+DO\s+/i,
-      ""
-    )
-    .replace(
-      /^DIARIO\s+DO\s+/i,
-      ""
-    )
-    .replace(
-      /\s*-\s*DJN\s*$/i,
-      ""
-    )
-    .replace(
-      /\s*-\s*PJE\s+1[º°]?\s+E\s+2[º°]?\s+GRAU\s*$/i,
-      ""
-    )
+    .replace(/^DI[ÁAÃ]RIO\s+(?:DO|DA)\s+/i, "")
+    .replace(/\s*-\s*DJN\s*$/i, "")
+    .replace(/\s*-\s*PJE\s+1[º°]?\s+E\s+2[º°]?\s+GRAU\s*$/i, "")
     .trim();
 
-  return cleanDiaryValue(
-    tribunal
-  );
+  return cleanDiaryValue(tribunal);
 }
 
-function extractPdfDiaryDataDivulgacao(
-  text: string
-): string | undefined {
-  const fixed =
-    normalizePdfMetadataText(text);
+function extractPdfDiaryDataDivulgacao(text: string): string | undefined {
+  const fixed = normalizePdfMetadataText(text);
 
   const match = fixed.match(
-    /Data\s+da\s+Divulga(?:ç|c)[aã]o\s*:\s*([\s\S]*?)(?=\s+Data\s+da\s+Publica(?:ç|c)[aã]o\s*:)/i
+    /Data\s+da\s+Divulga(?:ç|c)[aã]o\s*:\s*(\d{1,2}\s+de\s+[A-Za-zÀ-ÿ]+\s+de\s+\d{4}(?:\s*\([^)]*\))?|\d{2}[/-]\d{2}[/-]\d{4}|\d{4}-\d{2}-\d{2})/i
   );
 
-  return cleanDiaryValue(
-    match?.[1]
-  );
+  return cleanDiaryValue(match?.[1]);
 }
 
-function extractPdfDiaryDataPublicacao(
-  text: string
-): string | undefined {
-  const fixed =
-    normalizePdfMetadataText(text);
+function extractPdfDiaryDataPublicacao(text: string): string | undefined {
+  const fixed = normalizePdfMetadataText(text);
 
   const match = fixed.match(
-    /Data\s+da\s+Publica(?:ç|c)[aã]o\s*:\s*([\s\S]*?)(?=\s+(?:Publica(?:ç|c)[oõ]es\b|CADERNO\b|Sr\.\s+Advogado\b|Publicacao\s+Processo\s*:|NPU\s*:)|$)/i
+    /Data\s+da\s+Publica(?:ç|c)[aã]o\s*:\s*(\d{1,2}\s+de\s+[A-Za-zÀ-ÿ]+\s+de\s+\d{4}(?:\s*\([^)]*\))?|\d{2}[/-]\d{2}[/-]\d{4}|\d{4}-\d{2}-\d{2})/i
   );
 
-  return cleanDiaryValue(
-    match?.[1]
-  );
+  return cleanDiaryValue(match?.[1]);
 }
 
 export function isSerdijulPjeListText(
@@ -354,4 +316,31 @@ export function findSerdijulPautaJulgamentoBlockStarts(
     .filter(index =>
       index >= 0
     )
+}
+
+export function isLegacySerdijulText(text: string): boolean {
+  const normalized = fixDiaryEncoding(text)
+    .replace(/\r/g, "")
+    .replace(/\n+/g, " ")
+    .replace(/[ ]{2,}/g, " ")
+    .trim();
+
+  const hasHeader = /DI[ÁAÃ]RIO\s+DO\s+TRIBUNAL\s+DE\s+JUSTI(?:Ç|C)A\s+DE\s+SERGIPE/i.test(normalized);
+  const hasDivulgacao = /Data\s+da\s+Divulga(?:ç|c)[aã]o\s*:/i.test(normalized);
+  const hasLegacyProcess = /PROCESSO\.*\s*:\s*\d{12}/i.test(normalized);
+  const hasUniqueCnj = /N[ÚU]MERO\s+[ÚU]NICO\s*:/i.test(normalized);
+
+  const hasPublicacaoProcesso = /Publicacao\s+Processo\s*:/i.test(normalized);
+  const hasPjeList = isSerdijulPjeListText(normalized);
+  const hasPautaJulgamento = isSerdijulPautaJulgamentoText(normalized);
+
+  return (
+    hasHeader &&
+    hasDivulgacao &&
+    hasLegacyProcess &&
+    hasUniqueCnj &&
+    !hasPublicacaoProcesso &&
+    !hasPjeList &&
+    !hasPautaJulgamento
+  );
 }

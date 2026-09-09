@@ -25,20 +25,13 @@ const WORD_TEXT = `
 `
 
 
-describe(
-    "createDiaryReaderService",
-    () => {
+describe("createDiaryReaderService", () => {
 
-        test(
-            "parseText processa texto Word ja extraido sem acessar repository",
-            () => {
+        test("parseText processa texto Word ja extraido sem acessar repository", () => {
 
                 const textReaderRepository = {
-                    readText: jest.fn(
-                        async () => {
-                            throw new Error(
-                                "repository nao deveria ser chamado"
-                            )
+                    readText: jest.fn(async () => {
+                            throw new Error("repository nao deveria ser chamado")
                         }
                     )
                 }
@@ -49,13 +42,9 @@ describe(
                     })
 
                 const records =
-                    service.parseText(
-                        WORD_TEXT
-                    )
+                    service.parseText(WORD_TEXT)
 
-                expect(
-                    textReaderRepository.readText
-                ).not.toHaveBeenCalled()
+                expect(textReaderRepository.readText).not.toHaveBeenCalled()
 
                 expect(records).toHaveLength(1)
 
@@ -75,9 +64,7 @@ describe(
         )
 
 
-        test(
-            "read continua funcionando e realiza apenas uma leitura",
-            async () => {
+        test("read continua funcionando e realiza apenas uma leitura", async () => {
 
                 const file = {
                     filePath: "diario.docx",
@@ -85,9 +72,7 @@ describe(
                 }
 
                 const textReaderRepository = {
-                    readText: jest.fn(
-                        async (_file: iFileData) => WORD_TEXT
-                    )
+                    readText: jest.fn(async (_file: iFileData) => WORD_TEXT)
                 }
 
                 const service =
@@ -98,13 +83,9 @@ describe(
                 const records =
                     await service.read(file)
 
-                expect(
-                    textReaderRepository.readText
-                ).toHaveBeenCalledTimes(1)
+                expect(textReaderRepository.readText).toHaveBeenCalledTimes(1)
 
-                expect(
-                    textReaderRepository.readText
-                ).toHaveBeenCalledWith(file)
+                expect(textReaderRepository.readText).toHaveBeenCalledWith(file)
 
                 expect(records).toHaveLength(1)
 
@@ -114,32 +95,24 @@ describe(
         )
 
 
-        test(
-            "parseText retorna lista vazia para texto que nao corresponde ao layout Word",
-            () => {
+        test("parseText retorna lista vazia para texto que nao corresponde ao layout Word", () => {
 
                 const service =
                     createDiaryReaderService({
                         textReaderRepository: {
-                            readText: jest.fn(
-                                async () => ""
-                            )
+                            readText: jest.fn(async () => "")
                         }
                     })
 
                 const records =
-                    service.parseText(
-                        "documento sem marcadores conhecidos"
-                    )
+                    service.parseText("documento sem marcadores conhecidos")
 
                 expect(records).toEqual([])
             }
         )
 
 
-        test(
-            "parseText registra quantidade de blocos quando logger foi informado",
-            () => {
+        test("parseText registra quantidade de blocos quando logger foi informado", () => {
 
                 const logger = {
                     info: jest.fn()
@@ -157,13 +130,9 @@ describe(
                     })
 
                 const records =
-                    service.parseText(
-                        WORD_TEXT
-                    )
+                    service.parseText(WORD_TEXT)
 
-                expect(
-                    logger.info
-                ).toHaveBeenCalledWith(
+                expect(logger.info).toHaveBeenCalledWith(
                     "Blocos encontrados no Word",
                     {
                         total: records.length

@@ -18,14 +18,10 @@ export function parseSerdijulPautaJulgamentoRecord(
     trimPautaJulgamentoBlock(block)
 
   const processo =
-    extractProcessNumber(
-      cleanedBlock
-    )
+    extractProcessNumber(cleanedBlock)
 
   const classe =
-    extractProcessClass(
-      cleanedBlock
-    )
+    extractProcessClass(cleanedBlock)
 
   return {
     layout: "SERDIJUL",
@@ -48,24 +44,16 @@ export function parseSerdijulPautaJulgamentoRecord(
     classe,
 
     conteudo:
-      cleanDiaryValue(
-        cleanedBlock
-      ),
+      cleanDiaryValue(cleanedBlock),
 
     informacoes:
-      cleanDiaryValue(
-        cleanedBlock
-      ),
+      cleanDiaryValue(cleanedBlock),
 
     partes:
-      extractPautaPartes(
-        cleanedBlock
-      ),
+      extractPautaPartes(cleanedBlock),
 
     advogados:
-      extractPautaAdvogados(
-        cleanedBlock
-      ),
+      extractPautaAdvogados(cleanedBlock),
 
     jornal:
       metadata.jornal,
@@ -111,9 +99,7 @@ function extractProcessClass(
       /Processo\s+N(?:º|°|o)?\s+([A-Za-zÀ-ÿ0-9._-]+)-\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/i
     )
 
-  return cleanDiaryValue(
-    match?.[1]
-  )
+  return cleanDiaryValue(match?.[1])
 }
 
 
@@ -127,15 +113,9 @@ function extractPautaAdvogados(
   const regex =
     /\bADVOGADO\s+([\s\S]*?)\s*\(\s*OAB\s*:\s*[^)]+\)/gi
 
-  for (
-    const match of block.matchAll(
-      regex
-    )
-  ) {
+  for ( const match of block.matchAll( regex ) ) {
     const name =
-      cleanPartyOrLawyerName(
-        match[1]
-      )
+      cleanPartyOrLawyerName(match[1])
 
     if (name) {
       values.add(name)
@@ -153,9 +133,7 @@ function extractPautaPartes(
 ): string[] {
 
   const match =
-    block.match(
-      /Intimado\(s\)\s*\/\s*Citado\(s\)\s*:\s*([\s\S]*)$/i
-    )
+    block.match(/Intimado\(s\)\s*\/\s*Citado\(s\)\s*:\s*([\s\S]*)$/i)
 
   if (!match?.[1]) {
     return []
@@ -176,9 +154,7 @@ function extractPautaPartes(
           /\s+-\s+/
         )
         .map(item =>
-          cleanPartyOrLawyerName(
-            item
-          )
+          cleanPartyOrLawyerName(item)
         )
         .filter(
           (
@@ -203,9 +179,7 @@ function trimPautaJulgamentoBlock(
    * Rua São Cristovão...
    */
   const footerMatch =
-    block.match(
-      /\s+\d{1,4}\s+Rua\s+S[aã]o\s+Cristov[aã]o,/i
-    )
+    block.match(/\s+\d{1,4}\s+Rua\s+S[aã]o\s+Cristov[aã]o,/i)
 
   if (
     !footerMatch ||

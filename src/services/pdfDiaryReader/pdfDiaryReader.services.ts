@@ -42,10 +42,7 @@ export function createPdfDiaryReaderService({
       normalizePdfDiaryText(rawText);
 
     const records =
-      parsePdfDiaryRecords(
-        normalizedText,
-        metadata
-      );
+      parsePdfDiaryRecords(normalizedText, metadata);
 
     logger?.info(
       "Blocos encontrados no PDF",

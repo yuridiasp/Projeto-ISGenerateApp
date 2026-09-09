@@ -49,21 +49,13 @@ describe("calendario de feriados", () => {
     })
 
     test("identifica feriado usando o ano da propria data", () => {
-        const result = isFeriado(
-            new Date(2025, 4, 1),
-            parametros.tarefaAdvogado,
-            processoSE
-        )
+        const result = isFeriado(new Date(2025, 4, 1), parametros.tarefaAdvogado, processoSE)
 
         expect(result.isHoliday).toBe(true)
     })
 
     test("inclui feriado estadual de Sergipe para tarefa de advogado", () => {
-        const result = isFeriado(
-            new Date(2025, 5, 24),
-            parametros.tarefaAdvogado,
-            processoSE
-        )
+        const result = isFeriado(new Date(2025, 5, 24), parametros.tarefaAdvogado, processoSE)
 
         expect(result.isHoliday).toBe(true)
         if (result.isHoliday) {

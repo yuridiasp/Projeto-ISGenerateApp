@@ -20,7 +20,7 @@ export function mapValidationReportToRecorteRow(
 ): CellObject[] {
   const objectRecorte = validationReport.objectRecorte as RecorteObject;
 
-  return Object.keys(objectRecorte).reduce<CellObject[]>((previous, current) => {
+  return Object.keys(objectRecorte).reduce((previous, current) => {
     const isDateColumn = DATE_COLUMNS.includes(current);
 
     const value = getRecorteCellValue(objectRecorte, current, isDateColumn);

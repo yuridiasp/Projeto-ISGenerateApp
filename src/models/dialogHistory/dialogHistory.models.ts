@@ -1,4 +1,5 @@
 export type DialogContext =
+  | "renameDiaryFiles"
   | "classifyPublicationsByDepartment"
   | "registerIntimationsFromAnalyses"
   | "reconcileAnalysesWithSystem"

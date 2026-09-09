@@ -2,7 +2,8 @@ import path from "path";
 
 import {
   isSerdijulPjeListText,
-  isSerdijulPautaJulgamentoText
+  isSerdijulPautaJulgamentoText,
+  isLegacySerdijulText
 } from "./pdfDiaryText.helpers"
 import { DiaryDocumentIdentification, DiaryDocumentLayout, DiaryFileType } from "@models/diaryReader/diaryReader.models";
 import { fixDiaryEncoding } from "./diaryEncoding.helpers";
@@ -120,14 +121,11 @@ function isPdfIsProcessosLayout(text: string): boolean {
   );
 }
 
-function isSerdijulLayout(
-  text: string
-): boolean {
+function isSerdijulLayout(text: string): boolean {
   const hasPublicacaoProcesso = /Publicacao\s+Processo\s*:/i.test(text);
-
-  const hasPjeList = isSerdijulPjeListText(text)
-
-  const hasPautaJulgamento = isSerdijulPautaJulgamentoText(text)
+  const hasPjeList = isSerdijulPjeListText(text);
+  const hasPautaJulgamento = isSerdijulPautaJulgamentoText(text);
+  const hasLegacySerdijul = isLegacySerdijulText(text);
 
   const hasExternalWordStructure =
     /Data\s+Disponibilizacao\s*:/i.test(text) &&
@@ -144,14 +142,10 @@ function isSerdijulLayout(
     /Tribunal\s*:/i.test(text);
 
   return (
-    (
-      hasPublicacaoProcesso ||
-      hasPjeList ||
-      hasPautaJulgamento
-    ) &&
+    (hasPublicacaoProcesso || hasPjeList || hasPautaJulgamento || hasLegacySerdijul) &&
     !hasExternalWordStructure &&
     !hasExternalPdfIsProcessosStructure
-  )
+  );
 }
 
 function isPdfDefaultLayout(text: string): boolean {

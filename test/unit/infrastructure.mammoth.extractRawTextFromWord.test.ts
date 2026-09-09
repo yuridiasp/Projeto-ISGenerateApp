@@ -29,16 +29,12 @@ jest.mock(
 )
 
 
-describe(
-    "extractRawTextFromWord",
-    () => {
+describe("extractRawTextFromWord", () => {
 
         let tempDirectory: string
 
         const mammothExtractRawText =
-            jest.mocked(
-                mammoth.extractRawText
-            )
+            jest.mocked(mammoth.extractRawText)
 
 
         beforeEach(() => {
@@ -47,10 +43,7 @@ describe(
 
             tempDirectory =
                 fs.mkdtempSync(
-                    path.join(
-                        os.tmpdir(),
-                        "isgea-word-"
-                    )
+                    path.join(os.tmpdir(), "isgea-word-")
                 )
         })
 
@@ -67,15 +60,10 @@ describe(
         })
 
 
-        test(
-            "identifica DOCX pela assinatura ZIP e usa Mammoth",
-            async () => {
+        test("identifica DOCX pela assinatura ZIP e usa Mammoth", async () => {
 
                 const filePath =
-                    path.join(
-                        tempDirectory,
-                        "arquivo.docx"
-                    )
+                    path.join(tempDirectory, "arquivo.docx")
 
                 /*
                  * Assinatura ZIP:
@@ -92,10 +80,7 @@ describe(
                     0x00
                 ])
 
-                fs.writeFileSync(
-                    filePath,
-                    fakeDocx
-                )
+                fs.writeFileSync(filePath, fakeDocx)
 
                 mammothExtractRawText
                     .mockResolvedValueOnce({
@@ -115,13 +100,9 @@ describe(
                         "texto extraido do DOCX"
                     )
 
-                expect(
-                    mammothExtractRawText
-                ).toHaveBeenCalledTimes(1)
+                expect(mammothExtractRawText).toHaveBeenCalledTimes(1)
 
-                expect(
-                    mammothExtractRawText
-                ).toHaveBeenCalledWith(
+                expect(mammothExtractRawText).toHaveBeenCalledWith(
                     expect.objectContaining({
                         buffer:
                             expect.any(Buffer)
@@ -131,15 +112,10 @@ describe(
         )
 
 
-        test(
-            "identifica arquivo DOC salvo como HTML do Word",
-            async () => {
+        test("identifica arquivo DOC salvo como HTML do Word", async () => {
 
                 const filePath =
-                    path.join(
-                        tempDirectory,
-                        "arquivo.doc"
-                    )
+                    path.join(tempDirectory, "arquivo.doc")
 
                 const html = `
                     <!doctype html>
@@ -163,10 +139,7 @@ describe(
 
                 fs.writeFileSync(
                     filePath,
-                    Buffer.from(
-                        html,
-                        "utf8"
-                    )
+                    Buffer.from(html, "utf8")
                 )
 
                 const result =
@@ -185,22 +158,15 @@ describe(
                         "Texto do documento"
                     )
 
-                expect(
-                    mammothExtractRawText
-                ).not.toHaveBeenCalled()
+                expect(mammothExtractRawText).not.toHaveBeenCalled()
             }
         )
 
 
-        test(
-            "rejeita DOC binario antigo OLE com mensagem clara",
-            async () => {
+        test("rejeita DOC binario antigo OLE com mensagem clara", async () => {
 
                 const filePath =
-                    path.join(
-                        tempDirectory,
-                        "arquivo.doc"
-                    )
+                    path.join(tempDirectory, "arquivo.doc")
 
                 const oleSignature =
                     Buffer.from([
@@ -216,10 +182,7 @@ describe(
                         0x00
                     ])
 
-                fs.writeFileSync(
-                    filePath,
-                    oleSignature
-                )
+                fs.writeFileSync(filePath, oleSignature)
 
                 await expect(
                     extractRawTextFromWord({
@@ -230,28 +193,19 @@ describe(
                     .rejects
                     .toThrow(/OLE/i)
 
-                expect(
-                    mammothExtractRawText
-                ).not.toHaveBeenCalled()
+                expect(mammothExtractRawText).not.toHaveBeenCalled()
             }
         )
 
 
-        test(
-            "rejeita formato Word desconhecido",
-            async () => {
+        test("rejeita formato Word desconhecido", async () => {
 
                 const filePath =
-                    path.join(
-                        tempDirectory,
-                        "arquivo.doc"
-                    )
+                    path.join(tempDirectory, "arquivo.doc")
 
                 fs.writeFileSync(
                     filePath,
-                    Buffer.from(
-                        "arquivo sem formato reconhecido"
-                    )
+                    Buffer.from("arquivo sem formato reconhecido")
                 )
 
                 await expect(
@@ -265,9 +219,7 @@ describe(
                         /formato Word não reconhecido|formato Word nao reconhecido/i
                     )
 
-                expect(
-                    mammothExtractRawText
-                ).not.toHaveBeenCalled()
+                expect(mammothExtractRawText).not.toHaveBeenCalled()
             }
         )
 

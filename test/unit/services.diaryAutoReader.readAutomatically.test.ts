@@ -86,18 +86,14 @@ import {
 } from "../../src/services/diaryAutoReader/diaryAutoReader.services"
 
 
-describe(
-    "readDiaryAutomatically",
-    () => {
+describe("readDiaryAutomatically", () => {
 
         beforeEach(() => {
             jest.clearAllMocks()
         })
 
 
-        test(
-            "reutiliza rawText identificado para documento Word sem reler o arquivo",
-            async () => {
+        test("reutiliza rawText identificado para documento Word sem reler o arquivo", async () => {
 
                 const file = {
                     filePath: "diario.docx",
@@ -136,38 +132,24 @@ describe(
 
                 expect(result).toBe(records)
 
-                expect(
-                    mockInspect
-                ).toHaveBeenCalledTimes(1)
+                expect(mockInspect).toHaveBeenCalledTimes(1)
 
-                expect(
-                    mockInspect
-                ).toHaveBeenCalledWith(file)
+                expect(mockInspect).toHaveBeenCalledWith(file)
 
-                expect(
-                    mockWordParseText
-                ).toHaveBeenCalledTimes(1)
+                expect(mockWordParseText).toHaveBeenCalledTimes(1)
 
-                expect(
-                    mockWordParseText
-                ).toHaveBeenCalledWith(rawText)
+                expect(mockWordParseText).toHaveBeenCalledWith(rawText)
 
                 /*
                  * O ponto principal:
                  * depois de inspect(), o reader não
                  * deve abrir o arquivo novamente.
                  */
-                expect(
-                    mockWordRead
-                ).not.toHaveBeenCalled()
+                expect(mockWordRead).not.toHaveBeenCalled()
 
-                expect(
-                    mockPdfRead
-                ).not.toHaveBeenCalled()
+                expect(mockPdfRead).not.toHaveBeenCalled()
 
-                expect(
-                    mockPdfParseText
-                ).not.toHaveBeenCalled()
+                expect(mockPdfParseText).not.toHaveBeenCalled()
             }
         )
 
@@ -176,9 +158,7 @@ describe(
             "PDF_IS_PROCESSOS",
             "SERDIJUL",
             "PDF_DEFAULT"
-        ] as const)(
-            "reutiliza rawText e roteia layout %s para o parser PDF",
-            async layout => {
+        ] as const)("reutiliza rawText e roteia layout %s para o parser PDF", async layout => {
 
                 const file = {
                     filePath: "diario.pdf",
@@ -216,40 +196,26 @@ describe(
 
                 expect(result).toBe(records)
 
-                expect(
-                    mockInspect
-                ).toHaveBeenCalledTimes(1)
+                expect(mockInspect).toHaveBeenCalledTimes(1)
 
-                expect(
-                    mockPdfParseText
-                ).toHaveBeenCalledTimes(1)
+                expect(mockPdfParseText).toHaveBeenCalledTimes(1)
 
-                expect(
-                    mockPdfParseText
-                ).toHaveBeenCalledWith(rawText)
+                expect(mockPdfParseText).toHaveBeenCalledWith(rawText)
 
                 /*
                  * read(file) faria uma segunda
                  * extração do documento.
                  */
-                expect(
-                    mockPdfRead
-                ).not.toHaveBeenCalled()
+                expect(mockPdfRead).not.toHaveBeenCalled()
 
-                expect(
-                    mockWordRead
-                ).not.toHaveBeenCalled()
+                expect(mockWordRead).not.toHaveBeenCalled()
 
-                expect(
-                    mockWordParseText
-                ).not.toHaveBeenCalled()
+                expect(mockWordParseText).not.toHaveBeenCalled()
             }
         )
 
 
-        test(
-            "falha quando o layout nao pode ser identificado",
-            async () => {
+        test("falha quando o layout nao pode ser identificado", async () => {
 
                 const file = {
                     filePath: "entrada.pdf",
@@ -268,27 +234,17 @@ describe(
                     rawText: "texto desconhecido"
                 })
 
-                await expect(
-                    readDiaryAutomatically(file)
-                )
+                await expect(readDiaryAutomatically(file))
                     .rejects
                     .toThrow(/layout do documento/i)
 
-                expect(
-                    mockWordParseText
-                ).not.toHaveBeenCalled()
+                expect(mockWordParseText).not.toHaveBeenCalled()
 
-                expect(
-                    mockPdfParseText
-                ).not.toHaveBeenCalled()
+                expect(mockPdfParseText).not.toHaveBeenCalled()
 
-                expect(
-                    mockWordRead
-                ).not.toHaveBeenCalled()
+                expect(mockWordRead).not.toHaveBeenCalled()
 
-                expect(
-                    mockPdfRead
-                ).not.toHaveBeenCalled()
+                expect(mockPdfRead).not.toHaveBeenCalled()
             }
         )
 

@@ -43,9 +43,7 @@ export function extractLegacyTJSEProcessNumber(
    *
    * Por isso o sinal "=" é opcional.
    */
-  const fromUrl = normalized.match(
-    /RESPNUMPROCESSO\.WSP\?TMP\.NPRO(?:=)?([0-9]{12})(?!\d)/i
-  );
+  const fromUrl = normalized.match(/RESPNUMPROCESSO\.WSP\?TMP\.NPRO(?:=)?([0-9]{12})(?!\d)/i);
 
   if (fromUrl?.[1]) {
     return fromUrl[1];
@@ -101,10 +99,7 @@ export function extractMainTJSEProcessNumberFromInformation(
    * Só é usado se o corpo não trouxe o identificador.
    */
   return sanitizeProcessNumber(
-    extractValue(
-      informacoes,
-      /tmp\.npro\s*=\s*([0-9]{12})(?!\d)/i
-    )
+    extractValue(informacoes, /tmp\.npro\s*=\s*([0-9]{12})(?!\d)/i)
   );
 }
 
@@ -112,14 +107,8 @@ export function extractPublicationProcessNumber(
   informacoes: string
 ): string | undefined {
   return sanitizeProcessNumber(
-    extractValue(
-      informacoes,
-      /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i
-    ) ??
-    extractValue(
-      informacoes,
-      /PUBLICACAO\s+PROCESSO\s*:\s*([0-9.-]+)/i
-    )
+    extractValue(informacoes, /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i) ??
+    extractValue(informacoes, /PUBLICACAO\s+PROCESSO\s*:\s*([0-9.-]+)/i)
   );
 }
 
@@ -127,14 +116,8 @@ export function extractUniqueCNJProcessNumber(
   informacoes: string
 ): string | undefined {
   return sanitizeProcessNumber(
-    extractValue(
-      informacoes,
-      /NUMERO\s+UNICO\s*:\s*([0-9.-]+)/i
-    ) ??
-    extractValue(
-      informacoes,
-      /NÚMERO\s+ÚNICO\s*:\s*([0-9.-]+)/i
-    )
+    extractValue(informacoes, /NUMERO\s+UNICO\s*:\s*([0-9.-]+)/i) ??
+    extractValue(informacoes, /NÚMERO\s+ÚNICO\s*:\s*([0-9.-]+)/i)
   );
 }
 
@@ -142,25 +125,16 @@ export function extractOriginProcessNumber(
   informacoes: string
 ): string | undefined {
   return sanitizeProcessNumber(
-    extractValue(
-      informacoes,
-      /PROCESSO\s+ORIGEM\.*\s*:\s*([0-9A-Z./-]+)/i
-    )
+    extractValue(informacoes, /PROCESSO\s+ORIGEM\.*\s*:\s*([0-9A-Z./-]+)/i)
   );
 }
 
 export function resolveMainProcessNumber(
   informacoes: string
 ): string | undefined {
-  const publicationProcess = extractValue(
-    informacoes,
-    /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i
-  );
+  const publicationProcess = extractValue(informacoes, /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i);
 
-  const uniqueCnj = extractValue(
-    informacoes,
-    /N[ÚU]MERO\s+ÚNICO\s*:\s*([0-9.-]+)/i
-  );
+  const uniqueCnj = extractValue(informacoes, /N[ÚU]MERO\s+ÚNICO\s*:\s*([0-9.-]+)/i);
 
   const processoCnj = publicationProcess ?? uniqueCnj;
 
@@ -208,10 +182,7 @@ export function extractMainTJSEProcessNumber(informacoes: string): string | unde
       informacoes,
       /(?:NRO\.?|Nº|N°|NUMERO|NÚMERO)\s*(?:DO\s+)?PROCESSO\.*\s*:\s*([0-9]{8,})/i
     ) ??
-    extractValue(
-      informacoes,
-      /PROCESSO\.*\s*:\s*([0-9]{8,})(?![-.\d])/i
-    )
+    extractValue(informacoes, /PROCESSO\.*\s*:\s*([0-9]{8,})(?![-.\d])/i)
   );
 }
 
@@ -259,14 +230,8 @@ function enrichRecordWithPublicacaoProcesso(
     );
 
   const comunicacaoId =
-    extractValue(
-      informacoes,
-      /\|\s*comunicacao_id\s*:\s*([^|]+)\|/i
-    ) ??
-    extractValue(
-      informacoes,
-      /\|\s*COMUNICACAO_ID\s*:\s*([^|]+)\|/i
-    );
+    extractValue(informacoes, /\|\s*comunicacao_id\s*:\s*([^|]+)\|/i) ??
+    extractValue(informacoes, /\|\s*COMUNICACAO_ID\s*:\s*([^|]+)\|/i);
 
   const conteudo =
     extractValue(
@@ -288,14 +253,8 @@ function enrichRecordWithPublicacaoProcesso(
     vara: orgao ?? baseRecord.vara,
 
     dataDisponibilizacao:
-      extractValue(
-        informacoes,
-        /Data\s+de\s+disponibilizacao\s*:\s*([\d\/-]+)/i
-      ) ??
-      extractValue(
-        informacoes,
-        /DATA\s+DE\s+DISPONIBILIZACAO\s*:\s*([\d\/-]+)/i
-      ) ??
+      extractValue(informacoes, /Data\s+de\s+disponibilizacao\s*:\s*([\d\/-]+)/i) ??
+      extractValue(informacoes, /DATA\s+DE\s+DISPONIBILIZACAO\s*:\s*([\d\/-]+)/i) ??
       baseRecord.dataDisponibilizacao,
 
     tipoComunicacao:
@@ -309,42 +268,22 @@ function enrichRecordWithPublicacaoProcesso(
       ),
 
     meio:
-      extractValue(
-        informacoes,
-        /Meio\s*:\s*([\s\S]*?)\s+Inteiro\s+teor\s*:/i
-      ) ??
-      extractValue(
-        informacoes,
-        /MEIO\s*:\s*([\s\S]*?)\s+INTEIRO\s+TEOR\s*:/i
-      ),
+      extractValue(informacoes, /Meio\s*:\s*([\s\S]*?)\s+Inteiro\s+teor\s*:/i) ??
+      extractValue(informacoes, /MEIO\s*:\s*([\s\S]*?)\s+INTEIRO\s+TEOR\s*:/i),
 
     inteiroTeor:
-      extractValue(
-        informacoes,
-        /Inteiro\s+teor\s*:\s*([\s\S]*?)\s+Parte\s*:/i
-      ) ??
-      extractValue(
-        informacoes,
-        /INTEIRO\s+TEOR\s*:\s*([\s\S]*?)\s+PARTE\s*:/i
-      ),
+      extractValue(informacoes, /Inteiro\s+teor\s*:\s*([\s\S]*?)\s+Parte\s*:/i) ??
+      extractValue(informacoes, /INTEIRO\s+TEOR\s*:\s*([\s\S]*?)\s+PARTE\s*:/i),
 
     classe:
-      extractValue(
-        informacoes,
-        /Classe\s*:\s*([\s\S]*?)\s+Conteudo\s*:/i
-      ) ??
-      extractValue(
-        informacoes,
-        /CLASSE\s*:\s*([\s\S]*?)\s+CONTEUDO\s*:/i
-      ),
+      extractValue(informacoes, /Classe\s*:\s*([\s\S]*?)\s+Conteudo\s*:/i) ??
+      extractValue(informacoes, /CLASSE\s*:\s*([\s\S]*?)\s+CONTEUDO\s*:/i),
 
     conteudo: cleanDiaryValue(conteudo),
 
     comunicacaoId,
 
-    informacoes: cleanDiaryValue(
-      removeComunicacaoId(informacoes)
-    ),
+    informacoes: cleanDiaryValue(removeComunicacaoId(informacoes)),
 
     partes: extractDiaryPartes(informacoes),
     advogados: extractDiaryAdvogados(informacoes)
@@ -364,10 +303,7 @@ function enrichRecordWithLegacyInformation(
     processoCnj: processo,
     processoOrigem: extractOriginProcessNumber(informacoes),
 
-    orgao: extractValue(
-      informacoes,
-      /ORGAO\s+JULGADOR\.*\s*:\s*([\s\S]*?)\s+RELATOR/i
-    ),
+    orgao: extractValue(informacoes, /ORGAO\s+JULGADOR\.*\s*:\s*([\s\S]*?)\s+RELATOR/i),
 
     classe: extractValue(
       informacoes,
@@ -387,15 +323,9 @@ export function resolveDiaryProcessNumbers(informacoes: string): {
   processo?: string;
   processoCnj?: string;
 } {
-  const publicationProcess = extractValue(
-    informacoes,
-    /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i
-  );
+  const publicationProcess = extractValue(informacoes, /Publicacao\s+Processo\s*:\s*([0-9.-]+)/i);
 
-  const uniqueCnj = extractValue(
-    informacoes,
-    /N[ÚU]MERO\s+ÚNICO\s*:\s*([0-9.-]+)/i
-  );
+  const uniqueCnj = extractValue(informacoes, /N[ÚU]MERO\s+ÚNICO\s*:\s*([0-9.-]+)/i);
 
   const processoCnj = publicationProcess ?? uniqueCnj;
 

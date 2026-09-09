@@ -12,6 +12,10 @@ import type {
 } from "@services/folderIntimationCounter"
 import { PublicationComparisonFile, PublicationComparisonItem, PublicationComparisonResult, PublicationComparisonStatus } from "@models/publicationComparison";
 import { DialogContext } from "@models/dialogHistory";
+import {
+  DiaryFileRenameSummary,
+  DiaryFileRenameResult
+} from "@models/diaryFileRenamer";
 
 /**
  * 1. classifyPublicationsByDepartment
@@ -100,6 +104,11 @@ const buttonsDivComparePublications = document.querySelector("#buttonsDivCompare
 const confirmButtonComparePublications = document.querySelector("#confirmButtonComparePublications") as HTMLButtonElement
 const cancelButtonComparePublications = document.querySelector("#cancelButtonComparePublications") as HTMLButtonElement
 
+const inputRenameDiaryFiles = document.querySelector("#inputRenameDiaryFiles") as HTMLInputElement;
+const buttonsDivRenameDiaryFiles = document.querySelector("#buttonsDivRenameDiaryFiles") as HTMLElement;
+const confirmButtonRenameDiaryFiles = document.querySelector("#confirmButtonRenameDiaryFiles") as HTMLButtonElement;
+const cancelButtonRenameDiaryFiles = document.querySelector("#cancelButtonRenameDiaryFiles") as HTMLButtonElement;
+
 const visualIndicatorConection = document.querySelector("#visual-indicator-conection") as HTMLElement
 const loader = document.querySelector('#loader') as HTMLElement
 const content = document.querySelector('.content') as HTMLElement
@@ -155,7 +164,8 @@ const operationArgs: tOperationArgs = {
 
 let credentials: credential | undefined
 let currentOperation: operationsType | undefined
-let publicationComparisonFiles: iFileData[] = [];
+let publicationComparisonFiles: iFileData[] = []
+let diaryFilesToRename: iFileData[] = []
 let controlador: AbortController | null
 let lastItemShowMoreComparisonTable: HTMLElement | null
 let hasDivergencias: boolean | null
@@ -176,9 +186,12 @@ function setConnectionStatus(connected: boolean): void {
     ) => Promise<string | ApiResult>
 
     export interface iAPI {
-        openMultipleFilesDialog(context: DialogContext): Promise<{ filePaths: string[], canceled: boolean }>
+        openDirectory(path: string): Promise<void>;
+        openMultipleFilesDialog(context: DialogContext): Promise<{ filePaths: string[], canceled: boolean }>;
         openFileDialogForFile(context: DialogContext): Promise<{ filePaths: string[], canceled: boolean }>;
         openFolderDialogForFolder(context: DialogContext): Promise<{ filePaths: string[], canceled: boolean }>;
+        comparePublications(data: iFileData[]): Promise<Result<PublicationComparisonResult>>;
+        renameDiaryFiles(data: iFileData[]): Promise<Result<DiaryFileRenameSummary>>;
         registerIntimationsFromAnalyses: GenericApiFunction;
         reconcilePublicationsWithSystem: GenericApiFunction;
         reconcileAnalysesWithSystem: GenericApiFunction;
@@ -189,9 +202,7 @@ function setConnectionStatus(connected: boolean): void {
         abrirJanelaLogin(): void;
         receiveCredentials(callback: (credentials: string) => void): void;
         copyToClipboard(text: string): Promise<boolean>;
-        comparePublications(data: iFileData[]): Promise<Result<PublicationComparisonResult>>
-        getVersions(): Promise<{ nomeapp: string, autor: string, version: string, electronjs: string, nodejs: string, github: string }>,
-        openDirectory(path: string): Promise<void>
+        getVersions(): Promise<{ nomeapp: string, autor: string, version: string, electronjs: string, nodejs: string, github: string }>;
     }
 
     declare global {
@@ -217,6 +228,23 @@ function setConnectionStatus(connected: boolean): void {
             filePath,
             isXlsx: false
         }
+    }
+
+    export function createMultipleFileArgs(filePaths: string[]): iFileData[] {
+        return filePaths
+            .filter(Boolean)
+            .map(filePath => {
+            const fileName =
+                filePath
+                .split(/[\\/]/)
+                .pop() ?? "";
+
+            return {
+                fileName,
+                filePath,
+                isXlsx: false
+            };
+        });
     }
 
     function hasSelectedFile(args: iFileData): boolean {
@@ -442,52 +470,118 @@ function setConnectionStatus(connected: boolean): void {
         return operations[currentOperation]()
     }
 
+    export async function processRenameDiaryFiles(files: iFileData[]): Promise<void> {
+        if (!files.length) {
+            alert("Selecione pelo menos um arquivo para renomear.");
+
+            return;
+        }
+
+        showLoader();
+
+        try {
+            const result = await window.API.renameDiaryFiles(files);
+
+            if (result.success === false) {
+                alert(result.error.toString());
+
+                hideLoader();
+
+                return;
+            }
+
+            hideLoaderOnly();
+            hideMainMenuContent();
+            showReportContainer();
+
+            closeReportButton.disabled = false;
+
+            setReportFileName("RENOMEAÇÃO DE ARQUIVOS");
+
+            setReportFilePath("");
+
+            insertDiaryFileRenameReport(result.data as DiaryFileRenameSummary);
+        } catch (error) {
+            console.error(error);
+
+            alert("Erro inesperado ao renomear arquivos.");
+
+            hideLoader();
+        } finally {
+            buttonsDivRenameDiaryFiles.classList.remove("aparecer");
+
+            buttonsDivRenameDiaryFiles.parentElement?.classList.remove("active-form");
+        }
+    }
+
 // Renderer do relatório
-    function insertPublicationComparisonReport(result: PublicationComparisonResult): void {
+
+    function getRenameStatusLabel(status: DiaryFileRenameResult["status"]): string {
+        const labels = {
+            RENAMED: "RENOMEADO",
+            ALREADY_NAMED: "JÁ CORRETO",
+            CONFLICT: "CONFLITO",
+            INVALID: "NÃO IDENTIFICADO",
+            ERROR: "ERRO"
+        };
+
+        return labels[status];
+    }
+
+    function insertDiaryFileRenameResult(file: DiaryFileRenameResult): void {
+
+        const success = file.status === "RENAMED" || file.status === "ALREADY_NAMED";
+
+        const resultClass = success ? "success" : "error";
+
+        const resultIcon = success ? "check" : "times";
+
+        const nameText =
+            file.newName &&
+            file.newName !== file.originalName
+            ? `${file.originalName} → ${file.newName}`
+            : file.originalName;
+
+        const [container] =
+            createElementReport(
+            resultClass,
+            resultIcon,
+            nameText,
+            getRenameStatusLabel(file.status)
+            );
+
+        reportContent.append(container);
+
+        if (file.reason) {
+            const information =
+            document.createElement("p");
+
+            information.classList.add("p-info-is");
+
+            information.textContent =
+            file.reason;
+
+            reportContent.append(information);
+        }
+        }
+
+    function insertDiaryFileRenameReport(result: DiaryFileRenameSummary): void {
         reportContent.innerHTML = "";
 
-        const [summary] = createElementReport(
-            result.equal ? "success" : "error",
-            result.equal ? "check" : "times",
-            result.equal
-            ? "PUBLICAÇÕES IDÊNTICAS"
-            : `${result.totalDifferences} DIVERGÊNCIAS`,
-            `${result.files.length} arquivos comparados`
-        );
+        const hasErrors =
+            result.errors > 0;
+
+        const [summary] =
+            createElementReport(
+            hasErrors ? "error" : "success",
+            hasErrors ? "times" : "check",
+            `${result.renamed} arquivo(s) renomeado(s)`,
+            `${result.total} arquivo(s) processado(s)`
+            );
 
         reportContent.append(summary);
 
-        result.items
-            .filter(item => item.status !== "MATCH")
-            .forEach(item => {
-            const container = document.createElement("div");
-            container.classList.add(
-                "publication-comparison-difference"
-            );
-
-            const title = document.createElement("strong");
-
-            title.textContent =
-                `${item.caseNumber} | ${formatComparisonDate(item.publicationDate)}`;
-
-            container.append(title);
-
-            item.files.forEach(file => {
-                const row = document.createElement("div");
-                row.classList.add("publication-comparison-file");
-
-                if (file.count === 0) {
-                row.classList.add("missing");
-                }
-
-                row.textContent =
-                `${file.fileName}: ${file.count} ocorrência(s)`;
-
-                container.append(row);
-            });
-
-            reportContent.append(container);
-        });
+        result.files.forEach(insertDiaryFileRenameResult);
     }
 
     function formatComparisonDate(value: string): string {
@@ -622,12 +716,7 @@ function setConnectionStatus(connected: boolean): void {
         const resultClass = isRegistered ? 'success' : 'error'
         const resultIcon = isRegistered ? 'check' : 'times'
 
-        const [container, spanCaseNumber, content] = createElementReport(
-            resultClass,
-            resultIcon,
-            processValue,
-            publicationValue
-        )
+        const [container, spanCaseNumber, content] = createElementReport(resultClass, resultIcon, processValue, publicationValue)
 
         reportContent.append(container)
 
@@ -664,12 +753,7 @@ function setConnectionStatus(connected: boolean): void {
             ? `${file.intimationCount} intimacoes`
             : file.status
 
-        const [container, spanFileName, content] = createElementReport(
-            resultClass,
-            resultIcon,
-            file.fileName,
-            countText
-        )
+        const [container, spanFileName, content] = createElementReport(resultClass, resultIcon, file.fileName, countText)
 
         reportContent.append(container)
 
@@ -713,6 +797,8 @@ function setConnectionStatus(connected: boolean): void {
         buttonsDivReconcilePublicationsWithSystem.parentElement?.classList.remove('active-form')
         buttonsDivCountIntimationsByFolder.parentElement?.classList.remove('active-form')
         buttonsDivComparePublications.parentElement?.classList.remove('active-form')
+        buttonsDivRenameDiaryFiles.classList.remove("aparecer")
+        buttonsDivRenameDiaryFiles.parentElement?.classList.remove("active-form")
     }
 
     export function resetComparison() {
@@ -973,13 +1059,9 @@ function setConnectionStatus(connected: boolean): void {
 
         hasDivergencias = !result.equal
         
-        totalPublicacoes.forEach(e => {
-            e.innerHTML = result.totalPublications.toString()
-        })
+        totalPublicacoes.forEach(e => { e.innerHTML = result.totalPublications.toString() })
 
-        totalArquivos.forEach(e => {
-            e.innerHTML = result.files.length.toString()
-        })
+        totalArquivos.forEach(e => { e.innerHTML = result.files.length.toString() })
         
         contadorDivergenciasEncontradas.forEach(contador => {
             contador.innerHTML = result.totalDifferences.toString()
@@ -1007,15 +1089,13 @@ function setConnectionStatus(connected: boolean): void {
         resultTableComparisonReportTbody.innerHTML = ""
         comparedFileList.innerHTML = ""
         rowResultTableComparisonReportThead.innerHTML = "<th>PROCESSO</th><th>PUBLICAÇÃO</th><th>STATUS</th>"
-        totalPublicacoes.forEach(e => {
-            e.innerHTML = "0"
-        })
-        totalArquivos.forEach(e => {
-            e.innerHTML = "0"
-        })
-        contadorDivergenciasEncontradas.forEach(e => {
-            e.innerHTML = "0"
-        })
+
+        totalPublicacoes.forEach(e => { e.innerHTML = "0" })
+
+        totalArquivos.forEach(e => { e.innerHTML = "0" })
+
+        contadorDivergenciasEncontradas.forEach(e => { e.innerHTML = "0" })
+
         comparisonReportFilterContainer?.querySelector("div:last-child")?.classList.remove("match-all")
         successDestaqueCardComparisonReport?.classList.remove("success-destaque-card-comparison-report")
         ocultarElementos([comparisonReportTableContainer, divergencesFoundSectionResult, notFoundDivergencesSectionResult])
@@ -1154,6 +1234,38 @@ function setConnectionStatus(connected: boolean): void {
         buttonsDivComparePublications.parentElement?.classList.remove('active-form')
     })
 
+    inputRenameDiaryFiles.addEventListener("click", async () => {
+        resetReport();
+
+        const {canceled, filePaths} = await window.API.openMultipleFilesDialog("renameDiaryFiles");
+
+        if (canceled) {
+            return;
+        }
+
+        if (!filePaths.length) {
+            alert("Selecione pelo menos um arquivo.");
+
+            return;
+        }
+
+        diaryFilesToRename = createMultipleFileArgs(filePaths);
+
+        buttonsDivRenameDiaryFiles.classList.add("aparecer");
+
+        buttonsDivRenameDiaryFiles.parentElement?.classList.add("active-form");
+    });
+
+    confirmButtonRenameDiaryFiles.addEventListener("click", () => processRenameDiaryFiles(diaryFilesToRename));
+
+    cancelButtonRenameDiaryFiles.addEventListener("click", () => {
+        diaryFilesToRename = [];
+
+        buttonsDivRenameDiaryFiles.classList.remove("aparecer");
+
+        buttonsDivRenameDiaryFiles.parentElement?.classList.remove("active-form");
+    });
+
     export function applyListenersRegisterOrValidateFunction(
         operation: operationsType,
         div: HTMLElement,
@@ -1262,10 +1374,7 @@ function setConnectionStatus(connected: boolean): void {
 
             setConnectionStatus(false)
 
-            console.error(
-                "Não foi possível processar as credenciais:",
-                error
-            )
+            console.error("Não foi possível processar as credenciais:", error)
         }
     })
 

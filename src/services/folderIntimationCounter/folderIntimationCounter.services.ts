@@ -81,10 +81,7 @@ function buildResult(
         countedFiles: files.filter(file => file.status === "COUNTED").length,
         unsupportedFiles: files.filter(file => file.status === "UNSUPPORTED").length,
         failedFiles: files.filter(file => file.status === "ERROR").length,
-        totalIntimations: files.reduce(
-            (total, file) => total + file.intimationCount,
-            0
-        ),
+        totalIntimations: files.reduce((total, file) => total + file.intimationCount, 0),
         files
     }
 }

@@ -154,10 +154,7 @@ export function repairBrokenDiaryRecords(records: DiaryRecord[]): DiaryRecord[] 
         const previousRecord = repairedRecords[repairedRecords.length - 1]
 
         if (shouldMergeWithPrevious(previousRecord, record)) {
-            repairedRecords[repairedRecords.length - 1] = mergeDiaryRecords(
-                previousRecord,
-                record
-            )
+            repairedRecords[repairedRecords.length - 1] = mergeDiaryRecords(previousRecord, record)
 
             continue
         }

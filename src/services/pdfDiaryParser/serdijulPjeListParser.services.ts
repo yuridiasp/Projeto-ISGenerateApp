@@ -21,9 +21,7 @@ export function parseSerdijulPjeListRecord(
   metadata: PdfDiaryMetadata = {}
 ): DiaryRecord {
   const cleanedBlock =
-    trimPjeRecord(
-      removePjePageChrome(block)
-    );
+    trimPjeRecord(removePjePageChrome(block));
 
   const processo =
     extractValue(
@@ -32,10 +30,7 @@ export function parseSerdijulPjeListRecord(
     );
 
   const orgao =
-    extractValue(
-      cleanedBlock,
-      /Orgao\s+Julgador\s*:\s*([\s\S]*?)\s+Prazo\s*:/i
-    );
+    extractValue(cleanedBlock, /Orgao\s+Julgador\s*:\s*([\s\S]*?)\s+Prazo\s*:/i);
 
   const dataDisponibilizacao =
     normalizeShortDate(
@@ -52,9 +47,7 @@ export function parseSerdijulPjeListRecord(
     );
 
   const informacoes =
-    cleanDiaryValue(
-      cleanedBlock
-    );
+    cleanDiaryValue(cleanedBlock);
 
   return {
     layout: "SERDIJUL",
@@ -87,14 +80,10 @@ export function parseSerdijulPjeListRecord(
     informacoes,
 
     partes:
-      extractPjeListPartes(
-        cleanedBlock
-      ),
+      extractPjeListPartes(cleanedBlock),
 
     advogados:
-      extractPjeListAdvogados(
-        cleanedBlock
-      ),
+      extractPjeListAdvogados(cleanedBlock),
 
     jornal:
       metadata.jornal,
@@ -120,10 +109,7 @@ function extractPjeListPartes(
   block: string
 ): string[] {
   const poloAtivo =
-    extractValue(
-      block,
-      /Polo\s+Ativo\s*:\s*([\s\S]*?)\s+Polo\s+Passivo\s*:/i
-    );
+    extractValue(block, /Polo\s+Ativo\s*:\s*([\s\S]*?)\s+Polo\s+Passivo\s*:/i);
 
   const poloPassivo =
     extractValue(
@@ -160,17 +146,11 @@ function extractPjeListAdvogados(
     );
 
   return uniqueValues([
-    ...splitValues(
-      advogadoDirigido
-    ),
+    ...splitValues(advogadoDirigido),
 
-    ...splitValues(
-      poloAtivo
-    ),
+    ...splitValues(poloAtivo),
 
-    ...splitValues(
-      poloPassivo
-    )
+    ...splitValues(poloPassivo)
   ]);
 }
 
@@ -228,9 +208,7 @@ function normalizeShortDate(
       .trim();
 
   const shortDate =
-    normalized.match(
-      /^(\d{2})\/(\d{2})\/(\d{2})$/
-    );
+    normalized.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
 
   if (!shortDate) {
     return normalized;
@@ -248,9 +226,7 @@ function trimPjeRecord(
   block: string
 ): string {
   const endMatch =
-    block.match(
-      /Data\s+Limite\s*:\s*\d{2}\/\d{2}\/\d{2,4}\s+\d{2}\s*:\s*\d{2}/i
-    );
+    block.match(/Data\s+Limite\s*:\s*\d{2}\/\d{2}\/\d{2,4}\s+\d{2}\s*:\s*\d{2}/i);
 
   if (
     !endMatch ||
@@ -272,9 +248,7 @@ function trimPjeRecord(
 function removePjePageChrome(
   block: string
 ): string {
-  return removeSerdijulNoise(
-    block
-  )
+  return removeSerdijulNoise(block)
     /*
      * Remove número de página deixado
      * imediatamente antes do cabeçalho

@@ -61,10 +61,7 @@ describe("leitura de documentos reais da pasta doc", () => {
   })
 
   it("le e estrutura intimacoes de um DOCX de IS", async () => {
-    const records = await readWordFile(
-      docPath("PREV30092025.docx"),
-      "PREV30092025"
-    )
+    const records = await readWordFile(docPath("PREV30092025.docx"), "PREV30092025")
 
     expect(records.length).toBeGreaterThan(0)
     expect(records).toEqual(
@@ -90,9 +87,7 @@ describe("leitura de documentos reais da pasta doc", () => {
   })
 
   it("le planilha do Recorte Digital e preserva a linha original", () => {
-    const records = readExcelFile(
-      docPath("RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025.xlsx")
-    )
+    const records = readExcelFile(docPath("RECORTE DIGITAL_BA-GO-DF - DISP 01-10-2025.xlsx"))
 
     expect(records.length).toBeGreaterThan(0)
     expect(records).toEqual(
@@ -167,21 +162,14 @@ describe("leitura de documentos reais da pasta doc", () => {
 
   it("extrai registros de PDF SERDIJUL misto com listas PJe NPU", async () => {
       const rawText =
-        extractTextWithProjectReader(
-          "SERDIJUL TST 07082026.pdf",
-          "PDF"
-        );
+        extractTextWithProjectReader("SERDIJUL TST 07082026.pdf", "PDF");
 
       const metadata =
-        extractPdfDiaryMetadata(
-          rawText
-        );
+        extractPdfDiaryMetadata(rawText);
 
       const records =
         parsePdfDiaryRecords(
-          normalizePdfDiaryText(
-            rawText
-          ),
+          normalizePdfDiaryText(rawText),
           metadata
         );
 
@@ -217,15 +205,11 @@ describe("leitura de documentos reais da pasta doc", () => {
             "06/08/2026"
         });
 
-      expect(
-        pjeRecord?.advogados
-      ).toContain(
+      expect(pjeRecord?.advogados).toContain(
         "FABIO CORREA RIBEIRO"
       );
 
-      expect(
-        pjeRecord?.tribunal
-      ).toMatch(
+      expect(pjeRecord?.tribunal).toMatch(
         /TRIBUNAL REGIONAL FEDERAL DA 1/i
       );
 
@@ -239,9 +223,7 @@ describe("leitura de documentos reais da pasta doc", () => {
       expect(trf2Record)
         .toBeDefined();
 
-      expect(
-        trf2Record?.tribunal
-      ).toMatch(
+      expect(trf2Record?.tribunal).toMatch(
         /TRIBUNAL REGIONAL FEDERAL DA 2/i
       );
     },
@@ -250,21 +232,14 @@ describe("leitura de documentos reais da pasta doc", () => {
 
   it("extrai pauta de julgamento SERDIJUL TRT20", async () => {
     const rawText =
-      extractTextWithProjectReader(
-        "SERDIJUL TRT20 10082026.pdf",
-        "PDF"
-      )
+      extractTextWithProjectReader("SERDIJUL TRT20 10082026.pdf", "PDF")
 
     const metadata =
-      extractPdfDiaryMetadata(
-        rawText
-      )
+      extractPdfDiaryMetadata(rawText)
 
     const records =
       parsePdfDiaryRecords(
-        normalizePdfDiaryText(
-          rawText
-        ),
+        normalizePdfDiaryText(rawText),
         metadata
       )
 
@@ -285,25 +260,17 @@ describe("leitura de documentos reais da pasta doc", () => {
     expect(
       records.every(
         item =>
-          item.advogados.includes(
-            "FABIO CORREA RIBEIRO"
-          )
+          item.advogados.includes("FABIO CORREA RIBEIRO")
       )
     ).toBe(true)
   }, 30000)
 
   it("extrai registros de SERDIJUL armazenado em DOCX", async () => {
-    const rawText = extractTextWithProjectReader(
-      "SERDIJUL TJSE 13082026.docx",
-      "DOCX"
-    );
+    const rawText = extractTextWithProjectReader("SERDIJUL TJSE 13082026.docx", "DOCX");
 
     const metadata = extractPdfDiaryMetadata(rawText);
 
-    const records = parsePdfDiaryRecords(
-      normalizePdfDiaryText(rawText),
-      metadata
-    );
+    const records = parsePdfDiaryRecords(normalizePdfDiaryText(rawText), metadata);
 
     const record = records.find(
       item =>
@@ -311,23 +278,15 @@ describe("leitura de documentos reais da pasta doc", () => {
         "0013344-38.2024.8.25.0001"
     );
 
-    const firstRecord = records.find(
-      record => record.processo === "5006405-28.2026.8.25.0084"
-    );
+    const firstRecord = records.find(record => record.processo === "5006405-28.2026.8.25.0084");
 
     expect(record).toBeDefined();
 
-    expect(record?.processo).toBe(
-      "202410201440"
-    );
+    expect(record?.processo).toBe("202410201440");
 
-    expect(record?.processoCnj).toBe(
-      "0013344-38.2024.8.25.0001"
-    );
+    expect(record?.processoCnj).toBe("0013344-38.2024.8.25.0001");
 
-    expect(record?.processo).not.toBe(
-      record?.processoCnj
-    );
+    expect(record?.processo).not.toBe(record?.processoCnj);
 
     expect(records.length).toBeGreaterThan(0);
 
@@ -340,9 +299,7 @@ describe("leitura de documentos reais da pasta doc", () => {
       tipoComunicacao: "Intimacao"
     });
 
-    expect(firstRecord?.partes).toContain(
-      "MARIA ROSINEIDE EDUARDO DOS SANTOS"
-    );
+    expect(firstRecord?.partes).toContain("MARIA ROSINEIDE EDUARDO DOS SANTOS");
 
     expect(firstRecord?.advogados).toEqual(
       expect.arrayContaining([

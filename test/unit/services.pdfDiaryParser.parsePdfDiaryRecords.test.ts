@@ -141,36 +141,26 @@ describe("parsePdfDiaryRecords", () => {
             "PROCEDIMENTO DO JUIZADO ESPECIAL CÍVEL"
         });
 
-        expect(
-        records[1].partes
-        ).toEqual(
+        expect(records[1].partes).toEqual(
         expect.arrayContaining([
             "MARIA JOSE DA SILVA",
             "INSTITUTO NACIONAL DO SEGURO SOCIAL - INSS"
         ])
         );
 
-        expect(
-        records[1].advogados
-        ).toContain(
+        expect(records[1].advogados).toContain(
         "FABIO CORREA RIBEIRO"
         );
 
-        expect(
-        records[0].tribunal
-        ).toMatch(
+        expect(records[0].tribunal).toMatch(
         /TRIBUNAL SUPERIOR DO TRABALHO/i
         );
 
-        expect(
-        records[1].tribunal
-        ).toMatch(
+        expect(records[1].tribunal).toMatch(
         /TRIBUNAL REGIONAL FEDERAL DA 1/i
         );
 
-        expect(
-        records[2].tribunal
-        ).toMatch(
+        expect(records[2].tribunal).toMatch(
         /TRIBUNAL REGIONAL FEDERAL DA 2/i
         );
     });
@@ -205,9 +195,7 @@ describe("parsePdfDiaryRecords", () => {
         `
 
         const records =
-        parsePdfDiaryRecords(
-            text
-        )
+        parsePdfDiaryRecords(text)
 
         expect(records)
         .toHaveLength(1)
@@ -227,18 +215,14 @@ describe("parsePdfDiaryRecords", () => {
             "Pauta de Julgamento"
         })
 
-        expect(
-        records[0].advogados
-        ).toEqual(
+        expect(records[0].advogados).toEqual(
         expect.arrayContaining([
             "FABIO CORREA RIBEIRO",
             "GUSTAVO LUIS CORREA BITENCOURT"
         ])
         )
 
-        expect(
-        records[0].partes
-        ).toEqual(
+        expect(records[0].partes).toEqual(
         expect.arrayContaining([
             "LEONARDO SOUSA ALMEIDA DE LIMA",
             "LUCAS COMERCIO VAREJISTA DE PECAS E PNEUS LTDA"

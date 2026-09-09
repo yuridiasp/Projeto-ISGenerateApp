@@ -41,11 +41,7 @@ export async function handleIntimationsReportService({
 
   const fileData = resultFile.data?.file ?? [];
 
-  const validations = await validateIntimationsAndNotifyView(
-    fileData,
-    cookie,
-    mainWindow
-  );
+  const validations = await validateIntimationsAndNotifyView(fileData, cookie, mainWindow);
 
   if(!validations.length) {
     return {
@@ -58,10 +54,7 @@ export async function handleIntimationsReportService({
 
   const isRecorte = hasRecorteFile(fileData);
 
-  const formattedReport = formatIntimationReportData(
-    validations,
-    isRecorte
-  );
+  const formattedReport = formatIntimationReportData(validations, isRecorte);
 
   enableButtonCloseReport(mainWindow);
 

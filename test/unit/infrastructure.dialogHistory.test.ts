@@ -21,9 +21,7 @@ describe("dialogHistory.infrastructure", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    tempUserData = fs.mkdtempSync(
-      path.join(os.tmpdir(), "isgea-dialog-history-")
-    );
+    tempUserData = fs.mkdtempSync(path.join(os.tmpdir(), "isgea-dialog-history-"));
 
     jest.mocked(app.getPath).mockReturnValue(tempUserData);
   });
@@ -36,23 +34,14 @@ describe("dialogHistory.infrastructure", () => {
   });
 
   test("mantem diretorios independentes por contexto", () => {
-    const analysesDirectory = path.join(
-      tempUserData,
-      "analises"
-    );
+    const analysesDirectory = path.join(tempUserData, "analises");
 
-    const publicationsDirectory = path.join(
-      tempUserData,
-      "publicacoes"
-    );
+    const publicationsDirectory = path.join(tempUserData, "publicacoes");
 
     fs.mkdirSync(analysesDirectory);
     fs.mkdirSync(publicationsDirectory);
 
-    saveLastDialogDirectory(
-      "reconcileAnalysesWithSystem",
-      analysesDirectory
-    );
+    saveLastDialogDirectory("reconcileAnalysesWithSystem", analysesDirectory);
 
     saveLastDialogDirectory(
       "reconcilePublicationsWithSystem",
@@ -60,28 +49,18 @@ describe("dialogHistory.infrastructure", () => {
     );
 
     expect(
-      getLastDialogDirectory(
-        "reconcileAnalysesWithSystem"
-      )
+      getLastDialogDirectory("reconcileAnalysesWithSystem")
     ).toBe(analysesDirectory);
 
     expect(
-      getLastDialogDirectory(
-        "reconcilePublicationsWithSystem"
-      )
+      getLastDialogDirectory("reconcilePublicationsWithSystem")
     ).toBe(publicationsDirectory);
   });
 
   test("ignora diretorio salvo que nao existe mais", () => {
-    const missingDirectory = path.join(
-      tempUserData,
-      "pasta-removida"
-    );
+    const missingDirectory = path.join(tempUserData, "pasta-removida");
 
-    const historyFile = path.join(
-      tempUserData,
-      "dialog-history.json"
-    );
+    const historyFile = path.join(tempUserData, "dialog-history.json");
 
     fs.writeFileSync(
       historyFile,
@@ -93,37 +72,22 @@ describe("dialogHistory.infrastructure", () => {
     );
 
     expect(
-      getLastDialogDirectory(
-        "reconcileAnalysesWithSystem"
-      )
+      getLastDialogDirectory("reconcileAnalysesWithSystem")
     ).toBeUndefined();
   });
 
   test("persiste diretorio em arquivo para ser recuperado apos reinicio", async () => {
-    const directory = path.join(
-      tempUserData,
-      "validar-cadastro"
-    );
+    const directory = path.join(tempUserData, "validar-cadastro");
 
     fs.mkdirSync(directory);
 
-    saveLastDialogDirectory(
-      "reconcilePublicationsWithSystem",
-      directory
-    );
+    saveLastDialogDirectory("reconcilePublicationsWithSystem", directory);
 
-    const historyFile = path.join(
-      tempUserData,
-      "dialog-history.json"
-    );
+    const historyFile = path.join(tempUserData, "dialog-history.json");
 
-    expect(
-      fs.existsSync(historyFile)
-    ).toBe(true);
+    expect(fs.existsSync(historyFile)).toBe(true);
 
-    const savedData = JSON.parse(
-      fs.readFileSync(historyFile, "utf8")
-    );
+    const savedData = JSON.parse(fs.readFileSync(historyFile, "utf8"));
 
     expect(savedData).toMatchObject({
       reconcilePublicationsWithSystem:
@@ -134,16 +98,12 @@ describe("dialogHistory.infrastructure", () => {
 
     jest.doMock("electron", () => ({
       app: {
-        getPath: jest.fn(
-          () => tempUserData
-        )
+        getPath: jest.fn(() => tempUserData)
       }
     }));
 
     const reloadedInfrastructure =
-      await import(
-        "../../src/infrastructure/dialog/dialogHistory.infrastructure"
-      );
+      await import("../../src/infrastructure/dialog/dialogHistory.infrastructure");
 
     expect(
       reloadedInfrastructure
@@ -154,75 +114,45 @@ describe("dialogHistory.infrastructure", () => {
   });
 
   test("tolera arquivo JSON corrompido sem quebrar o app", () => {
-    const historyFile = path.join(
-      tempUserData,
-      "dialog-history.json"
-    );
+    const historyFile = path.join(tempUserData, "dialog-history.json");
 
-    fs.writeFileSync(
-      historyFile,
-      "{ arquivo-json-invalido",
-      "utf8"
-    );
+    fs.writeFileSync(historyFile, "{ arquivo-json-invalido", "utf8");
 
     expect(() =>
-      getLastDialogDirectory(
-        "comparePublications"
-      )
+      getLastDialogDirectory("comparePublications")
     ).not.toThrow();
 
     expect(
-      getLastDialogDirectory(
-        "comparePublications"
-      )
+      getLastDialogDirectory("comparePublications")
     ).toBeUndefined();
   });
 
   test("preserva outros contextos ao atualizar apenas um deles", () => {
-    const analysesDirectory = path.join(
-      tempUserData,
-      "analises"
-    );
+    const analysesDirectory = path.join(tempUserData, "analises");
 
-    const publicationsDirectory = path.join(
-      tempUserData,
-      "publicacoes"
-    );
+    const publicationsDirectory = path.join(tempUserData, "publicacoes");
 
-    const newAnalysesDirectory = path.join(
-      tempUserData,
-      "novas-analises"
-    );
+    const newAnalysesDirectory = path.join(tempUserData, "novas-analises");
 
     fs.mkdirSync(analysesDirectory);
     fs.mkdirSync(publicationsDirectory);
     fs.mkdirSync(newAnalysesDirectory);
 
-    saveLastDialogDirectory(
-      "reconcileAnalysesWithSystem",
-      analysesDirectory
-    );
+    saveLastDialogDirectory("reconcileAnalysesWithSystem", analysesDirectory);
 
     saveLastDialogDirectory(
       "reconcilePublicationsWithSystem",
       publicationsDirectory
     );
 
-    saveLastDialogDirectory(
-      "reconcileAnalysesWithSystem",
-      newAnalysesDirectory
-    );
+    saveLastDialogDirectory("reconcileAnalysesWithSystem", newAnalysesDirectory);
 
     expect(
-      getLastDialogDirectory(
-        "reconcileAnalysesWithSystem"
-      )
+      getLastDialogDirectory("reconcileAnalysesWithSystem")
     ).toBe(newAnalysesDirectory);
 
     expect(
-      getLastDialogDirectory(
-        "reconcilePublicationsWithSystem"
-      )
+      getLastDialogDirectory("reconcilePublicationsWithSystem")
     ).toBe(publicationsDirectory);
   });
 });

@@ -96,46 +96,22 @@ export class PdfDiaryReader {
 
     private parseRecord(block: string): DiarioRegistro {
         const registro: DiarioRegistro = {
-            data: this.extract(
-            block,
-            /Data:\s*(\d{2}\/\d{2}\/\d{4})/i
-            ),
+            data: this.extract(block, /Data:\s*(\d{2}\/\d{2}\/\d{4})/i),
 
-            codigo: this.extract(
-            block,
-            /Código:\s*([\s\S]*?)\s+Nome Pesquisado:/i
-            ),
+            codigo: this.extract(block, /Código:\s*([\s\S]*?)\s+Nome Pesquisado:/i),
 
-            nomePesquisado: this.extract(
-            block,
-            /Nome Pesquisado:\s*([\s\S]*?)\s+Jornal:/i
-            ),
+            nomePesquisado: this.extract(block, /Nome Pesquisado:\s*([\s\S]*?)\s+Jornal:/i),
 
-            jornal: this.extract(
-            block,
-            /Jornal:\s*([\s\S]*?)\s+Tribunal:/i
-            ),
+            jornal: this.extract(block, /Jornal:\s*([\s\S]*?)\s+Tribunal:/i),
 
-            tribunal: this.extract(
-            block,
-            /Tribunal:\s*([\s\S]*?)\s+Vara:/i
-            ),
+            tribunal: this.extract(block, /Tribunal:\s*([\s\S]*?)\s+Vara:/i),
 
-            vara: this.extract(
-            block,
-            /Vara:\s*([\s\S]*?)\s+Informações:/i
-            ),
+            vara: this.extract(block, /Vara:\s*([\s\S]*?)\s+Informações:/i),
 
-            informacoes: this.extract(
-            block,
-            /Informações:\s*([\s\S]*)$/i
-            )
+            informacoes: this.extract(block, /Informações:\s*([\s\S]*)$/i)
         };
 
-        registro.comunicacaoId = this.extract(
-            registro.informacoes ?? "",
-            /\|comunicacao_id:\s*([^|]+)\|/i
-        );
+        registro.comunicacaoId = this.extract(registro.informacoes ?? "", /\|comunicacao_id:\s*([^|]+)\|/i);
 
         if (registro.informacoes) {
             registro.informacoes = registro.informacoes
@@ -153,47 +129,23 @@ export class PdfDiaryReader {
 
         registro.processo = this.extractProcessNumber(text);
 
-        registro.orgao = this.extract(
-            text,
-            /Orgao:\s*([\s\S]*?)\s+Data de disponibilizacao:/i
-        );
+        registro.orgao = this.extract(text, /Orgao:\s*([\s\S]*?)\s+Data de disponibilizacao:/i);
 
         if (!registro.orgao) {
-            registro.orgao = this.extract(
-            text,
-            /ORGAO JULGADOR\.*:\s*([\s\S]*?)\s+RELATOR/i
-            );
+            registro.orgao = this.extract(text, /ORGAO JULGADOR\.*:\s*([\s\S]*?)\s+RELATOR/i);
         }
 
-        registro.dataDisponibilizacao = this.extract(
-            text,
-            /Data de disponibilizacao:\s*([\d\/-]+)/i
-        );
+        registro.dataDisponibilizacao = this.extract(text, /Data de disponibilizacao:\s*([\d\/-]+)/i);
 
-        registro.tipoComunicacao = this.extract(
-            text,
-            /Tipo de comunicacao:\s*([\s\S]*?)\s+Meio:/i
-        );
+        registro.tipoComunicacao = this.extract(text, /Tipo de comunicacao:\s*([\s\S]*?)\s+Meio:/i);
 
-        registro.meio = this.extract(
-            text,
-            /Meio:\s*([\s\S]*?)\s+Inteiro teor:/i
-        );
+        registro.meio = this.extract(text, /Meio:\s*([\s\S]*?)\s+Inteiro teor:/i);
 
-        registro.inteiroTeor = this.extract(
-            text,
-            /Inteiro teor:\s*(https?:\/\/[^\s]+)/i
-        );
+        registro.inteiroTeor = this.extract(text, /Inteiro teor:\s*(https?:\/\/[^\s]+)/i);
 
-        registro.classe = this.extract(
-            text,
-            /Classe:\s*([\s\S]*?)\s+Conteudo:/i
-        );
+        registro.classe = this.extract(text, /Classe:\s*([\s\S]*?)\s+Conteudo:/i);
 
-        registro.conteudo = this.extract(
-            text,
-            /Conteudo:\s*([\s\S]*)$/i
-        );
+        registro.conteudo = this.extract(text, /Conteudo:\s*([\s\S]*)$/i);
 
         registro.partes = this.extractPartes(text);
         registro.advogados = this.extractAdvogados(text);
@@ -202,40 +154,28 @@ export class PdfDiaryReader {
     private extractProcessNumber(text: string): string | undefined {
         // Prioridade 1: número interno do processo
         // Exemplo: NRO. PROCESSO....: 202400122191
-        const internalNumber = this.extract(
-            text,
-            /NRO\.\s*PROCESSO\.*\s*:\s*([0-9]+)/i
-        );
+        const internalNumber = this.extract(text, /NRO\.\s*PROCESSO\.*\s*:\s*([0-9]+)/i);
 
         if (internalNumber) {
             return internalNumber;
         }
 
         // Prioridade 2: PROC.: 202588102348
-        const procNumber = this.extract(
-            text,
-            /PROC\.\s*:\s*([0-9]+)/i
-        );
+        const procNumber = this.extract(text, /PROC\.\s*:\s*([0-9]+)/i);
 
         if (procNumber) {
             return procNumber;
         }
 
         // Prioridade 3: Publicacao Processo: 0011773-64.2026.8.25.0000
-        const publicationNumber = this.extract(
-            text,
-            /Publicacao Processo:\s*([^\s]+)/i
-        );
+        const publicationNumber = this.extract(text, /Publicacao Processo:\s*([^\s]+)/i);
 
         if (publicationNumber) {
             return publicationNumber;
         }
 
         // Prioridade 4: número único CNJ
-        const cnjNumber = this.extract(
-            text,
-            /NUMERO UNICO:\s*([0-9.-]+)/i
-        );
+        const cnjNumber = this.extract(text, /NUMERO UNICO:\s*([0-9.-]+)/i);
 
         if (cnjNumber) {
             return cnjNumber;

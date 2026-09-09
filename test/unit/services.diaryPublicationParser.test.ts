@@ -25,24 +25,16 @@ describe("diaryPublicationParser", () => {
       CUMPRIMENTO DE SENTENCA
     `;
 
-    expect(
-      isLegacyTJSEPublication(text)
-    ).toBe(true);
+    expect(isLegacyTJSEPublication(text)).toBe(true);
 
-    expect(
-      extractLegacyTJSEProcessNumber(text)
-    ).toBe("202611403068");
+    expect(extractLegacyTJSEProcessNumber(text)).toBe("202611403068");
 
-    expect(
-      resolveDiaryProcessNumbers(text)
-    ).toEqual({
+    expect(resolveDiaryProcessNumbers(text)).toEqual({
       processo: "202611403068",
       processoCnj: "0059529-66.2026.8.25.0001"
     });
 
-    expect(
-      resolveMainProcessNumber(text)
-    ).toBe("202611403068");
+    expect(resolveMainProcessNumber(text)).toBe("202611403068");
   });
 
   test("reconhece numero antigo do TJNET quando TMP.NPRO possui sinal de igual", () => {
@@ -56,17 +48,11 @@ describe("diaryPublicationParser", () => {
       201650000294 (0013344-38.2024.8.25.0001)
     `;
 
-    expect(
-      isLegacyTJSEPublication(text)
-    ).toBe(true);
+    expect(isLegacyTJSEPublication(text)).toBe(true);
 
-    expect(
-      extractLegacyTJSEProcessNumber(text)
-    ).toBe("201650000294");
+    expect(extractLegacyTJSEProcessNumber(text)).toBe("201650000294");
 
-    expect(
-      resolveDiaryProcessNumbers(text)
-    ).toEqual({
+    expect(resolveDiaryProcessNumbers(text)).toEqual({
       processo: "201650000294",
       processoCnj: "0013344-38.2024.8.25.0001"
     });
@@ -84,17 +70,11 @@ describe("diaryPublicationParser", () => {
       CUMPRIMENTO DE SENTENCA
     `;
 
-    expect(
-      isLegacyTJSEPublication(text)
-    ).toBe(true);
+    expect(isLegacyTJSEPublication(text)).toBe(true);
 
-    expect(
-      extractLegacyTJSEProcessNumber(text)
-    ).toBe("202611403068");
+    expect(extractLegacyTJSEProcessNumber(text)).toBe("202611403068");
 
-    expect(
-      resolveDiaryProcessNumbers(text)
-    ).toEqual({
+    expect(resolveDiaryProcessNumbers(text)).toEqual({
       processo: "202611403068",
       processoCnj: "0059529-66.2026.8.25.0001"
     });
@@ -112,20 +92,14 @@ describe("diaryPublicationParser", () => {
       Intimacao disponibilizada no Eproc.
     `;
 
-    expect(
-      isLegacyTJSEPublication(text)
-    ).toBe(false);
+    expect(isLegacyTJSEPublication(text)).toBe(false);
 
-    expect(
-      resolveDiaryProcessNumbers(text)
-    ).toEqual({
+    expect(resolveDiaryProcessNumbers(text)).toEqual({
       processo: "0059529-66.2026.8.25.0001",
       processoCnj: "0059529-66.2026.8.25.0001"
     });
 
-    expect(
-      resolveMainProcessNumber(text)
-    ).toBe("00595296620268250001");
+    expect(resolveMainProcessNumber(text)).toBe("00595296620268250001");
   });
 
   test("mantem CNJ separado do numero antigo TJSE", () => {
@@ -139,17 +113,11 @@ describe("diaryPublicationParser", () => {
       201650000294 (0013344-38.2024.8.25.0001)
     `;
 
-    expect(
-      resolveMainProcessNumber(text)
-    ).toBe("201650000294");
+    expect(resolveMainProcessNumber(text)).toBe("201650000294");
 
-    expect(
-      extractPublicationProcessNumber(text)
-    ).toBe("00133443820248250001");
+    expect(extractPublicationProcessNumber(text)).toBe("00133443820248250001");
 
-    expect(
-      resolveDiaryProcessNumbers(text)
-    ).toEqual({
+    expect(resolveDiaryProcessNumbers(text)).toEqual({
       processo: "201650000294",
       processoCnj: "0013344-38.2024.8.25.0001"
     });
@@ -168,16 +136,12 @@ describe("diaryPublicationParser", () => {
       INSTITUTO NACIONAL DO SEGURO SOCIAL - INSS
     `;
 
-    expect(
-      resolveDiaryProcessNumbers(text)
-    ).toEqual({
+    expect(resolveDiaryProcessNumbers(text)).toEqual({
       processo: "0011117-46.2025.4.05.8500",
       processoCnj: "0011117-46.2025.4.05.8500"
     });
 
-    expect(
-      resolveMainProcessNumber(text)
-    ).toBe("00111174620254058500");
+    expect(resolveMainProcessNumber(text)).toBe("00111174620254058500");
   });
 
   test("mantem CNJ de outro tribunal mesmo que exista numero de 12 digitos no conteudo", () => {
@@ -189,15 +153,11 @@ describe("diaryPublicationParser", () => {
       Intimacao trabalhista.
     `;
 
-    expect(
-      resolveDiaryProcessNumbers(text)
-    ).toEqual({
+    expect(resolveDiaryProcessNumbers(text)).toEqual({
       processo: "0000730-48.2025.5.20.0003",
       processoCnj: "0000730-48.2025.5.20.0003"
     });
 
-    expect(
-      resolveMainProcessNumber(text)
-    ).toBe("00007304820255200003");
+    expect(resolveMainProcessNumber(text)).toBe("00007304820255200003");
   });
 });

@@ -26,16 +26,11 @@ export function openFileDialogForFile(
   if (!windows || !Object.keys(windows).length) {
     return {
       success: false,
-      error: new ValidationError(
-        "Janela do evento ausente."
-      )
+      error: new ValidationError("Janela do evento ausente.")
     };
   }
 
-  return openFileDialog(
-    windows,
-    context
-  );
+  return openFileDialog(windows, context);
 }
 
 export function openFolderDialogForFolder(
@@ -46,16 +41,11 @@ export function openFolderDialogForFolder(
   if (!windows || !Object.keys(windows).length) {
     return {
       success: false,
-      error: new ValidationError(
-        "Janela do evento ausente."
-      )
+      error: new ValidationError("Janela do evento ausente.")
     };
   }
 
-  return openFolderDialog(
-    windows,
-    context
-  );
+  return openFolderDialog(windows, context);
 }
 
 export async function loginController(credentials: credential) {

@@ -13,6 +13,7 @@ export function cleanDiaryValue(value?: string): string | undefined {
   if (!value) return undefined;
 
   return fixDiaryEncoding(value)
+    .replace(/_{5,}/g, " ")
     .replace(/\n/g, " ")
     .replace(/[ ]{2,}/g, " ")
     .trim();

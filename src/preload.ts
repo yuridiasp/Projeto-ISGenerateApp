@@ -32,5 +32,6 @@ contextBridge.exposeInMainWorld('API', {
     copyToClipboard: (text: string) => ipcRenderer.invoke('clopy-to-clip', text),
     openMultipleFilesDialog: async (context: DialogContext) => ipcRenderer.invoke("open-multiple-files-dialog", context),
     comparePublications: async (files: iFileData[]) => ipcRenderer.invoke("compare-publications", files),
+    renameDiaryFiles: async (files: iFileData[]) => ipcRenderer.invoke("rename-diary-files", files),
     openDirectory: async (path: string) => ipcRenderer.send('open-directory', path),
 })

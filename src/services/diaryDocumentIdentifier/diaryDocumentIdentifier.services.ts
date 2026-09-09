@@ -31,10 +31,7 @@ export function createDiaryDocumentIdentifierService({
       docxTextReaderRepository
     );
 
-    const identification = identifyDiaryDocument(
-      file.filePath,
-      rawText
-    );
+    const identification = identifyDiaryDocument(file.filePath, rawText);
 
     return {
       identification,
@@ -74,9 +71,7 @@ async function readRawTextByExtension(
     return docxTextReaderRepository.readText(file);
   }
 
-  throw new Error(
-    `Tipo de arquivo não suportado: ${extension}`
-  );
+  throw new Error(`Tipo de arquivo não suportado: ${extension}`);
 }
 
 function getExtension(

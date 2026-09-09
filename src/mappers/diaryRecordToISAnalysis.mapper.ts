@@ -68,9 +68,7 @@ function normalizeBrazilianLongDate(
         .replace(/\([^)]*\)\s*$/, "")
         .trim()
 
-    const match = normalized.match(
-        /^(\d{1,2})\s+de\s+([A-Za-zÀ-ÿ]+)\s+de\s+(\d{4})$/i
-    )
+    const match = normalized.match(/^(\d{1,2})\s+de\s+([A-Za-zÀ-ÿ]+)\s+de\s+(\d{4})$/i)
 
     if (!match) {
         return undefined
@@ -143,11 +141,7 @@ export function parseDiaryDate(
          * parsing estrito.
          */
         const parsedDate =
-            dayjs(
-                normalizedValue,
-                format,
-                true
-            )
+            dayjs(normalizedValue, format, true)
 
         if (!parsedDate.isValid()) {
             continue
@@ -160,10 +154,7 @@ export function parseDiaryDate(
          *
          * true preserva horário/data local.
          */
-        return parsedDate.tz(
-            timezone,
-            true
-        )
+        return parsedDate.tz(timezone, true)
     }
 
     /*
@@ -175,9 +166,7 @@ export function parseDiaryDate(
         dayjs(normalizedValue)
 
     if (fallbackDate.isValid()) {
-        return fallbackDate.tz(
-            timezone
-        )
+        return fallbackDate.tz(timezone)
     }
 
     return invalidDayjs()
@@ -217,9 +206,7 @@ function getPublicationDate(
 ): Dayjs {
 
     const informationDate =
-        extractAvailabilityDateFromInformation(
-            record
-        )
+        extractAvailabilityDateFromInformation(record)
 
     const parsed =
         getFirstValidDiaryDate([
@@ -273,9 +260,7 @@ function getAvailabilityDate(
 ): Dayjs | undefined {
 
     const informationDate =
-        extractAvailabilityDateFromInformation(
-            record
-        )
+        extractAvailabilityDateFromInformation(record)
 
     return getFirstValidDiaryDate([
         record.dataDisponibilizacao,

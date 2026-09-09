@@ -41,9 +41,7 @@ export function createDiaryReaderService({
             normalizeDiaryText(rawText)
 
         const records =
-            parseWordDiaryRecords(
-                normalizedText
-            )
+            parseWordDiaryRecords(normalizedText)
 
         logger?.info(
             "Blocos encontrados no Word",

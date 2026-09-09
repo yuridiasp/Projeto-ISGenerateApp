@@ -76,9 +76,7 @@ describe("createFolderIntimationCounterService", () => {
             totalIntimations: 6
         })
 
-        const filesByPath = new Map(
-            result.data.files.map(file => [file.filePath, file])
-        )
+        const filesByPath = new Map(result.data.files.map(file => [file.filePath, file]))
 
         expect(filesByPath.get(pdfPath)).toMatchObject({
             fileName: "publicacoes.pdf",
@@ -146,9 +144,7 @@ describe("createFolderIntimationCounterService", () => {
             totalIntimations: 2
         })
 
-        const filesByPath = new Map(
-            result.data.files.map(file => [file.filePath, file])
-        )
+        const filesByPath = new Map(result.data.files.map(file => [file.filePath, file]))
 
         expect(filesByPath.get(okPath)).toMatchObject({
             status: "COUNTED",

@@ -13,10 +13,7 @@ async function showDialog(
   options: Electron.OpenDialogOptions
 ) {
   if (windows.mainWindow) {
-    return dialog.showOpenDialog(
-      windows.mainWindow,
-      options
-    );
+    return dialog.showOpenDialog(windows.mainWindow, options);
   }
 
   return dialog.showOpenDialog(options);
@@ -44,10 +41,7 @@ export async function openFileDialog(
   });
 
   if (!result.canceled && result.filePaths[0]) {
-    saveLastDialogDirectory(
-      context,
-      path.dirname(result.filePaths[0])
-    );
+    saveLastDialogDirectory(context, path.dirname(result.filePaths[0]));
   }
 
   return result;
@@ -63,10 +57,7 @@ export async function openFolderDialog(
   });
 
   if (!result.canceled && result.filePaths[0]) {
-    saveLastDialogDirectory(
-      context,
-      result.filePaths[0]
-    );
+    saveLastDialogDirectory(context, result.filePaths[0]);
   }
 
   return result;
@@ -76,30 +67,24 @@ export async function openMultipleFilesDialog(
   windows: iWindows,
   context: DialogContext
 ) {
+  const extensions =
+    context === "renameDiaryFiles"
+      ? ["pdf", "doc", "docx"]
+      : ["xlsx", "xls", "xlsm", "csv", "doc", "docx", "pdf"];
+
   const result = await showDialog(windows, {
     properties: ["openFile", "multiSelections"],
     defaultPath: getLastDialogDirectory(context),
     filters: [
       {
         name: "Documentos compatíveis",
-        extensions: [
-          "xlsx",
-          "xls",
-          "xlsm",
-          "csv",
-          "doc",
-          "docx",
-          "pdf"
-        ]
+        extensions
       }
     ]
   });
 
   if (!result.canceled && result.filePaths[0]) {
-    saveLastDialogDirectory(
-      context,
-      path.dirname(result.filePaths[0])
-    );
+    saveLastDialogDirectory(context, path.dirname(result.filePaths[0]));
   }
 
   return result;
