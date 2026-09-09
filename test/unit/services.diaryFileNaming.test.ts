@@ -308,93 +308,6 @@ describe("diaryFileNaming", () => {
       .toBe("SERDIJUL TJSE 10092026.docx");
   });
 
-  test("nao adiciona advogado ao nome quando pesquisado e FABIO CORREA RIBEIRO", () => {
-    const records = [
-      record({
-        layout: "SERDIJUL",
-        tribunal: "JUSTICA FEDERAL DE SERGIPE",
-        dataPublicacao: "09/09/2026",
-        advogados: ["FABIO CORREA RIBEIRO - OAB SE-353-A"]
-      })
-    ];
-
-    expect(resolveFileLawyerSuffix(records)).toBeUndefined();
-  });
-
-  test("adiciona primeiro nome do advogado pesquisado quando nao e Fabio", () => {
-    const records = [
-      record({
-        layout: "SERDIJUL",
-        tribunal: "JUSTICA FEDERAL DE SERGIPE",
-        dataPublicacao: "09/09/2026",
-        advogados: ["VOLNANDY JOSE MENEZES BRITO - OAB SE-6998"]
-      }),
-      record({
-        layout: "SERDIJUL",
-        tribunal: "JUSTICA FEDERAL DE SERGIPE",
-        dataPublicacao: "09/09/2026",
-        advogados: [
-          "VOLNANDY JOSE MENEZES BRITO - OAB SE-6998",
-          "OUTRO ADVOGADO - OAB SE-1000"
-        ]
-      })
-    ];
-
-    expect(resolveSearchedLawyer(records)).toBe("VOLNANDY JOSE MENEZES BRITO");
-    expect(resolveFileLawyerSuffix(records)).toBe("VOLNANDY");
-  });
-
-  test("gera nome SERDIJUL com primeiro nome do advogado pesquisado", () => {
-    const records = [
-      record({
-        layout: "SERDIJUL",
-        tribunal: "JUSTICA FEDERAL DE SERGIPE",
-        dataPublicacao: "09/09/2026",
-        advogados: ["VOLNANDY JOSE MENEZES BRITO - OAB SE-6998"]
-      })
-    ];
-
-    expect(buildDiaryFileName("C:\\docs\\arquivo.pdf", records))
-      .toBe("SERDIJUL JFSE 09092026 VOLNANDY.pdf");
-  });
-
-  test("prioriza nomePesquisado quando o documento informa o advogado pesquisado", () => {
-    const records = [
-      record({
-        layout: "PDF_IS_PROCESSOS",
-        nomePesquisado: "VOLNANDY JOSE MENEZES BRITO",
-        tribunal: "JUSTICA FEDERAL DE SERGIPE",
-        dataPublicacao: "09/09/2026",
-        advogados: [
-          "FABIO CORREA RIBEIRO",
-          "VOLNANDY JOSE MENEZES BRITO"
-        ]
-      })
-    ];
-
-    expect(resolveSearchedLawyer(records)).toBe("VOLNANDY JOSE MENEZES BRITO");
-    expect(resolveFileLawyerSuffix(records)).toBe("VOLNANDY");
-  });
-
-  test("nao tenta adivinhar advogado pesquisado quando existe empate", () => {
-    const records = [
-      record({
-        advogados: [
-          "JOAO DA SILVA",
-          "MARIA DOS SANTOS"
-        ]
-      }),
-      record({
-        advogados: [
-          "JOAO DA SILVA",
-          "MARIA DOS SANTOS"
-        ]
-      })
-    ];
-
-    expect(resolveSearchedLawyer(records)).toBeUndefined();
-  });
-
   test("nao confunde preposicao para com estado do Para", () => {
     const records = [
       record({
@@ -447,18 +360,113 @@ describe("diaryFileNaming", () => {
     expect(resolveFileIdentifier(records)).toBe("JFPA");
   });
 
-  test("adiciona advogado sem alterar tribunal identificado", () => {
+  test("gera sufixo VOLNANDY mesmo quando existe outro advogado na publicacao", () => {
     const records = [
       record({
         layout: "SERDIJUL",
-        tribunal: "JUSTICA FEDERAL DE SERGIPE",
+        tribunal: "TRIBUNAL REGIONAL DO TRABALHO DE SERGIPE (20 REGIAO)",
         dataPublicacao: "09/09/2026",
-        conteudo: "Intimacao para manifestação.",
-        advogados: ["VOLNANDY JOSE MENEZES BRITO - OAB SE-6998"]
+        advogados: [
+          "VOLNANDY JOSE MENEZES BRITO - OAB SE-6998",
+          "GENILSON ALVES DE SOUSA - OAB SE-10979"
+        ]
       })
     ];
 
+    expect(resolveFileLawyerSuffix(records)).toBe("VOLNANDY");
+
     expect(buildDiaryFileName("C:\\docs\\arquivo.pdf", records))
-      .toBe("SERDIJUL JFSE 09092026 VOLNANDY.pdf");
+      .toBe("SERDIJUL TRT20 09092026 VOLNANDY.pdf");
+  });
+
+  test("ignora advogados que nao fazem parte da lista de pesquisa", () => {
+    const records = [
+      record({
+        advogados: [
+          "VOLNANDY JOSE MENEZES BRITO - OAB SE-6998",
+          "GENILSON ALVES DE SOUSA - OAB SE-10979"
+        ]
+      })
+    ];
+
+    expect(resolveSearchedLawyer(records)?.canonicalName)
+      .toBe("VOLNANDY JOSE MENEZES DE BRITO");
+  });
+
+  test("nao acrescenta sufixo quando advogado pesquisado e Fabio", () => {
+    const records = [
+      record({
+        advogados: [
+          "FABIO CORREA RIBEIRO - OAB SE-353-A",
+          "OUTRO ADVOGADO - OAB SE-1000"
+        ]
+      })
+    ];
+
+    expect(resolveSearchedLawyer(records)?.canonicalName)
+      .toBe("FABIO CORREA RIBEIRO");
+
+    expect(resolveFileLawyerSuffix(records)).toBeUndefined();
+  });
+
+  test("Fabio sempre tem prioridade sobre outros advogados cadastrados", () => {
+    const records = [
+      record({
+        advogados: [
+          "VOLNANDY JOSE MENEZES BRITO - OAB SE-6998",
+          "FABIO CORREA RIBEIRO - OAB SE-353-A"
+        ]
+      })
+    ];
+
+    expect(resolveSearchedLawyer(records)?.canonicalName).toBe("FABIO CORREA RIBEIRO");
+    expect(resolveFileLawyerSuffix(records)).toBeUndefined();
+  });
+
+  test("Fabio tem prioridade mesmo quando nomePesquisado aponta outro advogado", () => {
+    const records = [
+      record({
+        nomePesquisado: "VOLNANDY JOSE MENEZES DE BRITO",
+        advogados: [
+          "VOLNANDY JOSE MENEZES BRITO",
+          "FABIO CORREA RIBEIRO"
+        ]
+      })
+    ];
+
+    expect(resolveSearchedLawyer(records)?.canonicalName).toBe("FABIO CORREA RIBEIRO");
+  });
+
+  test("uma ocorrencia de Fabio tem prioridade mesmo que outro advogado apareca mais vezes", () => {
+    const records = [
+      record({ advogados: ["DIEGO MELO SOBRINHO"] }),
+      record({ advogados: ["DIEGO MELO SOBRINHO"] }),
+      record({ advogados: ["DIEGO MELO SOBRINHO"] }),
+      record({ advogados: ["FABIO CORREA RIBEIRO"] })
+    ];
+
+    expect(resolveSearchedLawyer(records)?.canonicalName).toBe("FABIO CORREA RIBEIRO");
+    expect(resolveFileLawyerSuffix(records)).toBeUndefined();
+  });
+
+  test("reconhece LAIS e KEVEN como nomes pesquisados cadastrados", () => {
+    const recordsLais = [
+      record({
+        advogados: [
+          "LAIS FERREIRA DOS SANTOS - OAB SE-1234"
+        ]
+      })
+    ];
+
+    const recordsKeven = [
+      record({
+        advogados: [
+          "KEVEN JOSE DA SILVA - OAB SE-5678"
+        ]
+      })
+    ];
+
+    expect(resolveFileLawyerSuffix(recordsLais)).toBe("LAIS");
+    expect(resolveFileLawyerSuffix(recordsKeven)).toBe("KEVEN");
   });
 });
