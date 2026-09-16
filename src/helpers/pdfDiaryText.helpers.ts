@@ -2,6 +2,8 @@ import { PdfDiaryMetadata } from "@models/diaryReader/diaryReader.models";
 import { fixDiaryEncoding } from "./diaryEncoding.helpers";
 import { cleanDiaryValue } from "./diaryText.helpers";
 
+const pdfDiaryHeaderPattern = String.raw`(?:DI[ÁAÃ]RIO\s+(?:DO\s+TRIBUNAL|DA\s+JUSTI(?:Ç|C)A\s+FEDERAL)|SUPERIOR\s+TRIBUNAL\s+DE\s+JUSTI(?:Ç|C)A|SUPREMO\s+TRIBUNAL\s+FEDERAL|TRIBUNAL\s+SUPERIOR\s+DO\s+TRABALHO|TRIBUNAL\s+SUPERIOR\s+ELEITORAL|SUPERIOR\s+TRIBUNAL\s+MILITAR)`;
+
 export function normalizePdfDiaryText(text: string): string {
   return fixDiaryEncoding(text)
     .replace(/\r/g, "")
@@ -119,55 +121,36 @@ export function extractPdfDiaryMetadataAtPosition(
   position: number,
   fallback: PdfDiaryMetadata = {}
 ): PdfDiaryMetadata {
-  const previousText =
-    text.slice(0, position);
+  const previousText = text.slice(0, position);
 
-  const headerRegex = /DI[ÁAÃ]RIO\s+(?:DO\s+TRIBUNAL|DA\s+JUSTI(?:Ç|C)A\s+FEDERAL)/gi;
+  const headerRegex = new RegExp(
+    pdfDiaryHeaderPattern,
+    "gi"
+  );
 
-  const headers = [
-    ...previousText.matchAll(headerRegex)
-  ];
+  const headers = [...previousText.matchAll(headerRegex)];
 
   const lastHeader =
-  headers.length > 0
-    ? headers[headers.length - 1]
-    : undefined;
+    headers.length > 0
+      ? headers[headers.length - 1]
+      : undefined;
 
-  if (
-    !lastHeader ||
-    lastHeader.index === undefined
-  ) {
+  if (!lastHeader || lastHeader.index === undefined) {
     return fallback;
   }
 
-  const sectionText =
-    text.slice(lastHeader.index, position);
-
-  const local =
-    extractPdfDiaryMetadata(sectionText);
+  const sectionText = text.slice(lastHeader.index, position);
+  const local = extractPdfDiaryMetadata(sectionText);
 
   return {
-    jornal:
-      local.jornal ??
-      fallback.jornal,
-
-    tribunal:
-      local.tribunal ??
-      fallback.tribunal,
-
-    dataDivulgacao:
-      local.dataDivulgacao ??
-      fallback.dataDivulgacao,
-
-    dataPublicacao:
-      local.dataPublicacao ??
-      fallback.dataPublicacao
+    jornal: local.jornal ?? fallback.jornal,
+    tribunal: local.tribunal ?? fallback.tribunal,
+    dataDivulgacao: local.dataDivulgacao ?? fallback.dataDivulgacao,
+    dataPublicacao: local.dataPublicacao ?? fallback.dataPublicacao
   };
 }
 
-function normalizePdfMetadataText(
-  text: string
-): string {
+function normalizePdfMetadataText(text: string): string {
   return fixDiaryEncoding(text)
     .replace(/\r/g, "")
     .replace(/\n+/g, " ")
@@ -179,21 +162,19 @@ function extractPdfDiaryJornal(text: string): string | undefined {
   const fixed = normalizePdfMetadataText(text);
 
   const match = fixed.match(
-    /(DI[ÁAÃ]RIO\s+(?:DO\s+TRIBUNAL|DA\s+JUSTI(?:Ç|C)A\s+FEDERAL)[\s\S]*?)(?=\s+(?:Edi(?:ç|c)[aã]o\s+n[º°o]?|Data\s+da\s+Divulga(?:ç|c)[aã]o\s*:))/i
+    new RegExp(
+      `(${pdfDiaryHeaderPattern}[\\s\\S]*?)(?=\\s+(?:Edi(?:ç|c)[aã]o\\s+n[º°o]?|Data\\s+da\\s+Divulga(?:ç|c)[aã]o\\s*:))`,
+      "i"
+    )
   );
 
   return cleanDiaryValue(match?.[1]);
 }
 
-function extractPdfDiaryTribunal(
-  text: string
-): string | undefined {
-  const jornal =
-    extractPdfDiaryJornal(text);
+function extractPdfDiaryTribunal(text: string): string | undefined {
+  const jornal = extractPdfDiaryJornal(text);
 
-  if (!jornal) {
-    return undefined;
-  }
+  if (!jornal) return undefined;
 
   const tribunal = jornal
     .replace(/^DI[ÁAÃ]RIO\s+(?:DO|DA)\s+/i, "")
@@ -224,9 +205,7 @@ function extractPdfDiaryDataPublicacao(text: string): string | undefined {
   return cleanDiaryValue(match?.[1]);
 }
 
-export function isSerdijulPjeListText(
-  text: string
-): boolean {
+export function isSerdijulPjeListText(text: string): boolean {
   const normalized = fixDiaryEncoding(text)
     .replace(/\r/g, "")
     .replace(/\n+/g, " ")
@@ -253,9 +232,7 @@ export function isSerdijulPjeListText(
 }
 
 
-export function findSerdijulPjeListBlockStarts(
-  text: string
-): number[] {
+export function findSerdijulPjeListBlockStarts(text: string): number[] {
   const regex =
     /\bNPU\s*:\s*\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/gi;
 
@@ -264,9 +241,7 @@ export function findSerdijulPjeListBlockStarts(
     .filter(index => index >= 0);
 }
 
-export function isSerdijulPautaJulgamentoText(
-  text: string
-): boolean {
+export function isSerdijulPautaJulgamentoText(text: string): boolean {
   const normalized =
     fixDiaryEncoding(text)
       .replace(/\r/g, "")
@@ -303,9 +278,7 @@ export function isSerdijulPautaJulgamentoText(
   )
 }
 
-export function findSerdijulPautaJulgamentoBlockStarts(
-  text: string
-): number[] {
+export function findSerdijulPautaJulgamentoBlockStarts(text: string): number[] {
   const regex =
     /(?:\b\d{4}\s*-\s*)?Processo\s+N(?:º|°|o)?\s+[A-Za-zÀ-ÿ0-9._-]+-\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}/gi
 

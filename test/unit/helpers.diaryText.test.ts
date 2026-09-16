@@ -1,8 +1,8 @@
 import { describe, test, expect } from "@jest/globals"
 
 import { cleanDiaryValue } from "../../src/helpers/diaryText.helpers"
-import { extractPdfDiaryMetadata, isLegacySerdijulText } from "../../src/helpers/pdfDiaryText.helpers"
-import { resolveFileIdentifier, resolveFilePublicationDate } from "../../src/services/diaryFileRenamer";
+import { extractPdfDiaryMetadata, extractPdfDiaryMetadataAtPosition, isLegacySerdijulText } from "../../src/helpers/pdfDiaryText.helpers"
+import { buildDiaryFileName, resolveFileIdentifier, resolveFilePublicationDate } from "../../src/services/diaryFileRenamer";
 import { DiaryRecord } from "../../src/models/diaryReader"
 
 function record(partial: Partial<DiaryRecord>): DiaryRecord {
@@ -122,5 +122,46 @@ describe("helpers.diaryText", () => {
         `;
 
         expect(isLegacySerdijulText(text)).toBe(true);
+    });
+
+    test("identifica metadata do STJ sem prefixo DIARIO DO TRIBUNAL", () => {
+        const text = `
+            SUPERIOR TRIBUNAL DE JUSTIÇA - DJN
+            Edição nº Data da Divulgação: 14 de setembro de 2026(segunda-feira)
+            Data da Publicação: 15 de setembro de 2026(terça-feira)
+            Publicações
+            Publicacao Processo: 0006196-24.2018.8.25.0053
+            `;
+
+        const position = text.indexOf("Publicacao Processo");
+
+        const metadata = extractPdfDiaryMetadataAtPosition(text, position);
+
+        expect(metadata.tribunal).toBe("SUPERIOR TRIBUNAL DE JUSTIÇA");
+        expect(metadata.dataPublicacao).toBe(
+            "15 de setembro de 2026(terça-feira)"
+        );
+    });
+
+    test("usa TS e a data mais recente para STJ e TRF1 no mesmo arquivo", () => {
+        const records = [
+            record({
+                layout: "SERDIJUL",
+                tribunal: "SUPERIOR TRIBUNAL DE JUSTIÇA",
+                dataPublicacao: "15/09/2026",
+                advogados: ["FABIO CORREA RIBEIRO"]
+            }),
+            record({
+                layout: "SERDIJUL",
+                tribunal: "TRIBUNAL REGIONAL FEDERAL DA 1ª REGIÃO",
+                dataPublicacao: "14/09/2026",
+                advogados: ["FABIO CORREA RIBEIRO"]
+            })
+        ];
+
+        expect(resolveFileIdentifier(records)).toBe("TS");
+        expect(resolveFilePublicationDate(records)).toBe("15092026");
+
+        expect(buildDiaryFileName("C:\\docs\\SERDIJUL 9.pdf", records)).toBe("SERDIJUL TS 15092026.pdf");
     });
 })
