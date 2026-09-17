@@ -8,6 +8,8 @@ import {
   resolveMainProcessNumber
 } from "../../src/services/diaryParser/diaryPublicationParser.services";
 
+import { parsePdfDiaryRecords } from "../../src/services/pdfDiaryParser/pdfDiaryParser.services"
+
 describe("diaryPublicationParser", () => {
   test("usa numero antigo quando publicacao TJSE vem do Portal TJNET sem sinal de igual", () => {
     const text = `
@@ -159,5 +161,36 @@ describe("diaryPublicationParser", () => {
     });
 
     expect(resolveMainProcessNumber(text)).toBe("00007304820255200003");
+  });
+
+  test("extrai numero do processo de lista PJe pelo campo NPU", () => {
+    const informacoes = `
+      Tribunal Regional Federal da 1ª Regiao - TRF1
+      0000 - 70 - NPU: 1000204-81.2018.4.01.3314
+      Polo Ativo: ITALO BASTOS FISCINA
+    `;
+
+    expect(resolveMainProcessNumber(informacoes))
+      .toBe("10002048120184013314");
+  });
+
+  test("extrai processo de publicacao IS no formato lista PJe", () => {
+    const text = `
+      Data: 16/09/2026
+      Código: 47
+      Nome Pesquisado: FABIO CORREA RIBEIRO
+      Jornal: BRASILIA
+      Tribunal: TRIBUNAL REGIONAL FEDERAL - 1 REGIAO - PJE
+      Vara: CADERNO 1 # LISTAS DE INTIMACOES DISPONIBILIZADAS NO PJE DE 1º GRAU
+      Informações:
+      Tribunal Regional Federal da 1ª Regiao - TRF1
+      0000 - 70 - NPU: 1000204-81.2018.4.01.3314
+      Polo Ativo: ITALO BASTOS FISCINA
+    `;
+
+    const records = parsePdfDiaryRecords(text);
+
+    expect(records).toHaveLength(1);
+    expect(records[0].processo).toBe("10002048120184013314");
   });
 });

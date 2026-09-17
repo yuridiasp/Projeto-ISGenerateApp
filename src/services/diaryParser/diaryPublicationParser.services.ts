@@ -144,6 +144,7 @@ export function resolveMainProcessNumber(
    */
   if (!processoCnj) {
     return (
+      extractPjeNpuProcessNumber(informacoes) ??
       extractLegacyTJSEProcessNumber(informacoes) ??
       extractMainTJSEProcessNumberFromInformation(informacoes) ??
       extractOriginProcessNumber(informacoes)
@@ -334,11 +335,14 @@ export function resolveDiaryProcessNumbers(informacoes: string): {
    * não tragam Publicacao Processo ou NUMERO UNICO.
    */
   if (!processoCnj) {
+    const pjeNpu = extractPjeNpuProcessNumber(informacoes);
+
     return {
       processo:
+        pjeNpu ??
         extractLegacyTJSEProcessNumber(informacoes) ??
         extractMainTJSEProcessNumberFromInformation(informacoes),
-      processoCnj: undefined
+      processoCnj: pjeNpu
     };
   }
 
@@ -381,4 +385,15 @@ export function isTJSEProcessNumber(value?: string): boolean {
   if (!value) return false;
 
   return /^\d{7}-\d{2}\.\d{4}\.8\.25\.\d{4}$/.test(value.trim());
+}
+
+export function extractPjeNpuProcessNumber(
+  informacoes: string
+): string | undefined {
+  return sanitizeProcessNumber(
+    extractValue(
+      informacoes,
+      /\bNPU\s*:\s*([0-9.-]+)/i
+    )
+  );
 }

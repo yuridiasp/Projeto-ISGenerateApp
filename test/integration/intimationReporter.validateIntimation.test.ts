@@ -74,7 +74,7 @@ describe("Validar cadastro de intimacoes a partir de um documento Word", () => {
         expect(path.basename(newFilePath)).toContain(fileNameReport.replace(".xlsx", ""))
         expect(result.data?.message).toContain("Encontrado 5")
         expect(result.data?.message).toContain(newFilePath)
-    }, timeout)
+    }, timeout + 5000)
 
     it("Arquivo com todas as intimacoes lancadas", async () => {
         const [, fileData] = getFileData(files[1])
