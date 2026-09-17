@@ -469,4 +469,85 @@ describe("diaryFileNaming", () => {
     expect(resolveFileLawyerSuffix(recordsLais)).toBe("LAIS");
     expect(resolveFileLawyerSuffix(recordsKeven)).toBe("KEVEN");
   });
+
+  test("identifica TRT20 em arquivo IS com tribunal generico", () => {
+    const records = [
+      record({
+        layout: "DEFAULT",
+        dataPublicacao: "17/09/2026",
+        jornal: "SERGIPE",
+        tribunal: "TRIBUNAL REGIONAL DO TRABALHO",
+        vara: "Secao de Apoio a 2 Turma",
+        informacoes: `
+          Tribunal Regional do Trabalho da 20 Regiao
+          Processo Nº RORSum-0000125-44.2026.5.20.0011
+          https://portaladvogado.trt20.jus.br/
+        `,
+        nomePesquisado: "FABIO CORREA RIBEIRO"
+      })
+    ];
+
+    expect(resolveFileIdentifier(records)).toBe("TRT20");
+
+    expect(buildDiaryFileName("C:\\docs\\IS 2.pdf", records))
+      .toBe("IS TRT20 17092026.pdf");
+  });
+
+  test("agrupa tribunais diferentes de Sergipe como SE", () => {
+    const records = [
+      record({
+        layout: "DEFAULT",
+        dataPublicacao: "17/09/2026",
+        jornal: "SERGIPE",
+        tribunal: "JUSTICA FEDERAL - DJN",
+        vara: "2 Vara Federal SE",
+        nomePesquisado: "FABIO CORREA RIBEIRO"
+      }),
+      record({
+        layout: "DEFAULT",
+        dataPublicacao: "17/09/2026",
+        jornal: "SERGIPE",
+        tribunal: "DIARIO DO TRIBUNAL REGIONAL DO TRABALHO DE SERGIPE (20 REGIAO) - DJN",
+        vara: "1 Vara do Trabalho de Aracaju",
+        nomePesquisado: "FABIO CORREA RIBEIRO"
+      })
+    ];
+
+    expect(resolveFileIdentifier(records)).toBe("SE");
+
+    expect(buildDiaryFileName("C:\\docs\\IS 3.pdf", records))
+      .toBe("IS SE 17092026.pdf");
+  });
+
+  test("agrupa arquivo IS com varios tribunais pelo Jornal SERGIPE", () => {
+    const records = [
+      record({
+        layout: "DEFAULT",
+        jornal: "SERGIPE",
+        tribunal: "JUSTICA FEDERAL - DJN",
+        vara: "2 Vara Federal SE",
+        dataPublicacao: "17/09/2026",
+        nomePesquisado: "FABIO CORREA RIBEIRO"
+      }),
+      record({
+        layout: "DEFAULT",
+        jornal: "SERGIPE",
+        tribunal: "DIARIO DO TRIBUNAL REGIONAL DO TRABALHO DE SERGIPE (20 REGIAO) - DJN",
+        dataPublicacao: "17/09/2026",
+        nomePesquisado: "FABIO CORREA RIBEIRO"
+      }),
+      record({
+        layout: "DEFAULT",
+        jornal: "SERGIPE",
+        tribunal: "TRIBUNAL DE JUSTICA - DJN",
+        dataPublicacao: "17/09/2026",
+        nomePesquisado: "FABIO CORREA RIBEIRO"
+      })
+    ];
+
+    expect(resolveFileIdentifier(records)).toBe("SE");
+
+    expect(buildDiaryFileName("C:\\docs\\IS 3.pdf", records))
+      .toBe("IS SE 17092026.pdf");
+  });
 });

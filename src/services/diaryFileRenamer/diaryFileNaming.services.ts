@@ -304,7 +304,8 @@ function resolveStateAbbreviation(text: string): string | undefined {
 }
 
 export function resolveRecordState(record: DiaryRecord): string | undefined {
-  return resolveStateAbbreviation(getRecordText(record));
+  return resolveStateAbbreviation(getRecordText(record)) ??
+    resolveStateFromJournal(record.jornal);
 }
 
 function resolveFederalJustice(text: string): string | undefined {
@@ -413,11 +414,16 @@ function resolveGroupingIdentifier(record: DiaryRecord): string | undefined {
 
 export function resolveFileIdentifier(records: DiaryRecord[]): string | undefined {
   const identifiers = [...new Set(
-    records.map(resolveGroupingIdentifier).filter((value): value is string => Boolean(value))
+    records
+      .map(resolveGroupingIdentifier)
+      .filter((value): value is string => Boolean(value))
   )];
 
   if (!identifiers.length) return undefined;
-  if (identifiers.length === 1) return identifiers[0].replace("-2G", "");
+
+  if (identifiers.length === 1) {
+    return identifiers[0].replace("-2G", "");
+  }
 
   if (identifiers.every(isSuperiorGroupIdentifier)) {
     return "TS";
@@ -427,7 +433,25 @@ export function resolveFileIdentifier(records: DiaryRecord[]): string | undefine
 
   if (recordStates.every((state): state is string => Boolean(state))) {
     const states = [...new Set(recordStates)];
-    if (states.length === 1) return states[0];
+
+    if (states.length === 1) {
+      return states[0];
+    }
+  }
+
+  /*
+   * Arquivos IS podem reunir publicações de vários ramos da Justiça
+   * pertencentes ao mesmo estado. O campo Jornal é estruturado e,
+   * nesses casos, é a fonte mais segura para o agrupamento estadual.
+   */
+  const journalStates = [...new Set(
+    records
+      .map(record => resolveStateFromJournal(record.jornal))
+      .filter((value): value is string => Boolean(value))
+  )];
+
+  if (journalStates.length === 1) {
+    return journalStates[0];
   }
 
   return undefined;
@@ -500,9 +524,16 @@ function resolveStateCourtFromCnj(value?: string): string | undefined {
 }
 
 function resolveCourtFromRecordEvidence(record: DiaryRecord): string | undefined {
-  const evidence = normalize(getRecordEvidenceText(record));
+  const evidence = getRecordEvidenceText(record);
 
-  const tjDomain = evidence.match(/\btj([a-z]{2})\.jus\.br\b/i);
+  const laborCourt = resolveTRT(evidence);
+
+  if (laborCourt) {
+    return laborCourt;
+  }
+
+  const normalizedEvidence = normalize(evidence);
+  const tjDomain = normalizedEvidence.match(/\btj([a-z]{2})\.jus\.br\b/i);
 
   if (tjDomain?.[1]) {
     const uf = tjDomain[1].toUpperCase();
@@ -512,10 +543,40 @@ function resolveCourtFromRecordEvidence(record: DiaryRecord): string | undefined
     }
   }
 
-  return resolveStateCourtFromCnj(record.processoCnj) ??
+  return resolveLaborCourtFromCnj(record.processoCnj) ??
+    resolveLaborCourtFromCnj(record.processo) ??
+    resolveStateCourtFromCnj(record.processoCnj) ??
     resolveStateCourtFromCnj(record.processo);
 }
-
 function getRecordEvidenceText(record: DiaryRecord): string {
   return [record.inteiroTeor, record.informacoes, record.conteudo].filter(Boolean).join(" ");
+}
+
+function resolveLaborCourtFromCnj(value?: string): string | undefined {
+  if (!value) return undefined;
+
+  const digits = value.replace(/\D/g, "");
+
+  if (digits.length !== 20) return undefined;
+
+  const justice = digits.substring(13, 14);
+  const tribunal = digits.substring(14, 16);
+
+  if (justice !== "5") return undefined;
+
+  return `TRT${Number(tribunal)}`;
+}
+
+function resolveStateFromJournal(jornal?: string): string | undefined {
+  const normalized = normalize(jornal);
+
+  if (!normalized) return undefined;
+
+  const possibleUf = normalized.toUpperCase();
+
+  if (validUfs.has(possibleUf)) {
+    return possibleUf;
+  }
+
+  return stateNames[normalized];
 }
