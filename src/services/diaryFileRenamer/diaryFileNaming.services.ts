@@ -308,12 +308,13 @@ export function resolveRecordState(record: DiaryRecord): string | undefined {
     resolveStateFromJournal(record.jornal);
 }
 
-function resolveFederalJustice(text: string): string | undefined {
+function resolveFederalJustice(text: string, fallbackState?: string): string | undefined {
   const normalized = normalize(text);
 
   if (!normalized.includes("justica federal")) return undefined;
 
-  const state = resolveStateAbbreviation(text);
+  const state = resolveStateAbbreviation(text) ?? fallbackState;
+
   return state ? `JF${state}` : undefined;
 }
 
@@ -388,8 +389,9 @@ export function resolveRenameSource(records: DiaryRecord[]): DiaryRenameSource |
 
 export function resolveRecordCourtIdentifier(record: DiaryRecord): string | undefined {
   const text = getRecordText(record);
+  const state = resolveRecordState(record);
 
-  return resolveFederalJustice(text) ??
+  return resolveFederalJustice(text, state) ??
     resolveNationalCourt(text) ??
     resolveTRF(text) ??
     resolveTRT(text) ??

@@ -550,4 +550,32 @@ describe("diaryFileNaming", () => {
     expect(buildDiaryFileName("C:\\docs\\IS 3.pdf", records))
       .toBe("IS SE 17092026.pdf");
   });
+
+  test("identifica Justica Federal pela UF estruturada do Jornal", () => {
+    const records = [
+      record({
+        layout: "DEFAULT",
+        jornal: "BAHIA",
+        tribunal: "JUSTICA FEDERAL - DJN",
+        vara: "Vara Federal Civel e Criminal da SSJ de Alagoinhas-BA",
+        dataPublicacao: "18/09/2026",
+        nomePesquisado: "FABIO CORREA RIBEIRO",
+        processo: "1000172-76.2018.4.01.3314"
+      }),
+      record({
+        layout: "DEFAULT",
+        jornal: "BAHIA",
+        tribunal: "JUSTICA FEDERAL - DJN",
+        vara: "Vara Federal Civel e Criminal da SSJ de Alagoinhas-BA",
+        dataPublicacao: "18/09/2026",
+        nomePesquisado: "FABIO CORREA RIBEIRO",
+        processo: "1000204-81.2018.4.01.3314"
+      })
+    ];
+
+    expect(resolveFileIdentifier(records)).toBe("JFBA");
+
+    expect(buildDiaryFileName("C:\\docs\\IS 2.pdf", records))
+      .toBe("IS JFBA 18092026.pdf");
+  });
 });
