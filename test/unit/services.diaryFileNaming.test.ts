@@ -578,4 +578,44 @@ describe("diaryFileNaming", () => {
     expect(buildDiaryFileName("C:\\docs\\IS 2.pdf", records))
       .toBe("IS JFBA 18092026.pdf");
   });
+
+  test("usa data predominante em arquivo IS quando existe uma data isolada divergente", () => {
+    const records = [
+      ...Array.from({ length: 179 }, () =>
+        record({
+          layout: "DEFAULT",
+          jornal: "SERGIPE",
+          tribunal: "TRIBUNAL DE JUSTICA - DJN",
+          dataPublicacao: "25/09/2026"
+        })
+      ),
+      record({
+        layout: "DEFAULT",
+        jornal: "SERGIPE",
+        tribunal: "TRIBUNAL DE JUSTICA",
+        dataPublicacao: "24/09/2026"
+      })
+    ];
+
+    expect(resolveFilePublicationDate(records)).toBe("25092026");
+  });
+
+  test("nao escolhe data quando arquivo IS possui datas sem predominancia clara", () => {
+    const records = [
+      ...Array.from({ length: 5 }, () =>
+        record({
+          layout: "DEFAULT",
+          dataPublicacao: "24/09/2026"
+        })
+      ),
+      ...Array.from({ length: 5 }, () =>
+        record({
+          layout: "DEFAULT",
+          dataPublicacao: "25/09/2026"
+        })
+      )
+    ];
+
+    expect(resolveFilePublicationDate(records)).toBeUndefined();
+  });
 });

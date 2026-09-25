@@ -464,24 +464,64 @@ export function resolveFilePublicationDate(records: DiaryRecord[]): string | und
     .map(record => {
       const rawDate = record.dataPublicacao ?? record.dataDivulgacao ?? record.data;
       const parsed = parseDiaryDate(rawDate);
+
       return parsed.isValid() ? parsed : undefined;
     })
     .filter((value): value is ReturnType<typeof parseDiaryDate> => Boolean(value));
 
   if (!dates.length) return undefined;
 
-  const uniqueDates = [...new Map(dates.map(date => [date.format("YYYYMMDD"), date])).values()];
+  const dateOccurrences = new Map<string, { date: ReturnType<typeof parseDiaryDate>; count: number; }>();
+
+  for (const date of dates) {
+    const key = date.format("YYYYMMDD");
+    const current = dateOccurrences.get(key);
+
+    if (current) {
+      current.count++;
+    } else {
+      dateOccurrences.set(key, {
+        date,
+        count: 1
+      });
+    }
+  }
+
+  const uniqueDates = [...dateOccurrences.values()];
 
   if (uniqueDates.length === 1) {
-    return uniqueDates[0].format("DDMMYYYY");
+    return uniqueDates[0].date.format("DDMMYYYY");
   }
 
   const identifier = resolveFileIdentifier(records);
 
   if (identifier === "TS") {
     return uniqueDates
-      .sort((a, b) => b.valueOf() - a.valueOf())[0]
+      .sort((a, b) => b.date.valueOf() - a.date.valueOf())[0]
+      .date
       .format("DDMMYYYY");
+  }
+
+  /*
+   * Arquivos IS representam uma coletânea diária.
+   *
+   * Algumas publicações legadas podem vir com uma data isolada
+   * diferente da data principal do relatório.
+   *
+   * Só aceitamos a data predominante quando ela representa
+   * pelo menos 90% das datas válidas, evitando mascarar um
+   * arquivo realmente composto por dias diferentes.
+   */
+  if (resolveRenameSource(records) === "IS") {
+    const ranking = [...uniqueDates]
+      .sort((a, b) => b.count - a.count);
+
+    const dominant = ranking[0];
+    const dominanceRatio = dominant.count / dates.length;
+
+    if (dominanceRatio >= 0.9) {
+      return dominant.date.format("DDMMYYYY");
+    }
   }
 
   return undefined;
