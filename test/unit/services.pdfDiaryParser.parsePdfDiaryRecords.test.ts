@@ -319,4 +319,28 @@ describe("parsePdfDiaryRecords", () => {
             tipoComunicacao: "Citacao"
         });
     });
+
+    test("extrai CNJ de expediente PJe SERDIJUL", () => {
+        const text = `
+            DIÁRIO DO TRIBUNAL DE JUSTIÇA DE MINAS GERAIS
+            Data da Divulgação: 07 de outubro de 2026(quarta-feira)
+
+            CADERNO 1 # COMARCA DE BELO HORIZONTE / 32ª VARA CIVEL
+
+            Sr. Advogado, PROCESSOS ELETRONICOS (PJE) Decisoes
+            Expediente de 06/10/2026
+            5085664-91.2026.8.13.0024
+            Deprecante: Antonio Augusto Santos
+            Adv - FABIO CORREA RIBEIRO
+        `;
+        
+        const records = parsePdfDiaryRecords(text, {
+            tribunal: "TRIBUNAL DE JUSTICA DE MINAS GERAIS",
+            dataDivulgacao: "07 de outubro de 2026(quarta-feira)"
+        });
+
+        expect(records).toHaveLength(1);
+        expect(records[0].processoCnj).toBe("5085664-91.2026.8.13.0024");
+        expect(records[0].layout).toBe("SERDIJUL");
+    });
 })

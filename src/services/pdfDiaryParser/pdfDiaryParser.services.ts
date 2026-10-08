@@ -2,7 +2,8 @@ import {
   extractPdfDiaryMetadataAtPosition,
   findSerdijulPjeListBlockStarts,
   isLegacySerdijulText,
-  isSerdijulPjeListText
+  isSerdijulPjeListText,
+  isSerdijulPjeExpedienteText
 } from "@helpers/pdfDiaryText.helpers";
 import {
   findSerdijulPautaJulgamentoBlockStarts,
@@ -55,12 +56,50 @@ function parseLegacySerdijulRecord(text: string, metadata: PdfDiaryMetadata): Di
   };
 }
 
+function parseSerdijulPjeExpedienteRecords(
+  text: string,
+  metadata: PdfDiaryMetadata
+): DiaryRecord[] {
+  const cnjRegex = /\b\d{7}-\d{2}\.\d{4}\.8\.\d{2}\.\d{4}\b/gi;
+  const matches = [...text.matchAll(cnjRegex)];
+
+  return matches.map((match, index) => {
+    const processoCnj = match[0];
+    const currentIndex = match.index ?? 0;
+    const nextIndex = matches[index + 1]?.index ?? text.length;
+
+    const block = text.slice(currentIndex, nextIndex).trim();
+
+    return {
+      layout: "SERDIJUL",
+      processo: processoCnj,
+      processoCnj,
+
+      jornal: metadata.jornal,
+      tribunal: metadata.tribunal,
+
+      dataDivulgacao: metadata.dataDivulgacao,
+      dataPublicacao: metadata.dataPublicacao,
+
+      conteudo: cleanDiaryValue(block),
+      informacoes: cleanDiaryValue(block),
+
+      partes: extractDiaryPartes(block),
+      advogados: extractDiaryAdvogados(block)
+    };
+  });
+}
+
 export function parsePdfDiaryRecords(text: string, metadata: PdfDiaryMetadata = {}): DiaryRecord[] {
   const normalized =
     normalizePdfDiaryMarkers(text);
 
   if (isOutlookIsProcessosLayout(normalized)) {
     return parseOutlookIsProcessosRecords(normalized, metadata);
+  }
+
+  if (isSerdijulPjeExpedienteText(normalized)) {
+    return parseSerdijulPjeExpedienteRecords(normalized, metadata);
   }
 
   if (isLegacySerdijulText(normalized)) {

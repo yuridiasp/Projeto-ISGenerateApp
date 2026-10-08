@@ -3,7 +3,8 @@ import path from "path";
 import {
   isSerdijulPjeListText,
   isSerdijulPautaJulgamentoText,
-  isLegacySerdijulText
+  isLegacySerdijulText,
+  isSerdijulPjeExpedienteText
 } from "./pdfDiaryText.helpers"
 import { DiaryDocumentIdentification, DiaryDocumentLayout, DiaryFileType } from "@models/diaryReader/diaryReader.models";
 import { fixDiaryEncoding } from "./diaryEncoding.helpers";
@@ -126,6 +127,7 @@ function isSerdijulLayout(text: string): boolean {
   const hasPjeList = isSerdijulPjeListText(text);
   const hasPautaJulgamento = isSerdijulPautaJulgamentoText(text);
   const hasLegacySerdijul = isLegacySerdijulText(text);
+  const hasPjeExpediente = isSerdijulPjeExpedienteText(text);
 
   const hasExternalWordStructure =
     /Data\s+Disponibilizacao\s*:/i.test(text) &&
@@ -142,7 +144,13 @@ function isSerdijulLayout(text: string): boolean {
     /Tribunal\s*:/i.test(text);
 
   return (
-    (hasPublicacaoProcesso || hasPjeList || hasPautaJulgamento || hasLegacySerdijul) &&
+    (
+      hasPublicacaoProcesso ||
+      hasPjeList ||
+      hasPautaJulgamento ||
+      hasLegacySerdijul ||
+      hasPjeExpediente
+    ) &&
     !hasExternalWordStructure &&
     !hasExternalPdfIsProcessosStructure
   );
@@ -211,6 +219,10 @@ function getIdentificationReasons(
 
   if (isSerdijulPautaJulgamentoText(text)) {
     reasons.push("Encontrada estrutura SERDIJUL de pauta de julgamento")
+  }
+
+  if (isSerdijulPjeExpedienteText(text)) {
+    reasons.push("Encontrada estrutura SERDIJUL de expediente PJe");
   }
 
   reasons.push(`Layout identificado: ${layout}`);

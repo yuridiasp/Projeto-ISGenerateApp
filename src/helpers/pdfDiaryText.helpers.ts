@@ -317,3 +317,25 @@ export function isLegacySerdijulText(text: string): boolean {
     !hasPautaJulgamento
   );
 }
+
+export function isSerdijulPjeExpedienteText(text: string): boolean {
+  const normalized = fixDiaryEncoding(text)
+    .replace(/\r/g, "")
+    .replace(/\n+/g, " ")
+    .replace(/[ ]{2,}/g, " ")
+    .trim();
+
+  const hasDiaryHeader =
+    /DI[ÁAÃ]RIO\s+DO\s+TRIBUNAL\s+DE\s+JUSTI(?:Ç|C)A/i.test(normalized);
+
+  const hasDivulgacao =
+    /Data\s+da\s+Divulga(?:ç|c)[aã]o\s*:/i.test(normalized);
+
+  const hasPjeExpediente =
+    /PROCESSOS\s+ELETR[OÔ]NICOS\s*\(\s*PJE\s*\)/i.test(normalized);
+
+  const hasCnj =
+    /\b\d{7}-\d{2}\.\d{4}\.8\.\d{2}\.\d{4}\b/i.test(normalized);
+
+  return hasDiaryHeader && hasDivulgacao && hasPjeExpediente && hasCnj;
+}

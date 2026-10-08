@@ -1,7 +1,7 @@
 import { describe, test, expect } from "@jest/globals"
 
 import { cleanDiaryValue } from "../../src/helpers/diaryText.helpers"
-import { extractPdfDiaryMetadata, extractPdfDiaryMetadataAtPosition, isLegacySerdijulText } from "../../src/helpers/pdfDiaryText.helpers"
+import { extractPdfDiaryMetadata, extractPdfDiaryMetadataAtPosition, isLegacySerdijulText, isSerdijulPjeExpedienteText } from "../../src/helpers/pdfDiaryText.helpers"
 import { buildDiaryFileName, resolveFileIdentifier, resolveFilePublicationDate } from "../../src/services/diaryFileRenamer";
 import { DiaryRecord } from "../../src/models/diaryReader"
 
@@ -163,5 +163,22 @@ describe("helpers.diaryText", () => {
         expect(resolveFilePublicationDate(records)).toBe("15092026");
 
         expect(buildDiaryFileName("C:\\docs\\SERDIJUL 9.pdf", records)).toBe("SERDIJUL TS 15092026.pdf");
+    });
+
+    test("identifica SERDIJUL no formato PROCESSOS ELETRONICOS PJE", () => {
+        const text = `
+            DIÁRIO DO TRIBUNAL DE JUSTIÇA DE MINAS GERAIS
+            Data da Divulgação: 07 de outubro de 2026(quarta-feira)
+
+            CADERNO 1 # COMARCA DE BELO HORIZONTE / 32ª VARA CIVEL
+
+            Sr. Advogado, PROCESSOS ELETRONICOS (PJE) Decisoes
+            Expediente de 06/10/2026
+            5085664-91.2026.8.13.0024
+            Deprecante: Antonio Augusto Santos
+            Adv - FABIO CORREA RIBEIRO
+        `;
+
+        expect(isSerdijulPjeExpedienteText(text)).toBe(true);
     });
 })
