@@ -128,7 +128,7 @@ function recordContainsLawyer(record: DiaryRecord, lawyer: SearchedLawyerDefinit
 
   const text = [record.informacoes, record.conteudo].filter(Boolean).join(" ");
 
-  return text ? lawyerMatches(text, lawyer) : false;
+  return text ? lawyerMatchesText(text, lawyer) : false;
 }
 
 function normalizeLawyerName(value?: string): string {
@@ -143,65 +143,66 @@ function normalizeLawyerName(value?: string): string {
     .toUpperCase() ?? "";
 }
 
+function normalizeLawyerSearchText(value?: string): string {
+  return value
+    ?.normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[.,;:()]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase() ?? "";
+}
+
+function lawyerMatchesText(
+  text: string,
+  lawyer: SearchedLawyerDefinition
+): boolean {
+  const normalizedText = normalizeLawyerSearchText(text);
+
+  const names = [
+    lawyer.canonicalName,
+    ...(lawyer.aliases ?? [])
+  ].map(normalizeLawyerName);
+
+  return names.some(name => {
+    if (!name) return false;
+
+    if (!name.includes(" ")) {
+      return normalizedText.split(" ").includes(name);
+    }
+
+    return normalizedText.includes(name);
+  });
+}
+
 function resolveRecordSearchedLawyers(record: DiaryRecord): SearchedLawyerDefinition[] {
-  const explicitName = record.nomePesquisado;
-
-  if (explicitName) {
-    const explicitMatches = searchedLawyers.filter(lawyer =>
-      lawyerMatches(explicitName, lawyer)
-    );
-
+  if (record.nomePesquisado) {
+    const explicitMatches = searchedLawyers.filter(lawyer => lawyerMatches(record.nomePesquisado as string, lawyer));
     if (explicitMatches.length) return explicitMatches;
   }
 
-  const matches = searchedLawyers.filter(lawyer =>
-    record.advogados.some(advogado => lawyerMatches(advogado, lawyer))
-  );
+  const matches = new Map<string, SearchedLawyerDefinition>();
 
-  if (matches.length) return matches;
-
-  /*
-   * Alguns layouts podem não conseguir preencher advogados.
-   * Nesse caso usamos o texto da publicação como último fallback,
-   * mas continuamos procurando SOMENTE os nomes cadastrados.
-   */
-  const text = [
-    record.informacoes,
-    record.conteudo
-  ].filter(Boolean).join(" ");
-
-  if (!text) return [];
-
-  return searchedLawyers.filter(lawyer => lawyerMatches(text, lawyer));
-}
-
-export function resolveSearchedLawyer(records: DiaryRecord[]): SearchedLawyerDefinition | undefined {
-  if (!records.length) return undefined;
-
-  const priorityLawyer = searchedLawyers.find(
-    lawyer => lawyer.canonicalName === priorityLawyerName
-  );
-
-  if (priorityLawyer && records.some(record => recordContainsLawyer(record, priorityLawyer))) {
-    return priorityLawyer;
-  }
-
-  const explicitMatches = records
-    .map(record => {
-      if (!record.nomePesquisado) return undefined;
-
-      return searchedLawyers.find(lawyer => lawyerMatches(record.nomePesquisado as string, lawyer));
-    })
-    .filter((value): value is SearchedLawyerDefinition => Boolean(value));
-
-  if (explicitMatches.length) {
-    const uniqueExplicit = [...new Set(explicitMatches.map(lawyer => lawyer.canonicalName))];
-
-    if (uniqueExplicit.length === 1) {
-      return searchedLawyers.find(lawyer => lawyer.canonicalName === uniqueExplicit[0]);
+  for (const lawyer of searchedLawyers) {
+    if (record.advogados.some(advogado => lawyerMatches(advogado, lawyer))) {
+      matches.set(lawyer.canonicalName, lawyer);
     }
   }
 
+  const text = [record.informacoes, record.conteudo].filter(Boolean).join(" ");
+
+  if (text) {
+    for (const lawyer of searchedLawyers) {
+      if (lawyerMatchesText(text, lawyer)) {
+        matches.set(lawyer.canonicalName, lawyer);
+      }
+    }
+  }
+
+  return [...matches.values()];
+}
+
+function resolveSerdijulSearchedLawyer(records: DiaryRecord[]): SearchedLawyerDefinition | undefined {
   const occurrences = new Map<string, number>();
 
   for (const record of records) {
@@ -218,9 +219,59 @@ export function resolveSearchedLawyer(records: DiaryRecord[]): SearchedLawyerDef
   const highest = ranking[0][1];
   const leaders = ranking.filter(([, count]) => count === highest);
 
+  if (leaders.length === 1) {
+    return searchedLawyers.find(lawyer => lawyer.canonicalName === leaders[0][0]);
+  }
+
+  const fabio = leaders.find(([name]) => name === priorityLawyerName);
+
+  if (fabio) {
+    return searchedLawyers.find(lawyer => lawyer.canonicalName === priorityLawyerName);
+  }
+
+  return undefined;
+}
+
+function resolveIsSearchedLawyer(records: DiaryRecord[]): SearchedLawyerDefinition | undefined {
+  const priorityLawyer = searchedLawyers.find(lawyer => lawyer.canonicalName === priorityLawyerName);
+
+  if (priorityLawyer && records.some(record => recordContainsLawyer(record, priorityLawyer))) {
+    return priorityLawyer;
+  }
+
+  return resolveLawyerByOccurrences(records);
+}
+
+function resolveLawyerByOccurrences(records: DiaryRecord[]): SearchedLawyerDefinition | undefined {
+  const occurrences = new Map<string, number>();
+
+  for (const record of records) {
+    for (const lawyer of resolveRecordSearchedLawyers(record)) {
+      occurrences.set(lawyer.canonicalName, (occurrences.get(lawyer.canonicalName) ?? 0) + 1);
+    }
+  }
+
+  if (!occurrences.size) return undefined;
+
+  const ranking = [...occurrences.entries()].sort((a, b) => b[1] - a[1]);
+  const highest = ranking[0][1];
+  const leaders = ranking.filter(([, count]) => count === highest);
+
   if (leaders.length !== 1) return undefined;
 
   return searchedLawyers.find(lawyer => lawyer.canonicalName === leaders[0][0]);
+}
+
+export function resolveSearchedLawyer(records: DiaryRecord[]): SearchedLawyerDefinition | undefined {
+  if (!records.length) return undefined;
+
+  const source = resolveRenameSource(records);
+
+  if (source === "SERDIJUL") {
+    return resolveSerdijulSearchedLawyer(records);
+  }
+
+  return resolveIsSearchedLawyer(records);
 }
 
 function lawyerMatches(value: string, lawyer: SearchedLawyerDefinition): boolean {

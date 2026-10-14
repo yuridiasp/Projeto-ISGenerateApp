@@ -618,4 +618,71 @@ describe("diaryFileNaming", () => {
 
     expect(resolveFilePublicationDate(records)).toBeUndefined();
   });
+
+  test("identifica Volnandy mesmo quando outro advogado com OAB aparece antes no texto", () => {
+    const records = [
+      record({
+        layout: "SERDIJUL",
+        tribunal: "JUSTICA FEDERAL DE SERGIPE",
+        dataPublicacao: "14/10/2026",
+
+        advogados: [
+          "MARCIO NOVELLINO - OAB SP-220324",
+          "DANIEL GERBER - OAB RS-39879"
+        ],
+
+        conteudo: `
+          AUTOR: ERIVALDO SANTOS SANTANA
+          ADVOGADO do(a) AUTOR: VOLNANDY JOSE MENEZES BRITO - SE6998
+          REU: INSTITUTO NACIONAL DO SEGURO SOCIAL
+          ADVOGADO do(a) REU: DANIEL GERBER - RS39879
+        `
+      })
+    ];
+
+    expect(resolveFileLawyerSuffix(records)).toBe("VOLNANDY");
+
+    expect(buildDiaryFileName("C:\\docs\\SERDIJUL.pdf",records)).toBe("SERDIJUL JFSE 14102026 VOLNANDY.pdf");
+  });
+
+  test("SERDIJUL usa Volnandy quando Fabio aparece apenas como coadvogado em uma publicacao", () => {
+    const records = [
+      ...Array.from({ length: 9 }, () => record({
+        layout: "SERDIJUL",
+        advogados: ["VOLNANDY JOSE MENEZES BRITO"]
+      })),
+      record({
+        layout: "SERDIJUL",
+        advogados: ["VOLNANDY JOSE MENEZES BRITO", "FABIO CORREA RIBEIRO"]
+      })
+    ];
+
+    expect(resolveFileLawyerSuffix(records)).toBe("VOLNANDY");
+  });
+
+  test("SERDIJUL nao adiciona sufixo quando Fabio e o advogado predominante", () => {
+    const records = [
+      ...Array.from({ length: 9 }, () => record({
+        layout: "SERDIJUL",
+        advogados: ["FABIO CORREA RIBEIRO"]
+      })),
+      record({
+        layout: "SERDIJUL",
+        advogados: ["FABIO CORREA RIBEIRO", "VOLNANDY JOSE MENEZES BRITO"]
+      })
+    ];
+
+    expect(resolveFileLawyerSuffix(records)).toBeUndefined();
+  });
+
+  test("SERDIJUL usa Fabio como desempate", () => {
+    const records = [
+      record({
+        layout: "SERDIJUL",
+        advogados: ["FABIO CORREA RIBEIRO", "VOLNANDY JOSE MENEZES BRITO"]
+      })
+    ];
+
+    expect(resolveFileLawyerSuffix(records)).toBeUndefined();
+  });
 });
