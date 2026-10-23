@@ -202,6 +202,28 @@ function resolveRecordSearchedLawyers(record: DiaryRecord): SearchedLawyerDefini
   return [...matches.values()];
 }
 
+function resolveFirstListedLawyer(record: DiaryRecord, candidates: Set<string>): SearchedLawyerDefinition | undefined {
+  for (const advogado of record.advogados) {
+    const lawyer = searchedLawyers.find(item => candidates.has(item.canonicalName) && lawyerMatches(advogado, item));
+    if (lawyer) return lawyer;
+  }
+
+  const text = [record.informacoes, record.conteudo].filter(Boolean).join(" ");
+  const normalizedText = normalizeLawyerSearchText(text);
+
+  const positions = searchedLawyers
+    .filter(lawyer => candidates.has(lawyer.canonicalName))
+    .map(lawyer => {
+      const names = [lawyer.canonicalName, ...(lawyer.aliases ?? [])].map(normalizeLawyerName);
+      const indexes = names.map(name => normalizedText.indexOf(name)).filter(index => index >= 0);
+      return { lawyer, position: indexes.length ? Math.min(...indexes) : -1 };
+    })
+    .filter(item => item.position >= 0)
+    .sort((a, b) => a.position - b.position);
+
+  return positions[0]?.lawyer;
+}
+
 function resolveSerdijulSearchedLawyer(records: DiaryRecord[]): SearchedLawyerDefinition | undefined {
   const occurrences = new Map<string, number>();
 
@@ -227,6 +249,38 @@ function resolveSerdijulSearchedLawyer(records: DiaryRecord[]): SearchedLawyerDe
 
   if (fabio) {
     return searchedLawyers.find(lawyer => lawyer.canonicalName === priorityLawyerName);
+  }
+
+  if (leaders.length === 1) {
+    return searchedLawyers.find(lawyer => lawyer.canonicalName === leaders[0][0]);
+  }
+
+  const leaderNames = new Set(leaders.map(([name]) => name));
+  const firstListedOccurrences = new Map<string, number>();
+
+  for (const record of records) {
+    const lawyer = resolveFirstListedLawyer(record, leaderNames);
+    if (!lawyer) continue;
+
+    firstListedOccurrences.set(
+      lawyer.canonicalName,
+      (firstListedOccurrences.get(lawyer.canonicalName) ?? 0) + 1
+    );
+  }
+
+  const firstRanking = [...firstListedOccurrences.entries()].sort((a, b) => b[1] - a[1]);
+
+  if (firstRanking.length) {
+    const highestFirst = firstRanking[0][1];
+    const firstLeaders = firstRanking.filter(([, count]) => count === highestFirst);
+
+    if (firstLeaders.length === 1) {
+      return searchedLawyers.find(lawyer => lawyer.canonicalName === firstLeaders[0][0]);
+    }
+
+    if (firstLeaders.some(([name]) => name === priorityLawyerName)) {
+      return searchedLawyers.find(lawyer => lawyer.canonicalName === priorityLawyerName);
+    }
   }
 
   return undefined;

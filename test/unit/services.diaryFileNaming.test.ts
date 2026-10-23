@@ -685,4 +685,25 @@ describe("diaryFileNaming", () => {
 
     expect(resolveFileLawyerSuffix(records)).toBeUndefined();
   });
+
+  test("SERDIJUL desempata advogados pela ordem em que aparecem nas publicacoes", () => {
+    const records = [
+      record({
+        layout: "SERDIJUL",
+        advogados: [
+          "VOLNANDY JOSE MENEZES BRITO - OAB SE-6998",
+          "VICTOR HUGO SOUSA ANDRADE - OAB SE-8455"
+        ]
+      }),
+      record({
+        layout: "SERDIJUL",
+        advogados: [
+          "VOLNANDY JOSE MENEZES BRITO - OAB SE-6998",
+          "VICTOR HUGO SOUSA ANDRADE - OAB SE-8455"
+        ]
+      })
+    ];
+
+    expect(resolveFileLawyerSuffix(records)).toBe("VOLNANDY");
+  });
 });
