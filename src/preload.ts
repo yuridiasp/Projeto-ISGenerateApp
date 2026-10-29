@@ -34,4 +34,5 @@ contextBridge.exposeInMainWorld('API', {
     comparePublications: async (files: iFileData[]) => ipcRenderer.invoke("compare-publications", files),
     renameDiaryFiles: async (files: iFileData[]) => ipcRenderer.invoke("rename-diary-files", files),
     openDirectory: async (path: string) => ipcRenderer.send('open-directory', path),
+    onLoginCancelled: (callback: () => void) => ipcRenderer.on("login-cancelled", callback),
 })

@@ -9,6 +9,7 @@ import { ISAnalysisDTO } from "@models/handleIntimationsReport/handleIntimations
 import { normalizeDiaryRecordsToISAnalysisDTO } from "@mappers/diaryRecordToISAnalysis.mapper";
 import { readDiaryAutomatically } from "@services/diaryAutoReader/diaryAutoReader.services";
 import { repairBrokenDiaryRecords } from "@mappers/repairBrokenDiaryRecords.mapper";
+import { getErrorMessage } from "@helpers/index";
 
 export interface iFileData {
     filePath: string,
@@ -32,7 +33,7 @@ export async function getObjectValidateIntimationsService({ filePath, fileName }
             return { success: false, error: new NotFoundError(fileName) }
         } catch (error) {
             console.log(error)
-            return { success: false, error: new FileError(error as string) }
+            return { success: false, error: new FileError(getErrorMessage(error)) }
         }
     }
     

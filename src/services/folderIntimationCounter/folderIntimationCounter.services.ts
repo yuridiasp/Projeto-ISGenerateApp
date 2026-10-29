@@ -8,6 +8,7 @@ import type { Result } from "@models/results"
 import type { ISAnalysisDTO } from "@models/handleIntimationsReport/handleIntimationsReport.models"
 import type { DiaryRecord } from "@models/diaryReader"
 import type { iFileData } from "@services/validateIntimations"
+import { getErrorMessage } from "@helpers/index";
 
 export type FolderIntimationCounterInput = {
     folderPath: string
@@ -53,14 +54,6 @@ async function listDirectFilePaths(folderPath: string): Promise<string[]> {
     return entries
         .filter(entry => entry.isFile())
         .map(entry => path.join(folderPath, entry.name))
-}
-
-function getErrorMessage(error: unknown): string {
-    if (error instanceof Error) {
-        return error.message
-    }
-
-    return String(error)
 }
 
 function createFileData(filePath: string): iFileData {

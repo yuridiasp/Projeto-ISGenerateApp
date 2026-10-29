@@ -132,6 +132,11 @@ const resultTableComparisonReportTbody = document.querySelector(".result-table-c
 const rowResultTableComparisonReportThead = document.querySelector(".result-table-comparison-report thead tr") as HTMLElement
 const comparedFileList = document.querySelector("#compared-file-list") as HTMLElement
 
+type SerializableAppError = {
+    message?: unknown;
+    code?: unknown;
+};
+
 const textMessages = {
     success: {
         successPtBr: "Sucesso!",
@@ -174,6 +179,18 @@ function setConnectionStatus(connected: boolean): void {
     visualIndicatorConection.classList.toggle("conectado",connected)
 }
 
+
+function formatAppError(error: unknown, fallback = "Erro inesperado."): string {
+    if (!error || typeof error !== "object") {
+        return typeof error === "string" && error ? error : fallback;
+    }
+
+    const { message, code } = error as SerializableAppError;
+
+    if (typeof message !== "string" || !message) return fallback;
+    return typeof code === "string" && code ? `[${code}] ${message}` : message;
+}
+
 // API
 
     type ApiResult = Result<HandleIntimationsReportResult | tHandleIntimation>
@@ -203,6 +220,7 @@ function setConnectionStatus(connected: boolean): void {
         receiveCredentials(callback: (credentials: string) => void): void;
         copyToClipboard(text: string): Promise<boolean>;
         getVersions(): Promise<{ nomeapp: string, autor: string, version: string, electronjs: string, nodejs: string, github: string }>;
+        onLoginCancelled(callback: () => void): void;
     }
 
     declare global {
@@ -343,11 +361,11 @@ function setConnectionStatus(connected: boolean): void {
             ? JSON.parse(response) as ApiResult
             : response
             
-
+        
         if (result.success === true) {
 
             const data = result.data as Partial<{ message: string; msg: string }>
-
+  
             alert(data.message ?? data.msg ?? textMessages.success.registerIntimation)
 
             if (data.message === emptyFileMessage) {
@@ -371,7 +389,7 @@ function setConnectionStatus(connected: boolean): void {
             }
         }
 
-        alert(result.error.toString())
+        alert(formatAppError(result.error));
     }
 
     export async function processCountIntimationsByFolder(
@@ -1213,7 +1231,7 @@ function setConnectionStatus(connected: boolean): void {
             const response = await window.API.comparePublications(publicationComparisonFiles);
             
             if (response.success === false) {
-                alert(response.error?.toString() ?? "Erro ao comparar arquivos.");
+                alert(formatAppError(response.error));
                 return;
             }
 
@@ -1377,6 +1395,12 @@ function setConnectionStatus(connected: boolean): void {
             console.error("Não foi possível processar as credenciais:", error)
         }
     })
+
+    window.API.onLoginCancelled(() => {
+        currentOperation = undefined;
+        hideLoader();
+        showMainMenuContent();
+    });
 
 // Data Load
     async function setHtmlText() {

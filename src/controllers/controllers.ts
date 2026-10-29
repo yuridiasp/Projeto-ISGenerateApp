@@ -17,6 +17,7 @@ import type { FolderIntimationCounterInput } from '@services/folderIntimationCou
 import { comparePublicationFilesService } from '@services/publicationComparison/publicationComparison.services';
 import { openDirectory } from '@infrastructure/explorer/openPath';
 import { DialogContext } from '@models/dialogHistory';
+import { completeAuthentication } from '@services/auth/authSession.services';
 
 export function openFileDialogForFile(
   event: Electron.IpcMainInvokeEvent,
@@ -53,9 +54,17 @@ export async function loginController(credentials: credential) {
         return {
             success: false,
             error: new ValidationError("Credenciais de login ausentes.")
-        }
+        };
     }
-    return await getCookieLoginService(credentials)
+
+    const response = await getCookieLoginService(credentials);
+    const result = JSON.parse(response);
+
+    if (result.success) {
+        completeAuthentication();
+    }
+
+    return response;
 }
 
 export function createSobreWindowController (windows: iWindows) {

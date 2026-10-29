@@ -1,12 +1,22 @@
-// core/shared/app-error.ts
-export abstract class AppError {
-    
+export abstract class AppError extends Error {
     constructor(
-        public readonly message: string,
+        message: string,
         public readonly code: string
-    ) {}
+    ) {
+        super(message);
+        this.name = new.target.name;
+    }
 
-    toString() {
-        return `[${this.code}] ${this.message}`
+    override toString(): string {
+        return `[${this.code}] ${this.message}`;
+    }
+
+    toJSON() {
+        return {
+            ...this,
+            name: this.name,
+            message: this.message,
+            code: this.code
+        };
     }
 }
